@@ -24,7 +24,7 @@
 
 .banner-text {
     position: absolute;
-    top: 65%;
+    top: 70%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
@@ -33,9 +33,13 @@
 }
 
 .banner-text h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-style: normal;
     font-size: 3rem;
     margin-bottom: 20px;
     text-transform: capitalize;
+    letter-spacing: 0.403rem;
 }
 
 .banner-hr {
@@ -57,4 +61,19 @@
     font-weight: bold;
     cursor: pointer;
     padding: 10px;
+}
+
+.about-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5vh;
+}
+
+.about-title h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 50%;
+    max-width: 270px;
 }
