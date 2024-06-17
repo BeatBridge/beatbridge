@@ -4,7 +4,6 @@ header {
 	align-items: center;
 	height: 10vh;
 	padding: 0;
-	margin-bottom: 3.5vh;
 }
 
 .logo {
@@ -39,7 +38,7 @@ header {
 
 .nav-link.active {
 	font-weight: bold;
-	color: white;
+	color: #F2F3D9;
 	background-color: #151E3F;
 }
 
