@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../navbar/Navbar';
 import './home.css';
+import AboutCard from '../aboutcard/AboutCard';
 
 function Home() {
 
@@ -40,8 +41,20 @@ function Home() {
                     <div className="banner-text">
                         <h1>Where you discover new artistes, genres everyday</h1>
                         <hr className='banner-hr' />
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam ratione obcaecati explicabo molestiae inventore sed neque ab nam doloremque, magni, reprehenderit omnis cumque iste veritatis. Rem commodi excepturi cumque eos.</p>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam ratione obcaecati explicabo molestiae inventore sed neque ab nam doloremque, magni.</p>
                         <Link><button className='banner-button'>Learn More</button></Link>
+                    </div>
+                </section>
+
+                <section>
+                    <div className='about-container'>
+                        <div className='about-title'>
+                            <h2>Discover new music at your fingertips!</h2>
+                        </div>
+
+                        <div className="about-card">
+                            <AboutCard />
+                        </div>
                     </div>
                 </section>
             </main>
