@@ -1,4 +1,4 @@
-# Indie Music Platform
+# BeatBridge
 
 ## User Stories
 
