@@ -66,7 +66,7 @@ function Landing() {
 
                     <div className='find-out-container'>
                         <div className='fo-left-cont'>
-                            <h3>Discover a world of new independent artists tailored to your unique musical taste.</h3>
+                            <h3>Explore a world of new independent artists tailored to your unique musical taste.</h3>
                             <div className='find-out-button-container'>
                                 <a href="">
                                     <button className='fob-cont-1'>Learn more</button>

@@ -49,7 +49,7 @@ function Footer () {
                             <div className='col-lg-8'>
                                 <article>
                                     <h4 className='footer-text'>
-                                        Discover the future of music exploration and find new artists effortlessly. <br /><a href="">Join us</a> today!
+                                        Embrace the future of music exploration and find new artists effortlessly. <br /><a href="">Join us</a> today!
                                     </h4>
                                 </article>
                             </div>
