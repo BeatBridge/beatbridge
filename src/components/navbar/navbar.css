@@ -57,3 +57,15 @@ header .nav-btn {
 	opacity: 0;
 	font-size: 1.8rem;
 }
+
+.logo-container {
+	width: 3vw;
+}
+
+.logo-container img{
+	width: 100%;
+}
+
+.parent-logo-container {
+	display: flex;
+}
