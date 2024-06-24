@@ -2,6 +2,7 @@ import {React, useRef} from 'react';
 import {FaBars, FaTimes} from "react-icons/fa";
 import { NavLink } from 'react-router-dom';
 import './navbar.css'
+import logoImg from '/beatbridge_logo.png';
 
 function Navbar() {
     const navRef = useRef();
@@ -13,7 +14,12 @@ function Navbar() {
     return (
         <header>
             <NavLink to="/" className="logo" title='elcruzo_logo'>
-                <span>BeatBridge</span>
+                <div className='parent-logo-container'>
+                    <div className='logo-container'>
+                        <img src={logoImg} alt="logo" />
+                    </div>
+                    <div>BeatBridge</div>
+                </div>
             </NavLink>
 
             <nav className='nav navbar navbar-expand-sm' ref={navRef}>

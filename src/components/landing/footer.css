@@ -1,0 +1,46 @@
+.pt-5 a {
+    text-decoration: none;
+    color: #151E3F;
+}
+
+.pt-5 a:hover {
+    text-decoration: underline;
+}
+
+.my-5 hr {
+    color: #151E3F;
+}
+
+.footer-text {
+    line-height: 2.5rem;
+}
+
+.logo-section{
+    display: flex;
+    justify-content: space-around;
+    max-width: 100%;
+}
+
+.footer-logos {
+    display: inline-block;
+}
+
+.footer-logo-icons {
+    font-size: 30px;
+}
+
+.x-icon, .git-icon, .ig-icon {
+    color: black;
+}
+
+.fb-icon {
+    color: #316FF6;
+}
+
+.linkedin-icon{
+    color: #0077b5;
+}
+
+.x-icon {
+    padding-top: 5px;
+}
