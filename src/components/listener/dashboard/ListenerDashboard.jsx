@@ -7,6 +7,11 @@ import { FaBell, FaHeart, FaMusic, FaTag, FaUser, FaUserGraduate } from 'react-i
 import TopArtistCard from '../top_artist_card/TopArtistCard';
 import { faGauge, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import DiscoverGenre from '../discover_genre/DiscoverGenre';
+import discoImg from '../../../assets/genres/disco.jpg';
+import popImg from '../../../assets/genres/pop.jpg';
+import danceImg from '../../../assets/genres/dance.jpeg';
+import reggaeImg from '../../../assets/genres/reggae.jpeg';
+import rockImg from '../../../assets/genres/rock.jpg';
 
 function ListenerDashboard() {
     return(
@@ -35,7 +40,7 @@ function ListenerDashboard() {
 
                         <div className='l-dashboard-user-name'>
                             <h4>Caleb</h4>
-                            <p>Premium User</p>
+                            <p>Premium Subscriber</p>
                         </div>
                     </div>
                     <div className='l-bell-icon-container'>
@@ -82,8 +87,32 @@ function ListenerDashboard() {
                         </h2>
                     </div>
 
-                    <div>
-                        <DiscoverGenre />
+                    <div className='l-discover-genre-bottom'>
+                        <DiscoverGenre
+                            genre_img={discoImg}
+                            genre_name="Disco"
+                            track_num={120}
+                        />
+                        <DiscoverGenre
+                            genre_img={popImg}
+                            genre_name="Pop"
+                            track_num={180}
+                        />
+                        <DiscoverGenre
+                            genre_img={danceImg}
+                            genre_name="Dance"
+                            track_num={100}
+                        />
+                        <DiscoverGenre
+                            genre_img={reggaeImg}
+                            genre_name="Reggae"
+                            track_num={170}
+                        />
+                        <DiscoverGenre
+                            genre_img={rockImg}
+                            genre_name="Rock"
+                            track_num={200}
+                        />
                     </div>
                 </div>
 
