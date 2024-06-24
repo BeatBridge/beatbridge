@@ -1,0 +1,109 @@
+
+.l-dashbaord-container {
+    padding: 4vh 2vw;
+    background-color: #151E3F;
+    color: #F2F3D9;
+}
+
+.l-logo {
+    font-size: 2rem;
+    text-decoration: none;
+    color: #F2F3D9;
+}
+
+.l-left-sidebar, .l-menu-bar {
+    border-right: 1px solid #800080;
+}
+
+.l-right-sidebar, .l-right-menu {
+    border-left: 1px solid #800080;
+}
+
+.l-dashboard-profile-container {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #F2F3D9;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.l-right-sidebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.l-dash-user-icon {
+    font-size: 3rem;
+    padding-top: 5px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.l-right-sidebar-user-info {
+    display: flex;
+    align-items: center;
+}
+
+.l-dashboard-user-name {
+    display: flex;
+    flex-direction: column;
+    padding-left: 1rem;
+}
+
+.l-dashboard-user-name h4, .l-dashboard-user-name p {
+    margin: 0;
+    line-height: 1.2;
+}
+
+.l-dashboard-user-name p{
+    font-size: small;
+}
+
+.l-dash-bell-icon {
+    font-size: 1.7rem;
+    margin-bottom: 0.7rem;
+}
+
+.l-menu-bar, .l-discover-genre, .l-right-menu{
+    padding-top: 5vh;
+}
+
+.l-main hr {
+    border-bottom: 3px solid #800080;
+}
+
+.l-discover-genre-top {
+    display: flex;
+    flex-direction: row;
+}
+
+.l-discover-genre-music-icon {
+    color: #800080;
+}
+
+.l-discover-genre h5 {
+    padding: 0.3rem 1rem 0 2rem;
+}
+
+.l-top-artist-column {
+    margin-bottom: 20px;
+}
+
+.l-dashbaord-menu-items {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 20px;
+}
+
+.l-menu-items {
+    padding-left: 2vw;
+}
+
+.menu-icon {
+    font-size: 1.5rem;
+}
