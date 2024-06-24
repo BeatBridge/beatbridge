@@ -1,5 +1,7 @@
 # BeatBridge
 
+[Project Plan Template](https://docs.google.com/document/d/10cL8o_V6EtRxv_PyMGpTZMFerzGj634xrdXnpgyzLd8/edit)
+
 ## User Stories
 
 ### User Roles
