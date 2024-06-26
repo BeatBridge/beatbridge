@@ -22,7 +22,7 @@ function ListenerDashboard() {
                     <NavLink to="/" className="l-logo" title='beatbridge_logo'>
                         <div className='parent-logo-container'>
                             <div className='logo-container'>
-                                <img src={logoImg} alt="logo" />
+                                <img src={logoImg} alt="logo img-fluid" />
                             </div>
                             <div>BeatBridge</div>
                         </div>

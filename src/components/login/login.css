@@ -1,0 +1,80 @@
+.logo {
+    width: 20%;
+    height: auto;
+    margin: 3vh 2vw 0;
+}
+
+h4 {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    line-height: 4vh;
+}
+
+h5 {
+    font-family: "Raleway", sans-serif;
+    font-weight: 500;
+    color: #271E03;
+    line-height: 3vh;
+}
+
+h5 a {
+    color: #856404;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+h5 a:hover {
+    color: #271E03;
+    text-decoration: underline;
+}
+
+.textfield label {
+    font-family: "Inter", sans-serif;
+    font-size: 1.5rem;
+    width: 100%;
+}
+
+.input-group-text {
+    background-color: rgb(236, 236, 236);
+}
+
+.input-group-prepend .input-group-text,
+.input-group-append .input-group-text {
+    border: 1px solid #271E03;
+    font-size: medium;
+}
+
+.form-control {
+    border: 1px solid #271E03;
+    border-radius: 0;
+    background-color: rgb(236, 236, 236);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+#capslocktext {
+    color: red;
+    display: none;
+}
+
+.btn-body {
+    margin: 2.5vh 0;
+}
+
+.picture {
+    width: 100%;
+    height: auto;
+}
+
+.logofoot {
+    width: 20%;
+    height: auto;
+}
+
+@media only screen and (max-width: 768px) {
+    .btn-body {
+        margin: 2.5vh auto;
+    }
+}
