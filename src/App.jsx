@@ -10,7 +10,7 @@ function App() {
     <>
 		<Routes>
 			<Route path="/" element={<Landing />} />
-			<Route path="/listener/dashboard" element={<ListenerDashboard />} />
+			<Route path="/l/dashboard" element={<ListenerDashboard />} />
 		</Routes>
 	</>
   )

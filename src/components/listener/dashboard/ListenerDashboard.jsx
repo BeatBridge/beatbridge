@@ -166,11 +166,36 @@ function ListenerDashboard() {
                         </div>
 
                         <div className='l-top-music-bottom'>
-                        <TopMusicCard
-                            music_num={1}
-                            music_name="God's Plan"
-                            music_duration="3:20"
-                        />
+                            <TopMusicCard
+                                music_num={1}
+                                music_name="God's Plan"
+                                music_duration="3:20"
+                                music_artist="Drake"
+                            />
+                            <TopMusicCard
+                                music_num={2}
+                                music_name="The Bigger Picture"
+                                music_duration="4:12"
+                                music_artist="Lil Baby"
+                            />
+                            <TopMusicCard
+                                music_num={3}
+                                music_name="Verdansk"
+                                music_duration="3:02"
+                                music_artist="Dave"
+                            />
+                            <TopMusicCard
+                                music_num={4}
+                                music_name="3AM In NY"
+                                music_duration="2:37"
+                                music_artist="Fridayy"
+                            />
+                            <TopMusicCard
+                                music_num={5}
+                                music_name="Nobody Gets Me"
+                                music_duration="3:01"
+                                music_artist="SZA"
+                            />
                         </div>
                     </div>
                 </div>
