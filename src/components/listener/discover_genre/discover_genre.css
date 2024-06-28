@@ -1,0 +1,28 @@
+.l-discover-genre-bottom-container {
+    margin-left: 1rem;
+    border: 1px solid #F2F3D9;
+}
+
+.discover-genre-cont {
+    width: 200px;
+    height: 200px;
+}
+
+.discover-genre-cont img {
+    width: 100%;
+    height: 100%;
+}
+
+.discover-genre-desc {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.discover-genre-desc-details {
+    line-height: 1.2px;
+}
+
+.discover-genre-desc-play {
+    font-size: 2rem;
+}

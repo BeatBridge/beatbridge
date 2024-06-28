@@ -11,7 +11,7 @@
     color: #F2F3D9;
 }
 
-.l-left-sidebar, .l-menu-bar {
+.l-left-sidebar, .l-menu-bar, .l-menu-bar-bottom {
     border-right: 1px solid #800080;
 }
 
@@ -69,11 +69,11 @@
     margin-bottom: 0.7rem;
 }
 
-.l-menu-bar, .l-discover-genre, .l-right-menu{
+.l-menu-bar, .l-discover-genre, .l-right-menu, .l-top-music{
     padding-top: 5vh;
 }
 
-.l-main hr {
+.l-main-top hr, .l-menu-bar-bottom hr {
     border-bottom: 3px solid #800080;
 }
 
@@ -82,12 +82,12 @@
     flex-direction: row;
 }
 
-.l-discover-genre-music-icon {
+.l-discover-genre-music-icon, .l-top-music-icon-header {
     color: #800080;
 }
 
-.l-discover-genre h5 {
-    padding: 0.3rem 1rem 0 2rem;
+.l-discover-genre h5, .l-top-music h5 {
+    padding: 0.3rem 1rem 0 1rem;
 }
 
 .l-top-artist-column {
@@ -106,4 +106,16 @@
 
 .menu-icon {
     font-size: 1.5rem;
+}
+
+.l-discover-genre-bottom {
+    display: flex;
+    overflow-y: hidden;
+    overflow-x: auto;
+    scrollbar-color: #151E3F #F2F3D9;
+}
+
+.l-top-music-top {
+    display: flex;
+    flex-direction: row;
 }
