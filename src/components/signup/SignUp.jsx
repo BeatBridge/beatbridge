@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './signup.css';
 import logoImg from '/beatbridge_logo.png';
@@ -45,13 +45,8 @@ function SignUp({ setJWT }) {
                     password: formData.password }),
             });
             const data = await response.json();
-            if (data.token) {
-                localStorage.setItem('jwt', data.token);
-                setJWT(data.token);
-                navigate('/l/dashbaord');
-            } else {
-                alert('Signup failed');
-            }
+            alert("Account created successfully. Proceed to login")
+            navigate('/login');
         } catch (error) {
             console.error('Error signing up:', error);
             alert('An error occured. Please try again.');
