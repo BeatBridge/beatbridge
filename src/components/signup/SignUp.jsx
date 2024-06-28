@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './signup.css';
 import logoImg from '/beatbridge_logo.png';
+import API from '../../api.js';
 
 function SignUp({ setJWT }) {
     const [passwordType, setPasswordType] = useState('password');
@@ -32,26 +33,19 @@ function SignUp({ setJWT }) {
             alert("Passwords do not match!");
             return;
         }
-        try {
-            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-
-            const response = await fetch(`${backendUrlAccess}/user/signup`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username: formData.username,
-                    email: formData.email,
-                    password: formData.password }),
+        const response = await API.signup({
+                username: formData.username,
+                email: formData.email,
+                password: formData.password
             });
-            const data = await response.json();
-            alert("Account created successfully. Proceed to login")
-            navigate('/login');
-        } catch (error) {
-            console.error('Error signing up:', error);
-            alert('An error occured. Please try again.');
-        }
-    };
+            if (response.error) {
+                console.error('Error signing up:', response.error);
+                alert('An error occured. Please try again.');
+            } else {
+                alert("Account created successfully. Now, check your email and verify by clicking the link...")
+                navigate('/login');
+            }
+        };
 
     return (
         <div className='container'>

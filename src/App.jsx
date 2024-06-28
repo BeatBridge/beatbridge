@@ -5,6 +5,7 @@ import Landing from './components/landing/Landing';
 import ListenerDashboard from './components/listener/dashboard/ListenerDashboard';
 import Login from './components/login/Login';
 import SignUp from './components/signup/SignUp';
+import EmailVerification from './components/signup/EmailVerification.jsx';
 import API from './api.js';
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
 			<Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo}/>} />
 			<Route path='/login' element={<Login setJWT={setJWT} />} />
 			<Route path='/signup' element={<SignUp setJWT={setJWT} />} />
+			<Route path='/verify/:token' element={<EmailVerification />} />
 		</Routes>
 	</>
   )
