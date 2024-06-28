@@ -12,6 +12,18 @@ header {
     color: #151E3F;
 }
 
+.logo-container {
+	width: 3vw;
+}
+
+.logo-container img{
+	width: 100%;
+}
+
+.parent-logo-container {
+	display: flex;
+}
+
 .nav {
 	transition: transform 0.3s ease;
 	margin-left: auto;
@@ -56,16 +68,4 @@ header .nav-btn {
 	visibility: hidden;
 	opacity: 0;
 	font-size: 1.8rem;
-}
-
-.logo-container {
-	width: 3vw;
-}
-
-.logo-container img{
-	width: 100%;
-}
-
-.parent-logo-container {
-	display: flex;
 }

@@ -1,53 +1,80 @@
-.logo {
+.auth-logo {
     width: 20%;
     height: auto;
-    margin: 3vh 2vw 0;
+    margin: 2.5vh 1.5vw 0;
+    font-size: 1.7rem;
+    text-decoration: none;
+    color: #151E3F;
 }
 
-h4 {
-    font-family: "Montserrat", sans-serif;
+.parent-logo-container {
+    display: flex;
+}
+
+.auth-logo-container {
+	width: 100px;
+}
+
+.auth-logo-container img{
+	width: 100%;
+}
+
+.welcome1 {
     font-weight: 600;
     line-height: 4vh;
 }
 
-h5 {
-    font-family: "Raleway", sans-serif;
+.welcome2 {
     font-weight: 500;
-    color: #271E03;
+    color: #151E3F;
     line-height: 3vh;
 }
 
-h5 a {
-    color: #856404;
+.welcome2 a {
+    color: #800080;
     font-weight: 600;
     text-decoration: none;
 }
 
-h5 a:hover {
-    color: #271E03;
+.welcome2 a:hover {
+    color: #151E3F;
     text-decoration: underline;
 }
 
-.textfield label {
-    font-family: "Inter", sans-serif;
-    font-size: 1.5rem;
-    width: 100%;
+.user-field, .pwd-field {
+    display: block;
+    box-sizing: border-box;
 }
 
-.input-group-text {
-    background-color: rgb(236, 236, 236);
+.textfield label {
+    font-size: 1.2rem;
+    display: block;
+}
+
+.user-icon, .lock-icon, .email-icon {
+    position: absolute;
+    padding: 10px;
+    color: #151E3F;
+}
+
+.eye-icon {
+    float: right;
+    position: relative;
+    bottom: 30px;
+    right: 10px;
+    color: #151E3F;
 }
 
 .input-group-prepend .input-group-text,
 .input-group-append .input-group-text {
-    border: 1px solid #271E03;
     font-size: medium;
 }
 
 .form-control {
-    border: 1px solid #271E03;
-    border-radius: 0;
-    background-color: rgb(236, 236, 236);
+    border: 1px solid #151E3F;
+    border-radius: 5px;
+    padding-left: 40px;
+    padding-right: 40px;
 }
 
 .cursor-pointer {
@@ -61,16 +88,6 @@ h5 a:hover {
 
 .btn-body {
     margin: 2.5vh 0;
-}
-
-.picture {
-    width: 100%;
-    height: auto;
-}
-
-.logofoot {
-    width: 20%;
-    height: auto;
 }
 
 @media only screen and (max-width: 768px) {

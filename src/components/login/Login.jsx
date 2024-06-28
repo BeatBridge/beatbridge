@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './login.css';
 import logoImg from '/beatbridge_logo.png';
 
 const Login = () => {
     const [passwordType, setPasswordType] = useState('password');
     const [capsLockWarning, setCapsLockWarning] = useState(false);
+    const [formData, setFormData] = useState({ username: '', password: ''});
+    const navigate = useNavigate();
 
     const togglePasswordVisibility = () => {
         setPasswordType(passwordType === 'password' ? 'text' : 'password');
@@ -15,14 +17,41 @@ const Login = () => {
         setCapsLockWarning(event.getModifierState('CapsLock'));
     };
 
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+
+            const response = await fetch(`${backendUrlAccess}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: formData.username,
+                    email: formData.email,
+                    password: formData.password })
+            }).then(response => response.json());
+            console.log(response);
+            localStorage.setItem('token', response.token);
+            navigate('/l/dashbaord');
+        } catch (error) {
+            console.error('Error signing up:', error);
+            alert('Invalid username or password');
+        }
+    };
+
     return (
         <div className='container'>
             <div className='row'>
                 <div className='col-md-2'>
-                    <NavLink to="/" className="logo" title='elcruzo_logo'>
+                    <NavLink to="/" className="auth-logo" title='beatbridge_logo'>
                         <div className='parent-logo-container'>
-                            <div className='logo-container'>
-                                <img src={logoImg} alt="logo img-fluid" />
+                            <div className='auth-logo-container'>
+                                <img src={logoImg} alt="logo" />
                             </div>
                             <div>BeatBridge</div>
                         </div>
@@ -32,44 +61,36 @@ const Login = () => {
 
             <div className='row mt-4'>
                 <div className='col-md-6 col-lg-4 mx-auto'>
-                    <h4 className="text-left">Welcome Back! Join thousands of users</h4>
-                    <h5 className="text-left">
-                        New to Beatbridge? <Link to='/' className="redirect">Create an account</Link>
-                    </h5>
+                    <h5 className="welcome1">Welcome Back! Join thousands of users</h5>
+                    <h6 className="welcome2">
+                        New to Beatbridge? <Link to='/signup' className="redirect">Create an account</Link>
+                    </h6>
                     <br />
 
-                    <form action="" method="get" spellCheck="false">
+                    <form onSubmit={handleSubmit} spellCheck="false">
                         <div className="textfield mb-3">
                             <label htmlFor="username">Username</label>
-                            <div className="input-group">
-                                <div className="input-group-prepend">
-                                    <span className="input-group-text"><i className="fa-solid fa-user"></i></span>
-                                </div>
-                                <input className="form-control" type="text" name="username" required />
-                            </div>
+                            <span><i className="fa-solid fa-user user-icon"></i></span>
+                            <input className="form-control user-field" type="text" name="username" value={formData.username} onChange={handleChange} required />
                         </div>
                         <div className="textfield mb-3">
                             <label htmlFor="password">Password</label>
-                            <div className="input-group">
-                                <div className="input-group-prepend">
-                                    <span className="input-group-text"><i className="fa-solid fa-lock"></i></span>
-                                </div>
-                                <input
-                                    className="form-control"
-                                    type={passwordType}
-                                    name="password"
-                                    id="psw"
-                                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                                    title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
-                                    required
-                                    onKeyUp={handleCapsLock}
-                                />
-                                <div className="input-group-append">
-                                    <span className="input-group-text cursor-pointer" onClick={togglePasswordVisibility}>
-                                        <i className={`far ${passwordType === 'password' ? 'fa-eye' : 'fa-eye-slash'}`}></i>
-                                    </span>
-                                </div>
-                            </div>
+                            <span><i className="fa-solid fa-lock lock-icon"></i></span>
+                            <input
+                                className="form-control pwd-field"
+                                type={passwordType}
+                                name="password"
+                                id="psw"
+                                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                                onKeyUp={handleCapsLock}
+                            />
+                            <span className="eye-icon" onClick={togglePasswordVisibility}>
+                                <i className={`far ${passwordType === 'password' ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                            </span>
                             {capsLockWarning && <h5 id="capslocktext" className="text-danger mt-1">WARNING! Caps lock is ON</h5>}
                         </div>
                         <h5 className="text-right"><a href="#">Forgot Password!</a></h5>
@@ -83,7 +104,7 @@ const Login = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Login;
