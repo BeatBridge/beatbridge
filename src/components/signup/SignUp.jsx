@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './signup.css';
 import logoImg from '/beatbridge_logo.png';
 
-function SignUp() {
+function SignUp({ setJWT }) {
     const [passwordType, setPasswordType] = useState('password');
     const [capsLockWarning, setCapsLockWarning] = useState(false);
     const [formData, setFormData] = useState({
@@ -35,20 +35,26 @@ function SignUp() {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
 
-            const response = await fetch(`${backendUrlAccess}/signup`, {
+            const response = await fetch(`${backendUrlAccess}/user/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ username: formData.username,
                     email: formData.email,
-                    password: formData.password })
+                    password: formData.password }),
             });
-
-            console.log('User signed up successfully:', response.data);
-            navigate('/l/dashbaord');
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('jwt', data.token);
+                setJWT(data.token);
+                navigate('/l/dashbaord');
+            } else {
+                alert('Signup failed');
+            }
         } catch (error) {
             console.error('Error signing up:', error);
+            alert('An error occured. Please try again.');
         }
     };
 

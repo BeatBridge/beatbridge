@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './login.css';
 import logoImg from '/beatbridge_logo.png';
 
-const Login = () => {
+const Login = ({ setJWT }) => {
     const [passwordType, setPasswordType] = useState('password');
     const [capsLockWarning, setCapsLockWarning] = useState(false);
     const [formData, setFormData] = useState({ username: '', password: ''});
@@ -25,8 +25,7 @@ const Login = () => {
         e.preventDefault();
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-
-            const response = await fetch(`${backendUrlAccess}/login`, {
+            const response = await fetch(`${backendUrlAccess}/user/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -35,12 +34,17 @@ const Login = () => {
                     email: formData.email,
                     password: formData.password })
             }).then(response => response.json());
-            console.log(response);
-            localStorage.setItem('token', response.token);
-            navigate('/l/dashbaord');
+            console.log(response)
+            if (response.token) {
+                localStorage.setItem('jwt', response.token);
+                setJWT(response.token);
+                navigate('/l/dashboard');
+            } else {
+                alert('Invalid username or password')
+            }
         } catch (error) {
             console.error('Error signing up:', error);
-            alert('Invalid username or password');
+            alert('An error occured. Please try again.');
         }
     };
 
