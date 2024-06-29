@@ -1,7 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const userRoutes = require("./routes/userRoutes")
+const userRoutes = require("./routes/userRoutes");
+require('dotenv').config()
+
+require('./utils/cronJobs');
 
 const app = express();
 app.use(bodyParser.json())

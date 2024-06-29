@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const querystring = require('querystring');
+const fetch = require('node-fetch');
 const authenticateJWT  = require("../middlewares/authenticateJWT");
 const { sendMail } = require('../utils/mailer');
 
@@ -112,7 +113,11 @@ router.get('/callback', async (req, res) => {
     };
 
     try {
-        const response = await fetch(authOptions.url, authOptions);
+        const response = await fetch(authOptions.url, {
+            method: authOptions.method,
+            body: authOptions.body,
+            headers: authOptions.headers
+        });
         const data = await response.json();
         const accessToken = data.access_token;
         const refreshToken = data.refresh_token;
@@ -149,15 +154,14 @@ router.get('/spotify/top-artists', authenticateJWT, async (req, res) => {
         });
 
         if (!response.ok) {
-            console.error('Failed to fetch top artists:', response.statusText);
-            return res.status(response.status).json({error: 'Failed to fetch top artists from Spotify.'})
+            console.error(`Failed to fetch top artists:`, response.statusText);
+            return res.status(response.status).json({error : 'Failed to fetch top artists from Spotify.'})
         }
-
-        const data = await response.json();
+        const data = await express.response.json();
         res.json(data);
     } catch (error) {
-        console.error('Error fetching top artists', error);
-        res.status(500).json({ error: 'Failed to fetch top artists from Spotify.' });
+        console.error('Error fetching top artists:', error);
+        res.status(500).json({error: "Failed to fetch top artists."});
     }
 });
 
@@ -167,7 +171,7 @@ router.get('/spotify/top-tracks', authenticateJWT, async (req, res) => {
     });
 
     if (!user || !user.spotifyAccessToken) {
-        return res.status(400).json({error: 'User not found or no Spotify access token available.'})
+        return res.status(400).json({error: 'User not found or no Spotify acess token available.'});
     }
 
     try {
@@ -178,15 +182,14 @@ router.get('/spotify/top-tracks', authenticateJWT, async (req, res) => {
         });
 
         if (!response.ok) {
-            console.error('Failed to fetch top tracks:', response.statusText);
-            return res.status(response.status).json({error: 'Failed to fetch top tracks from Spotify.'})
+            console.error(`Failed to fetch top artists:`, response.statusText);
+            return res.status(response.status).json({error : 'Failed to fetch top tracks from Spotify.'})
         }
-
-        const data = await response.json();
+        const data = await express.response.json();
         res.json(data);
     } catch (error) {
-        console.error('Error fetching top tracks:', error);
-        res.status(500).json({ error: 'Failed to fetch top tracks from Spotify.' });
+        console.error('Error fetching top artists:', error);
+        res.status(500).json({error: "Failed to fetch top tracks."});
     }
 });
 
