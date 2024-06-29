@@ -14,7 +14,7 @@ import reggaeImg from '../../../assets/genres/reggae.jpeg';
 import rockImg from '../../../assets/genres/rock.jpg';
 import TopMusicCard from '../top_music_card/TopMusicCard';
 
-function ListenerDashboard() {
+function ListenerDashboard(props) {
     return(
         <div className='l-dashbaord-container'>
             <div className='row'>
@@ -22,7 +22,7 @@ function ListenerDashboard() {
                     <NavLink to="/" className="l-logo" title='beatbridge_logo'>
                         <div className='parent-logo-container'>
                             <div className='logo-container'>
-                                <img src={logoImg} alt="logo" />
+                                <img src={logoImg} alt="logo img-fluid" />
                             </div>
                             <div>BeatBridge</div>
                         </div>
@@ -40,7 +40,7 @@ function ListenerDashboard() {
                         </div>
 
                         <div className='l-dashboard-user-name'>
-                            <h4>Caleb</h4>
+                            <h4>{props.userInfo.username}</h4>
                             <p>Premium Subscriber</p>
                         </div>
                     </div>

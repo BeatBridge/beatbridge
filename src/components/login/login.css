@@ -1,0 +1,97 @@
+.auth-logo {
+    width: 20%;
+    height: auto;
+    margin: 2.5vh 1.5vw 0;
+    font-size: 1.7rem;
+    text-decoration: none;
+    color: #151E3F;
+}
+
+.parent-logo-container {
+    display: flex;
+}
+
+.auth-logo-container {
+	width: 100px;
+}
+
+.auth-logo-container img{
+	width: 100%;
+}
+
+.welcome1 {
+    font-weight: 600;
+    line-height: 4vh;
+}
+
+.welcome2 {
+    font-weight: 500;
+    color: #151E3F;
+    line-height: 3vh;
+}
+
+.welcome2 a {
+    color: #800080;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.welcome2 a:hover {
+    color: #151E3F;
+    text-decoration: underline;
+}
+
+.user-field, .pwd-field {
+    display: block;
+    box-sizing: border-box;
+}
+
+.textfield label {
+    font-size: 1.2rem;
+    display: block;
+}
+
+.user-icon, .lock-icon, .email-icon {
+    position: absolute;
+    padding: 10px;
+    color: #151E3F;
+}
+
+.eye-icon {
+    float: right;
+    position: relative;
+    bottom: 30px;
+    right: 10px;
+    color: #151E3F;
+}
+
+.input-group-prepend .input-group-text,
+.input-group-append .input-group-text {
+    font-size: medium;
+}
+
+.form-control {
+    border: 1px solid #151E3F;
+    border-radius: 5px;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+#capslocktext {
+    color: red;
+    display: none;
+}
+
+.btn-body {
+    margin: 2.5vh 0;
+}
+
+@media only screen and (max-width: 768px) {
+    .btn-body {
+        margin: 2.5vh auto;
+    }
+}
