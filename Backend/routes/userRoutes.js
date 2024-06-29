@@ -84,7 +84,7 @@ router.get("/info", authenticateJWT, async (req, res) => {
     return res.json(userInfo);
 });
 
-router.get('/spotify/login', (req, res) => {
+router.get('/spotify/login', authenticateJWT, (req, res) => {
     const scopes = 'user-top-read user-read-private';
     const authUrl = 'https://accounts.spotify.com/authorize?' + querystring.stringify({
         response_type: 'code',
@@ -98,6 +98,7 @@ router.get('/spotify/login', (req, res) => {
 router.get('/callback', async (req, res) => {
     const code = req.query.code || null;
     const authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
         method: 'POST',
         body: querystring.stringify({
             code: code,
@@ -122,6 +123,8 @@ router.get('/callback', async (req, res) => {
             data: { spotifyAccessToken: accessToken, spotifyRefreshToken: refreshToken },
         });
 
+        const token = jwt.sign({ id: user.id, username: user.username}, process.env.JWT_SECRET, { expiresIn: '1h'});
+        res.cookie('jwt', token, {httpOnly: true, secure: true});
         res.redirect(`/dashboard`);
     } catch (error) {
         console.error(error);
@@ -129,10 +132,14 @@ router.get('/callback', async (req, res) => {
     }
 });
 
-router.get('/spotify/top-artists', async (req, res) => {
+router.get('/spotify/top-artists', authenticateJWT, async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { email: req.user.email },
     });
+
+    if (!user || !user.spotifyAccessToken) {
+        return res.status(400).json({error: 'User not found or no Spotify acess token available.'});
+    }
 
     try {
         const response = await fetch('https://api.spotify.com/v1/me/top/artists', {
@@ -141,18 +148,27 @@ router.get('/spotify/top-artists', async (req, res) => {
             }
         });
 
+        if (!response.ok) {
+            console.error('Failed to fetch top artists:', response.statusText);
+            return res.status(response.status).json({error: 'Failed to fetch top artists from Spotify.'})
+        }
+
         const data = await response.json();
-        res.json(response.data);
+        res.json(data);
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching top artists', error);
         res.status(500).json({ error: 'Failed to fetch top artists from Spotify.' });
     }
 });
 
-router.get('/spotify/top-tracks', async (req, res) => {
+router.get('/spotify/top-tracks', authenticateJWT, async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { email: req.user.email },
     });
+
+    if (!user || !user.spotifyAccessToken) {
+        return res.status(400).json({error: 'User not found or no Spotify access token available.'})
+    }
 
     try {
         const response = await fetch('https://api.spotify.com/v1/me/top/tracks', {
@@ -161,10 +177,15 @@ router.get('/spotify/top-tracks', async (req, res) => {
             }
         });
 
+        if (!response.ok) {
+            console.error('Failed to fetch top tracks:', response.statusText);
+            return res.status(response.status).json({error: 'Failed to fetch top tracks from Spotify.'})
+        }
+
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching top tracks:', error);
         res.status(500).json({ error: 'Failed to fetch top tracks from Spotify.' });
     }
 });

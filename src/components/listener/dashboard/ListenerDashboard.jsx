@@ -16,7 +16,7 @@ import rockImg from '../../../assets/genres/rock.jpg';
 import TopMusicCard from '../top_music_card/TopMusicCard';
 import API from '../../../api.js'
 
-function ListenerDashboard(props) {
+function ListenerDashboard({userInfo}) {
     const [topArtists, setTopArtists] = useState([]);
     const [topTracks, setTopTracks] = useState([]);
     const [error, setError] = useState(null);
@@ -26,15 +26,16 @@ function ListenerDashboard(props) {
             try {
                 const artistData = await API.getTopArtists(props.userInfo.token);
                 const trackData = await API.getTopTracks(props.userInfo.token);
-                setTopArtists(artistData.items);
-                setTopTracks(trackData.items);
+                setTopArtists(artistData.items || []);
+                setTopTracks(trackData.items || []);
             } catch (err) {
-                setError(err.message);
+                setError(err.message || 'Failed to fetch data from Spotify.');
             }
         };
-
-        fetchData();
-    }, [props.userInfo.token]);
+        if (userInfo.token) {
+            fetchData();
+        }
+    }, [userInfo.token]);
 
     if (error) {
         return <div>Error: {error}</div>;
@@ -65,7 +66,7 @@ function ListenerDashboard(props) {
                         </div>
 
                         <div className='l-dashboard-user-name'>
-                            <h4>{props.userInfo.username}</h4>
+                            <h4>{userInfo.username}</h4>
                             <p>Premium Subscriber</p>
                         </div>
                     </div>
@@ -146,14 +147,17 @@ function ListenerDashboard(props) {
 
                     <div className='col-md-3 l-right-menu'>
                         <h4 className='l-top-artist-column'>Top Artist</h4>
-
-                        {topArtists.map(artist => (
-                            <TopArtistCard
-                                key={artist.id}
-                                artist_name={artist.name}
-                                artist_music={artist.genres[0]}
-                            />
-                        ))}
+                        {topArtists.length > 0 ? (
+                            topArtists.map(artist => (
+                                <TopArtistCard
+                                    key={artist.id}
+                                    artist_name={artist.name}
+                                    artist_music={artist.genres[0]}
+                                />
+                        ))
+                        ) : (
+                            <p>No top artists found.</p>
+                        )}
                         {/* <TopArtistCard
                             artist_name="Central Cee"
                             artist_music="Committment Issues"
