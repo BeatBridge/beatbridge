@@ -5,8 +5,13 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const querystring = require('querystring');
 const authenticateJWT  = require("../middlewares/authenticateJWT");
 const { sendMail } = require('../utils/mailer');
+
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 
 router.post("/signup", async (req, res) => {
     const { username, email, password } = req.body;
@@ -77,6 +82,91 @@ router.get("/info", authenticateJWT, async (req, res) => {
     }
 
     return res.json(userInfo);
+});
+
+router.get('/spotify/login', (req, res) => {
+    const scopes = 'user-top-read user-read-private';
+    const authUrl = 'https://accounts.spotify.com/authorize?' + querystring.stringify({
+        response_type: 'code',
+        client_id: CLIENT_ID,
+        scope: scopes,
+        redirect_uri: REDIRECT_URI,
+    });
+    res.redirect(authUrl);
+});
+
+router.get('/callback', async (req, res) => {
+    const code = req.query.code || null;
+    const authOptions = {
+        method: 'POST',
+        body: querystring.stringify({
+            code: code,
+            redirect_uri: REDIRECT_URI,
+            grant_type: 'authorization_code',
+        }),
+        headers: {
+            'Authorization': 'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    };
+
+    try {
+        const response = await fetch(authOptions.url, authOptions);
+        const data = await response.json();
+        const accessToken = data.access_token;
+        const refreshToken = data.refresh_token;
+
+        // Save tokens in database for the user
+        const user = await prisma.user.update({
+            where: { email: req.user.email },
+            data: { spotifyAccessToken: accessToken, spotifyRefreshToken: refreshToken },
+        });
+
+        res.redirect(`/dashboard`);
+    } catch (error) {
+        console.error(error);
+        res.redirect(`/error`);
+    }
+});
+
+router.get('/spotify/top-artists', async (req, res) => {
+    const user = await prisma.user.findUnique({
+        where: { email: req.user.email },
+    });
+
+    try {
+        const response = await fetch('https://api.spotify.com/v1/me/top/artists', {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+
+        const data = await response.json();
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch top artists from Spotify.' });
+    }
+});
+
+router.get('/spotify/top-tracks', async (req, res) => {
+    const user = await prisma.user.findUnique({
+        where: { email: req.user.email },
+    });
+
+    try {
+        const response = await fetch('https://api.spotify.com/v1/me/top/tracks', {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch top tracks from Spotify.' });
+    }
 });
 
 module.exports = router;

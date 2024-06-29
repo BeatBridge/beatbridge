@@ -69,6 +69,36 @@ const API = {
             console.error('Error verifying email:', error);
             return { error: 'Failed to verify email' };
         }
+    },
+    getTopArtists: async (token) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/spotify/top-artists`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch top artists');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching top artists:', error);
+            return { error: 'Failed to fetch top artists' };
+        }
+    },
+    getTopTracks: async (token) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/spotify/top-tracks`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch top tracks');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching top tracks:', error);
+            return { error: 'Failed to fetch top tracks' };
+        }
     }
 };
 

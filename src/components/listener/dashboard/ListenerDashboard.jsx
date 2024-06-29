@@ -1,9 +1,10 @@
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { NavLink } from 'react-router-dom';
 import "./l_dashboard.css";
 import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm';
-import { FaBell, FaHeart, FaMusic, FaTag, FaUser, FaUserGraduate } from 'react-icons/fa';
+import { FaBell, FaHeart, FaMusic, FaTag, FaUser } from 'react-icons/fa';
 import TopArtistCard from '../top_artist_card/TopArtistCard';
 import { faCircleQuestion, faGauge, faGear, faHeadphonesSimple, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import DiscoverGenre from '../discover_genre/DiscoverGenre';
@@ -13,8 +14,32 @@ import danceImg from '../../../assets/genres/dance.jpeg';
 import reggaeImg from '../../../assets/genres/reggae.jpeg';
 import rockImg from '../../../assets/genres/rock.jpg';
 import TopMusicCard from '../top_music_card/TopMusicCard';
+import API from '../../../api.js'
 
 function ListenerDashboard(props) {
+    const [topArtists, setTopArtists] = useState([]);
+    const [topTracks, setTopTracks] = useState([]);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const artistData = await API.getTopArtists(props.userInfo.token);
+                const trackData = await API.getTopTracks(props.userInfo.token);
+                setTopArtists(artistData.items);
+                setTopTracks(trackData.items);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchData();
+    }, [props.userInfo.token]);
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
     return(
         <div className='l-dashbaord-container'>
             <div className='row'>
@@ -122,7 +147,14 @@ function ListenerDashboard(props) {
                     <div className='col-md-3 l-right-menu'>
                         <h4 className='l-top-artist-column'>Top Artist</h4>
 
-                        <TopArtistCard
+                        {topArtists.map(artist => (
+                            <TopArtistCard
+                                key={artist.id}
+                                artist_name={artist.name}
+                                artist_music={artist.genres[0]}
+                            />
+                        ))}
+                        {/* <TopArtistCard
                             artist_name="Central Cee"
                             artist_music="Committment Issues"
                         />
@@ -135,7 +167,7 @@ function ListenerDashboard(props) {
                         <TopArtistCard
                             artist_name="Drake"
                             artist_music="Certified Lover Boy"
-                        />
+                        /> */}
                     </div>
                 </div>
                 <div className='row l-main-bottom'>
@@ -166,7 +198,21 @@ function ListenerDashboard(props) {
                         </div>
 
                         <div className='l-top-music-bottom'>
-                            <TopMusicCard
+
+                            {topTracks.length > 0 ? (
+                                topTracks.map((track, index) => (
+                                    <TopMusicCard
+                                        key={track.id}
+                                        music_num={index + 1}
+                                        music_name={track.name}
+                                        music_duration={track.duration_ms}
+                                        music_artist={track.artists[0].name}
+                                    />
+                            ))
+                            ) : (
+                                <p>No top tracks available.</p>
+                            )}
+                            {/* <TopMusicCard
                                 music_num={1}
                                 music_name="God's Plan"
                                 music_duration="3:20"
@@ -195,7 +241,7 @@ function ListenerDashboard(props) {
                                 music_name="Nobody Gets Me"
                                 music_duration="3:01"
                                 music_artist="SZA"
-                            />
+                            /> */}
                         </div>
                     </div>
                 </div>
