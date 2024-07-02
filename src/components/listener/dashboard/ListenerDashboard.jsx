@@ -20,6 +20,8 @@ import SpotifyOAuth from '../../login/SpotifyOAuth.jsx';
 function ListenerDashboard() {
     const [topArtists, setTopArtists] = useState([]);
     const [topTracks, setTopTracks] = useState([]);
+    const [globalTop50, setGlobalTop50] = useState([]);
+    const [viral50Global, setViral50Global] = useState([]);
     const [error, setError] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
 
@@ -34,8 +36,29 @@ function ListenerDashboard() {
                 setError(err.message || 'Failed to fetch data from Spotify.');
             }
         };
+
+        const fetchGlobalTop50 = async () => {
+            try {
+                const data = await API.getGlobalTop50(userInfo.token);
+                setGlobalTop50(data.tracks.items || []);
+            } catch (err) {
+                setError(err.message || 'Failed to fetch global top 50.');
+            }
+        };
+
+        const fetchViral50Global = async () => {
+            try {
+                const data = await API.getViral50Global(userInfo.token);
+                setViral50Global(data.tracks.items || []);
+            } catch (err) {
+                setError(err.message || 'Failed to fetch viral 50 global.');
+            }
+        };
+
         if (userInfo !== null && userInfo.token) {
             fetchData();
+            fetchGlobalTop50();
+            fetchViral50Global();
         }
     }, [userInfo]);
 
@@ -173,6 +196,16 @@ function ListenerDashboard() {
                                         ) : (
                                             <p>No top artists found.</p>
                                         )}
+                                        <h4 className='l-top-artist-column'>Global Top 50</h4>
+                                        {globalTop50.length > 0 ? (
+                                            <ul>
+                                                {globalTop50.map(track => (
+                                                    <li key={track.id}>{track.name} by {track.artists[0].name}</li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p>No top artists found.</p>
+                                        )}
                                         {/* <TopArtistCard
                             artist_name="Central Cee"
                             artist_music="Committment Issues"
@@ -231,6 +264,12 @@ function ListenerDashboard() {
                                             ) : (
                                                 <p>No top tracks available.</p>
                                             )}
+                                            <h4 className='l-top-artist-column'>Global Top 50</h4>
+                                                <ul>
+                                                    {viral50Global.map(track => (
+                                                        <li key={track.id}>{track.name} by {track.artists[0].name}</li>
+                                                    ))}
+                                                </ul>
                                             {/* <TopMusicCard
                                 music_num={1}
                                 music_name="God's Plan"

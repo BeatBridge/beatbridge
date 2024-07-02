@@ -195,4 +195,66 @@ router.get('/spotify/top-tracks', authenticateJWT, async (req, res) => {
     }
 });
 
+router.get('/spotify/global-top-50', authenticateJWT, async (req, res) => {
+    const playlistId = '37i9dQZEVXbMDoHDwVN2tF';
+
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    if (!user || !user.spotifyAccessToken) {
+        return res.status(400).json({ error: 'User not found or no Spotify access token available.' });
+    }
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to fetch global top 50:`, response.statusText);
+            return res.status(response.status).json({ error: 'Failed to fetch global top 50 from Spotify.' });
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching global top 50:', error);
+        res.status(500).json({ error: "Failed to fetch global top 50." });
+    }
+});
+
+router.get('/spotify/viral-50-global', authenticateJWT, async (req, res) => {
+    const playlistId = '37i9dQZEVXbLiRSasKsNU9';
+
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    if (!user || !user.spotifyAccessToken) {
+        return res.status(400).json({ error: 'User not found or no Spotify access token available.' });
+    }
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to fetch viral 50 global:`, response.statusText);
+            return res.status(response.status).json({ error: 'Failed to fetch viral 50 global from Spotify.' });
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching viral 50 global:', error);
+        res.status(500).json({ error: "Failed to fetch viral 50 global." });
+    }
+});
+
 module.exports = router;
