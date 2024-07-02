@@ -65,11 +65,6 @@
     color: #151E3F;
 }
 
-.input-group-prepend .input-group-text,
-.input-group-append .input-group-text {
-    font-size: medium;
-}
-
 .form-control {
     border: 1px solid #151E3F;
     border-radius: 5px;

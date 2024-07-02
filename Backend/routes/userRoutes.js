@@ -96,8 +96,8 @@ router.get('/spotify/login', authenticateJWT, (req, res) => {
     res.redirect(authUrl);
 });
 
-router.get('/callback', async (req, res) => {
-    const code = req.query.code || null;
+router.post('/create-access-token', authenticateJWT, async (req, res) => {
+    const code = req.body.code || null;
     const authOptions = {
         url: 'https://accounts.spotify.com/api/token',
         method: 'POST',
@@ -113,24 +113,26 @@ router.get('/callback', async (req, res) => {
     };
 
     try {
+        console.log(authOptions)
         const response = await fetch(authOptions.url, {
             method: authOptions.method,
             body: authOptions.body,
             headers: authOptions.headers
         });
         const data = await response.json();
+        console.log(req.user)
         const accessToken = data.access_token;
         const refreshToken = data.refresh_token;
 
         // Save tokens in database for the user
         const user = await prisma.user.update({
-            where: { email: req.user.email },
+            where: { username: req.user.username },
             data: { spotifyAccessToken: accessToken, spotifyRefreshToken: refreshToken },
         });
+        console.log(user)
 
         const token = jwt.sign({ id: user.id, username: user.username}, process.env.JWT_SECRET, { expiresIn: '1h'});
         res.cookie('jwt', token, {httpOnly: true, secure: true});
-        res.redirect(`/dashboard`);
     } catch (error) {
         console.error(error);
         res.redirect(`/error`);
