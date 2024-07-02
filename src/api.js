@@ -150,7 +150,31 @@ const API = {
             console.error('Error fetching viral 50 global:', error);
             return { error: 'Failed to fetch viral 50 global' };
         }
-    }
+    },
+    getSongDetails: async (songId) => {
+        const response = await fetch(`/api/song/${songId}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt')}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch song details.');
+        }
+        return response.json();
+    },
+    getLibrary: async () => {
+        const response = await fetch('/api/library', {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt')}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch library.');
+        }
+        return response.json();
+    },
 };
 
 export default API;
