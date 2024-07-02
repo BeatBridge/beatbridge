@@ -70,12 +70,12 @@ const API = {
             return { error: 'Failed to verify email' };
         }
     },
-    getTopArtists: async (token) => {
+    getTopArtists: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/spotify/top-artists`, {
+            const response = await fetch(`${backendUrlAccess}/user/spotify/top-artists`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
             });
             if (!response.ok) throw new Error('Failed to fetch top artists');
@@ -85,12 +85,12 @@ const API = {
             return { error: 'Failed to fetch top artists' };
         }
     },
-    getTopTracks: async (token) => {
+    getTopTracks: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/spotify/top-tracks`, {
+            const response = await fetch(`${backendUrlAccess}/user/spotify/top-tracks`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
             });
             if (!response.ok) throw new Error('Failed to fetch top tracks');
@@ -119,12 +119,12 @@ const API = {
             return { error: 'Failed to create access token' };
         }
     },
-    getGlobalTop50: async (token) => {
+    getGlobalTop50: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/spotify/global-top-50`, {
+            const response = await fetch(`${backendUrlAccess}/user/spotify/global-top-50`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
             });
             if (!response.ok) throw new Error('Failed to fetch global top 50');
@@ -135,12 +135,12 @@ const API = {
             return { error: 'Failed to fetch global top 50' };
         }
     },
-    getViral50Global: async (token) => {
+    getViral50Global: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/spotify/viral-50-global`, {
+            const response = await fetch(`${backendUrlAccess}/user/spotify/viral-50-global`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
             });
             if (!response.ok) throw new Error('Failed to fetch viral 50 global');

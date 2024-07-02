@@ -113,14 +113,12 @@ router.post('/create-access-token', authenticateJWT, async (req, res) => {
     };
 
     try {
-        console.log(authOptions)
         const response = await fetch(authOptions.url, {
             method: authOptions.method,
             body: authOptions.body,
             headers: authOptions.headers
         });
         const data = await response.json();
-        console.log(req.user)
         const accessToken = data.access_token;
         const refreshToken = data.refresh_token;
 
@@ -129,8 +127,6 @@ router.post('/create-access-token', authenticateJWT, async (req, res) => {
             where: { username: req.user.username },
             data: { spotifyAccessToken: accessToken, spotifyRefreshToken: refreshToken },
         });
-        console.log(user)
-
         const token = jwt.sign({ id: user.id, username: user.username}, process.env.JWT_SECRET, { expiresIn: '1h'});
         res.cookie('jwt', token, {httpOnly: true, secure: true});
     } catch (error) {
@@ -141,7 +137,7 @@ router.post('/create-access-token', authenticateJWT, async (req, res) => {
 
 router.get('/spotify/top-artists', authenticateJWT, async (req, res) => {
     const user = await prisma.user.findUnique({
-        where: { email: req.user.email },
+        where: { username: req.user.username },
     });
 
     if (!user || !user.spotifyAccessToken) {
@@ -153,14 +149,14 @@ router.get('/spotify/top-artists', authenticateJWT, async (req, res) => {
             headers: {
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }
-        });
+        }).then(response => response.json())
 
-        if (!response.ok) {
-            console.error(`Failed to fetch top artists:`, response.statusText);
-            return res.status(response.status).json({error : 'Failed to fetch top artists from Spotify.'})
-        }
-        const data = await express.response.json();
-        res.json(data);
+
+        // if (!response.ok) {
+        //     console.error(`Failed to fetch top artists:`, response.statusText);
+        //     return res.status(response.status).json({error : 'Failed to fetch top artists from Spotify.'})
+        // }
+        res.json(response);
     } catch (error) {
         console.error('Error fetching top artists:', error);
         res.status(500).json({error: "Failed to fetch top artists."});
@@ -169,7 +165,7 @@ router.get('/spotify/top-artists', authenticateJWT, async (req, res) => {
 
 router.get('/spotify/top-tracks', authenticateJWT, async (req, res) => {
     const user = await prisma.user.findUnique({
-        where: { email: req.user.email },
+        where: { username: req.user.username },
     });
 
     if (!user || !user.spotifyAccessToken) {
@@ -181,14 +177,13 @@ router.get('/spotify/top-tracks', authenticateJWT, async (req, res) => {
             headers: {
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }
-        });
+        }).then(response => response.json())
 
-        if (!response.ok) {
-            console.error(`Failed to fetch top artists:`, response.statusText);
-            return res.status(response.status).json({error : 'Failed to fetch top tracks from Spotify.'})
-        }
-        const data = await express.response.json();
-        res.json(data);
+        // if (!response.ok) {
+        //     console.error(`Failed to fetch top artists:`, response.statusText);
+        //     return res.status(response.status).json({error : 'Failed to fetch top tracks from Spotify.'})
+        // }
+        res.json(response);
     } catch (error) {
         console.error('Error fetching top artists:', error);
         res.status(500).json({error: "Failed to fetch top tracks."});

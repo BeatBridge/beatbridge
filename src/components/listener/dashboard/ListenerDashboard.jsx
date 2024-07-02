@@ -28,8 +28,8 @@ function ListenerDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const artistData = await API.getTopArtists(userInfo.token);
-                const trackData = await API.getTopTracks(userInfo.token);
+                const artistData = await API.getTopArtists(userInfo.spotifyAccessToken);
+                const trackData = await API.getTopTracks(userInfo.spotifyAccessToken);
                 setTopArtists(artistData.items || []);
                 setTopTracks(trackData.items || []);
             } catch (err) {
@@ -39,7 +39,7 @@ function ListenerDashboard() {
 
         const fetchGlobalTop50 = async () => {
             try {
-                const data = await API.getGlobalTop50(userInfo.token);
+                const data = await API.getGlobalTop50(userInfo.spotifyAccessToken);
                 setGlobalTop50(data.tracks.items || []);
             } catch (err) {
                 setError(err.message || 'Failed to fetch global top 50.');
@@ -48,14 +48,13 @@ function ListenerDashboard() {
 
         const fetchViral50Global = async () => {
             try {
-                const data = await API.getViral50Global(userInfo.token);
+                const data = await API.getViral50Global(userInfo.spotifyAccessToken);
                 setViral50Global(data.tracks.items || []);
             } catch (err) {
                 setError(err.message || 'Failed to fetch viral 50 global.');
             }
         };
-
-        if (userInfo !== null && userInfo.token) {
+        if (userInfo !== null && userInfo.spotifyAccessToken) {
             fetchData();
             fetchGlobalTop50();
             fetchViral50Global();
@@ -197,14 +196,17 @@ function ListenerDashboard() {
                                             <p>No top artists found.</p>
                                         )}
                                         <h4 className='l-top-artist-column'>Global Top 50</h4>
-                                        {globalTop50.length > 0 ? (
-                                            <ul>
-                                                {globalTop50.map(track => (
-                                                    <li key={track.id}>{track.name} by {track.artists[0].name}</li>
-                                                ))}
-                                            </ul>
+                                        {globalTop50.length !== undefined ? (
+                                            <div>
+                                                {JSON.stringify(viral50Global)}
+                                            </div>
+                                            // <ul>
+                                            //     {globalTop50.map(track => (
+                                            //         <li key={track.id}>{track.name} by {track.artists[0].name}</li>
+                                            //     ))}
+                                            // </ul>
                                         ) : (
-                                            <p>No top artists found.</p>
+                                            <p>No top 50 artists found.</p>
                                         )}
                                         {/* <TopArtistCard
                             artist_name="Central Cee"
@@ -264,42 +266,53 @@ function ListenerDashboard() {
                                             ) : (
                                                 <p>No top tracks available.</p>
                                             )}
+
                                             <h4 className='l-top-artist-column'>Global Top 50</h4>
-                                                <ul>
-                                                    {viral50Global.map(track => (
-                                                        <li key={track.id}>{track.name} by {track.artists[0].name}</li>
-                                                    ))}
-                                                </ul>
+                                            {viral50Global !== undefined ? (
+                                                <div>
+                                                    {JSON.stringify(viral50Global)}
+                                                </div>
+                                            //     <ul>
+                                            //         {viral50Global.tracks.items.map(track => (
+                                            //             // <li key={track.id}>{track.name} by {track.artists[0].name}</li>
+                                            //             <div>
+                                            //                 JSON.stringify(track)
+                                            //             </div>
+                                            //         ))}
+                                            //     </ul>
+                                            ) : (
+                                                <p>No top 50 global songs found.</p>
+                                            )}
                                             {/* <TopMusicCard
-                                music_num={1}
-                                music_name="God's Plan"
-                                music_duration="3:20"
-                                music_artist="Drake"
-                            />
-                            <TopMusicCard
-                                music_num={2}
-                                music_name="The Bigger Picture"
-                                music_duration="4:12"
-                                music_artist="Lil Baby"
-                            />
-                            <TopMusicCard
-                                music_num={3}
-                                music_name="Verdansk"
-                                music_duration="3:02"
-                                music_artist="Dave"
-                            />
-                            <TopMusicCard
-                                music_num={4}
-                                music_name="3AM In NY"
-                                music_duration="2:37"
-                                music_artist="Fridayy"
-                            />
-                            <TopMusicCard
-                                music_num={5}
-                                music_name="Nobody Gets Me"
-                                music_duration="3:01"
-                                music_artist="SZA"
-                            /> */}
+                                                music_num={1}
+                                                music_name="God's Plan"
+                                                music_duration="3:20"
+                                                music_artist="Drake"
+                                            />
+                                            <TopMusicCard
+                                                music_num={2}
+                                                music_name="The Bigger Picture"
+                                                music_duration="4:12"
+                                                music_artist="Lil Baby"
+                                            />
+                                            <TopMusicCard
+                                                music_num={3}
+                                                music_name="Verdansk"
+                                                music_duration="3:02"
+                                                music_artist="Dave"
+                                            />
+                                            <TopMusicCard
+                                                music_num={4}
+                                                music_name="3AM In NY"
+                                                music_duration="2:37"
+                                                music_artist="Fridayy"
+                                            />
+                                            <TopMusicCard
+                                                music_num={5}
+                                                music_name="Nobody Gets Me"
+                                                music_duration="3:01"
+                                                music_artist="SZA"
+                                            /> */}
                                         </div>
                                     </div>
                                 </div>

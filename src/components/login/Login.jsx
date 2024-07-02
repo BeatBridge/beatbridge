@@ -35,7 +35,6 @@ const Login = ({ setJWT }) => {
                     email: formData.email,
                     password: formData.password })
             }).then(response => response.json());
-            console.log(response)
             if (response.token) {
                 localStorage.setItem('jwt', response.token);
                 setJWT(response.token);
@@ -44,7 +43,7 @@ const Login = ({ setJWT }) => {
                 alert('Invalid username or password')
             }
         } catch (error) {
-            console.error('Error signing up:', error);
+            console.error('Error logging in:', error);
             alert('An error occured. Please try again.');
         }
     };
