@@ -7,6 +7,7 @@ import Login from './components/login/Login';
 import SignUp from './components/signup/SignUp';
 import EmailVerification from './components/signup/EmailVerification.jsx';
 import API from './api.js';
+import SpotifyCallBack from './components/spotifycallback/SpotifyCallBack.jsx';
 
 function App() {
 	const [JWT, setJWT] = useState(null);
@@ -24,8 +25,8 @@ function App() {
 		const fetchUserInfo = async() => {
 			if (JWT) {
 				const data = await API.getUserInfo(JWT);
-				if (data.error) {
-					localStorage.removeItem('jwt');
+				if (data.hasOwnProperty("error")) {
+					// localStorage.removeItem('jwt');
 					setJWT(null);
 					navigate('/login');
 				} else {
@@ -44,6 +45,7 @@ function App() {
 			<Route path='/login' element={<Login setJWT={setJWT} />} />
 			<Route path='/signup' element={<SignUp setJWT={setJWT} />} />
 			<Route path='/verify/:token' element={<EmailVerification />} />
+			<Route path='/callback' element={<SpotifyCallBack/>}/>
 		</Routes>
 	</>
   )

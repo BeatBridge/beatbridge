@@ -30,7 +30,8 @@ const Login = ({ setJWT }) => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username: formData.username,
+                body: JSON.stringify({
+                    username: formData.username,
                     email: formData.email,
                     password: formData.password })
             }).then(response => response.json());

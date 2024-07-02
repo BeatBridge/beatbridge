@@ -11,8 +11,16 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.16.0",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "nodemon": "^3.1.4"
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.4",
+    "querystring": "^0.2.1"
   },
   "devDependencies": {
     "prisma": "^5.16.0"
