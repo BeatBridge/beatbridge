@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import "./l_dashboard.css";
 import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm';
@@ -25,6 +25,7 @@ function ListenerDashboard() {
     const [error, setError] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
     const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -80,124 +81,121 @@ function ListenerDashboard() {
         return <div>Error: {error}</div>;
     }
 
-    if (!isSpotifySignedIn) {
-        return (
-            <div>
-                <p>Please sign in to Spotify to view this data.</p>
-                <SpotifyOAuth onSignIn={() => setIsSpotifySignedIn(true)} />
-            </div>
-        );
-    }
+    const handleLogout = () => {
+        localStorage.removeItem('jwt');
+        navigate('/login');
+    };
 
     return (
         <div className='l-dashbaord-container'>
-            <div className='l-dashbaord-container'>
-                <div className='row'>
-                    <div className="l-left-sidebar col-md-2">
-                        <NavLink to="/" className="l-logo" title='beatbridge_logo'>
-                            <div className='parent-logo-container'>
-                                <div className='logo-container'>
-                                    <img src={logoImg} alt="logo img-fluid" />
-                                </div>
-                                <div>BeatBridge</div>
+            <div className='row'>
+                <div className="l-left-sidebar col-md-2">
+                    <NavLink to="/" className="l-logo" title='beatbridge_logo'>
+                        <div className='parent-logo-container'>
+                            <div className='logo-container'>
+                                <img src={logoImg} alt="logo img-fluid" />
                             </div>
-                        </NavLink>
-                    </div>
-
-                    <div className='col-md-7'>
-                        <LSearchForm />
-                    </div>
-
-                    <div className='l-right-sidebar col-md-3'>
-                        <div className='l-right-sidebar-user-info'>
-                            <div className='l-dashboard-profile-container'>
-                                <FaUser className='l-dash-user-icon' />
-                            </div>
-
-                            <div className='l-dashboard-user-name'>
-                                <h4>{userInfo.username}</h4>
-                                <p>Premium Subscriber</p>
-                                <SpotifyOAuth />
-                            </div>
+                            <div>BeatBridge</div>
                         </div>
-                        <div className='l-bell-icon-container'>
-                            <FaBell className='l-dash-bell-icon' />
-                        </div>
-                    </div>
+                    </NavLink>
                 </div>
 
-                <main>
-                    <div className='row l-main-top'>
-                        <div className='col-md-2 l-menu-bar'>
-                            <h4>Menu</h4>
-                            <hr />
+                <div className='col-md-7'>
+                    <LSearchForm />
+                </div>
 
-                            <div className='l-menu-items'>
-                                <div className='l-dashbaord-menu-items'>
-                                    <FaUser className='menu-icon' />
-                                    <h5>Profile</h5>
-                                </div>
-                                <div className='l-dashbaord-menu-items'>
-                                    <FontAwesomeIcon icon={faGauge} className='menu-icon' />
-                                    <h5>Dashboard</h5>
-                                </div>
-                                <div className='l-dashbaord-menu-items'>
-                                    <FaHeart className='menu-icon' />
-                                    <h5>Favourite</h5>
-                                </div>
-                                <div className='l-dashbaord-menu-items'>
-                                    <FaTag className='menu-icon' />
-                                    <h5>Tags</h5>
-                                </div>
-                                <div className='l-dashbaord-menu-items'>
-                                    <FontAwesomeIcon icon={faUserGroup} className='menu-icon' />
-                                    <h5>Friends</h5>
-                                </div>
-                            </div>
+                <div className='l-right-sidebar col-md-3'>
+                    <div className='l-right-sidebar-user-info'>
+                        <div className='l-dashboard-profile-container'>
+                            <FaUser className='l-dash-user-icon' />
                         </div>
 
-                        <div className='col-md-7 l-discover-genre'>
-                            <div className='l-discover-genre-top'>
-                                <h5>
-                                    <FaMusic className='l-discover-genre-music-icon' />
-                                </h5>
-                                <h2>
-                                    Discover Genre
-                                </h2>
-                            </div>
+                        <div className='l-dashboard-user-name'>
+                            <h4>Welcome, {userInfo.username}</h4>
+                            <p>Premium Subscriber</p>
+                            <SpotifyOAuth />
+                            <button onClick={handleLogout}>Logout</button>
+                        </div>
+                    </div>
+                    <div className='l-bell-icon-container'>
+                        <FaBell className='l-dash-bell-icon' />
+                    </div>
+                </div>
+            </div>
 
-                            <div className='l-discover-genre-bottom'>
-                                <DiscoverGenre
-                                    genre_img={discoImg}
-                                    genre_name="Disco"
-                                    track_num={120}
-                                />
-                                <DiscoverGenre
-                                    genre_img={popImg}
-                                    genre_name="Pop"
-                                    track_num={180}
-                                />
-                                <DiscoverGenre
-                                    genre_img={danceImg}
-                                    genre_name="Dance"
-                                    track_num={100}
-                                />
-                                <DiscoverGenre
-                                    genre_img={reggaeImg}
-                                    genre_name="Reggae"
-                                    track_num={170}
-                                />
-                                <DiscoverGenre
-                                    genre_img={rockImg}
-                                    genre_name="Rock"
-                                    track_num={200}
-                                />
+            <main>
+                <div className='row l-main-top'>
+                    <div className='col-md-2 l-menu-bar'>
+                        <h4>Menu</h4>
+                        <hr />
+
+                        <div className='l-menu-items'>
+                            <div className='l-dashbaord-menu-items'>
+                                <FaUser className='menu-icon' />
+                                <h5>Profile</h5>
+                            </div>
+                            <div className='l-dashbaord-menu-items'>
+                                <FontAwesomeIcon icon={faGauge} className='menu-icon' />
+                                <h5>Dashboard</h5>
+                            </div>
+                            <div className='l-dashbaord-menu-items'>
+                                <FaHeart className='menu-icon' />
+                                <h5>Favourite</h5>
+                            </div>
+                            <div className='l-dashbaord-menu-items'>
+                                <FaTag className='menu-icon' />
+                                <h5>Tags</h5>
+                            </div>
+                            <div className='l-dashbaord-menu-items'>
+                                <FontAwesomeIcon icon={faUserGroup} className='menu-icon' />
+                                <h5>Friends</h5>
                             </div>
                         </div>
+                    </div>
 
-                        <div className='col-md-3 l-right-menu'>
-                            <h4 className='l-top-artist-column'>Top Artist</h4>
-                            {topArtists.length > 0 ? (
+                    <div className='col-md-7 l-discover-genre'>
+                        <div className='l-discover-genre-top'>
+                            <h5>
+                                <FaMusic className='l-discover-genre-music-icon' />
+                            </h5>
+                            <h2>
+                                Discover Genre
+                            </h2>
+                        </div>
+
+                        <div className='l-discover-genre-bottom'>
+                            <DiscoverGenre
+                                genre_img={discoImg}
+                                genre_name="Disco"
+                                track_num={120}
+                            />
+                            <DiscoverGenre
+                                genre_img={popImg}
+                                genre_name="Pop"
+                                track_num={180}
+                            />
+                            <DiscoverGenre
+                                genre_img={danceImg}
+                                genre_name="Dance"
+                                track_num={100}
+                            />
+                            <DiscoverGenre
+                                genre_img={reggaeImg}
+                                genre_name="Reggae"
+                                track_num={170}
+                            />
+                            <DiscoverGenre
+                                genre_img={rockImg}
+                                genre_name="Rock"
+                                track_num={200}
+                            />
+                        </div>
+                    </div>
+
+                    <div className='col-md-3 l-right-menu'>
+                        <h4 className='l-top-artist-column'>Top Artist</h4>
+                        {isSpotifySignedIn ? (
+                            topArtists.length > 0 ? (
                                 topArtists.map(artist => (
                                     <TopArtistCard
                                         key={artist.id}
@@ -207,47 +205,55 @@ function ListenerDashboard() {
                                 ))
                             ) : (
                                 <p>No top artists found.</p>
-                            )}
-                            <h4 className='l-top-artist-column'>Global Top 50</h4>
-                            {globalTop50.length !== undefined ? (
+                            )
+                        ) : (
+                            <p>Please sign in to Spotify to view this data.</p>
+                        )}
+
+                        <h4 className='l-top-artist-column'>Global Top 50</h4>
+                        {isSpotifySignedIn ? (
+                            globalTop50.length !== undefined ? (
                                 <div>
                                     {JSON.stringify(globalTop50)}
                                 </div>
                             ) : (
                                 <p>No top 50 artists found.</p>
-                            )}
+                            )
+                        ) : (
+                            <p>Please sign in to Spotify to view this data.</p>
+                        )}
+                    </div>
+                </div>
+                <div className='row l-main-bottom'>
+                    <div className='col-md-2 l-menu-bar-bottom'>
+                        <h4>Help</h4>
+                        <hr />
+
+                        <div className='l-menu-items'>
+                            <div className='l-dashbaord-menu-items'>
+                                <FontAwesomeIcon icon={faGear} className='menu-icon' />
+                                <h5>Profile</h5>
+                            </div>
+                            <div className='l-dashbaord-menu-items'>
+                                <FontAwesomeIcon icon={faCircleQuestion} className='menu-icon' />
+                                <h5>FAQs</h5>
+                            </div>
                         </div>
                     </div>
-                    <div className='row l-main-bottom'>
-                        <div className='col-md-2 l-menu-bar-bottom'>
-                            <h4>Help</h4>
-                            <hr />
 
-                            <div className='l-menu-items'>
-                                <div className='l-dashbaord-menu-items'>
-                                    <FontAwesomeIcon icon={faGear} className='menu-icon' />
-                                    <h5>Profile</h5>
-                                </div>
-                                <div className='l-dashbaord-menu-items'>
-                                    <FontAwesomeIcon icon={faCircleQuestion} className='menu-icon' />
-                                    <h5>FAQs</h5>
-                                </div>
-                            </div>
+                    <div className='col-md-7 l-top-music'>
+                        <div className='l-top-music-top'>
+                            <h5>
+                                <FontAwesomeIcon icon={faHeadphonesSimple} className='l-top-music-icon-header' />
+                            </h5>
+                            <h2>
+                                Top Music
+                            </h2>
                         </div>
 
-                        <div className='col-md-7 l-top-music'>
-                            <div className='l-top-music-top'>
-                                <h5>
-                                    <FontAwesomeIcon icon={faHeadphonesSimple} className='l-top-music-icon-header' />
-                                </h5>
-                                <h2>
-                                    Top Music
-                                </h2>
-                            </div>
-
-                            <div className='l-top-music-bottom'>
-
-                                {topTracks.length > 0 ? (
+                        <div className='l-top-music-bottom'>
+                            {isSpotifySignedIn ? (
+                                topTracks.length > 0 ? (
                                     topTracks.map((track, index) => (
                                         <TopMusicCard
                                             key={track.id}
@@ -259,21 +265,26 @@ function ListenerDashboard() {
                                     ))
                                 ) : (
                                     <p>No top tracks available.</p>
-                                )}
-
-                                <h4 className='l-top-artist-column'>Global Top 50</h4>
-                                {viral50Global !== undefined ? (
+                                )
+                            ) : (
+                                <p>Please sign in to Spotify to view this data.</p>
+                            )}
+                            <h4 className='l-top-artist-column'>Global Top 50</h4>
+                            {isSpotifySignedIn ? (
+                                viral50Global !== undefined ? (
                                     <div>
                                         {JSON.stringify(viral50Global)}
                                     </div>
                                 ) : (
                                     <p>No top 50 global songs found.</p>
-                                )}
-                            </div>
+                                )
+                            ) : (
+                                <p>Please sign in to Spotify to view this data.</p>
+                            )}
                         </div>
                     </div>
-                </main>
-            </div>
+                </div>
+            </main>
         </div>
     );
 }

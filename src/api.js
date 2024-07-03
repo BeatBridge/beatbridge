@@ -8,12 +8,13 @@ const API = {
                     'Authorization': `Bearer ${jwt}`
                 }
             });
+            if (response.status === 401) throw new Error('Unauthorized');
             if (!response.ok) throw new Error('Failed to fetch user info');
             const data = await response.json();
             return data;
         } catch (error) {
             console.error('Error fetching user info:', error);
-            return { error: 'Failed to fetch user info' };
+            return { error: error.message };
         }
     },
     signup: async (formData) => {
@@ -68,6 +69,23 @@ const API = {
         } catch (error) {
             console.error('Error verifying email:', error);
             return { error: 'Failed to verify email' };
+        }
+    },
+    verifySpotify: async (token) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/spotify/confirm`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token }),
+            });
+            if (!response.ok) throw new Error('Failed to verify Spotify login');
+            return await response.json();
+        } catch (error) {
+            console.error('Error verifying Spotify login:', error);
+            return { error: 'Failed to verify Spotify login' };
         }
     },
     getTopArtists: async () => {
