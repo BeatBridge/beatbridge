@@ -8,9 +8,7 @@ function SpotifyCallBack () {
     const [searchParams, setSearchParams] = useSearchParams()
 
     useEffect (() => {
-        // console.log(searchParams.get("code"))
         API.sendCode(searchParams.get("code"), localStorage.getItem("jwt"));
-        console.log(localStorage.getItem("jwt"));
         window.location.href = "/l/dashboard/"
     }, [])
 

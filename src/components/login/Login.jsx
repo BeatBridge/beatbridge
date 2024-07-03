@@ -35,7 +35,6 @@ const Login = ({ setJWT }) => {
                     email: formData.email,
                     password: formData.password })
             }).then(response => response.json());
-            console.log(response)
             if (response.token) {
                 localStorage.setItem('jwt', response.token);
                 setJWT(response.token);

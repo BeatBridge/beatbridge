@@ -113,14 +113,12 @@ router.post('/create-access-token', authenticateJWT, async (req, res) => {
     };
 
     try {
-        console.log(authOptions)
         const response = await fetch(authOptions.url, {
             method: authOptions.method,
             body: authOptions.body,
             headers: authOptions.headers
         });
         const data = await response.json();
-        console.log(req.user)
         const accessToken = data.access_token;
         const refreshToken = data.refresh_token;
 
@@ -129,7 +127,6 @@ router.post('/create-access-token', authenticateJWT, async (req, res) => {
             where: { username: req.user.username },
             data: { spotifyAccessToken: accessToken, spotifyRefreshToken: refreshToken },
         });
-        console.log(user)
 
         const token = jwt.sign({ id: user.id, username: user.username}, process.env.JWT_SECRET, { expiresIn: '1h'});
         res.cookie('jwt', token, {httpOnly: true, secure: true});
