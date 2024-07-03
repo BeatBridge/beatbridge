@@ -9,6 +9,7 @@ const querystring = require('querystring');
 const fetch = require('node-fetch');
 const authenticateJWT  = require("../middlewares/authenticateJWT");
 const { sendMail } = require('../utils/mailer');
+const { refreshSpotifyToken } = require('../utils/spotifyUtils');
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
@@ -222,34 +223,34 @@ router.get('/spotify/global-top-50', authenticateJWT, async (req, res) => {
 });
 
 router.get('/spotify/viral-50-global', authenticateJWT, async (req, res) => {
-    const playlistId = '37i9dQZEVXbLiRSasKsNU9';
-
     const user = await prisma.user.findUnique({
         where: { username: req.user.username },
     });
-
-    if (!user || !user.spotifyAccessToken) {
-        return res.status(400).json({ error: 'User not found or no Spotify access token available.' });
+    if (!user) {
+        return res.status(400).json({ error: 'User not found.' });
     }
-
     try {
-        const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        let response = await fetch(`https://api.spotify.com/v1/playlists/37i9dQZEVXbLiRSasKsNU9`, {
             headers: {
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }
         });
-
-        if (!response.ok) {
-            console.error(`Failed to fetch viral 50 global:`, response.statusText);
-            return res.status(response.status).json({ error: 'Failed to fetch viral 50 global from Spotify.' });
+        if (response.status === 401) {  // Token expired
+            const newAccessToken = await refreshSpotifyToken(user.username);
+            response = await fetch(`https://api.spotify.com/v1/playlists/37i9dQZEVXbLiRSasKsNU9`, {
+                headers: {
+                    'Authorization': `Bearer ${newAccessToken}`
+                }
+            });
         }
-
+        if (!response.ok) {
+            throw new Error('Failed to fetch playlist');
+        }
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        console.error('Error fetching viral 50 global:', error);
-        res.status(500).json({ error: "Failed to fetch viral 50 global." });
+        console.error('Error fetching playlist:', error);
+        res.status(500).json({ error: "Failed to fetch playlist.", details: error.message });
     }
 });
-
 module.exports = router;
