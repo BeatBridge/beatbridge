@@ -33,17 +33,28 @@ function SignUp({ setJWT }) {
             alert("Passwords do not match!");
             return;
         }
-        const response = await API.signup({
-                username: formData.username,
-                email: formData.email,
-                password: formData.password
-            });
-            if (response.error) {
-                console.error('Error signing up:', response.error);
+        try {
+            const response = await API.signup({
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password
+                });
+
+                if (response.error) {
+                    if (response.error.message === 'Email already exists') {
+                        alert('This email is already registered. Please login instead.')
+                    } else if (response.error.message === 'Username already exists') {
+                        alert('This username is already taken. Please choose another one.')
+                    } else{
+                        alert('An error occured. Please try again.')
+                    }
+                } else {
+                    alert("Account created successfully. Now, check your email and verify by clicking the link...")
+                    navigate('/login');
+                }
+            } catch (error) {
+                console.error('Error signing up:', error);
                 alert('An error occured. Please try again.');
-            } else {
-                alert("Account created successfully. Now, check your email and verify by clicking the link...")
-                navigate('/login');
             }
         };
 

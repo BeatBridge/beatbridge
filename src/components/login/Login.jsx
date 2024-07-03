@@ -30,11 +30,11 @@ const Login = ({ setJWT }) => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username: formData.username,
+                body: JSON.stringify({
+                    username: formData.username,
                     email: formData.email,
                     password: formData.password })
             }).then(response => response.json());
-            console.log(response)
             if (response.token) {
                 localStorage.setItem('jwt', response.token);
                 setJWT(response.token);

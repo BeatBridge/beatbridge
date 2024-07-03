@@ -14,9 +14,13 @@ datasource db {
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
-  username        String    @unique
-  email           String    @unique
-  password        String
-  isVerified      Boolean   @default(false)
+  id                    Int       @id @default(autoincrement())
+  username              String    @unique
+  email                 String    @unique
+  password              String
+  isVerified            Boolean   @default(false)
+  spotifyAccessToken    String?   // is null if user might has not authenticated with Spotify
+  spotifyRefreshToken   String?   // is null if user might has not authenticated with Spotify
+  topArtists            Json?     // stores top artists as JSON
+  topTracks            Json?     // stores top tracks as JSON
 }
