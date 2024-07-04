@@ -99,6 +99,10 @@ router.get('/spotify/login', authenticateJWT, (req, res) => {
     res.redirect(authUrl);
 });
 
+router.get('/protected-route', authenticateJWT, (req, res) => {
+    res.json({ message: 'This is a protected route' });
+});
+
 router.get('/spotify/callback', async (req, res) => {
     const { code, state } = req.query;
 
@@ -191,8 +195,7 @@ router.post('/create-access-token', authenticateJWT, async (req, res) => {
             where: { username: req.user.username },
             data: { spotifyAccessToken: accessToken, spotifyRefreshToken: refreshToken },
         });
-        const token = jwt.sign({ id: user.id, username: user.username}, process.env.JWT_SECRET, { expiresIn: '1h'});
-        res.cookie('jwt', token, {httpOnly: true, secure: true});
+        return res.json(user);
     } catch (error) {
         console.error(error);
         res.redirect(`/error`);
@@ -240,7 +243,8 @@ router.get('/spotify/global-top-50', authenticateJWT, spotifyTokenRefresh, async
         where: { username: req.user.username },
     });
     try {
-        const response = await fetch(`https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF`, {
+        const playlistId = '37i9dQZEVXbMDoHDwVN2tF';
+        const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
             headers: {
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }

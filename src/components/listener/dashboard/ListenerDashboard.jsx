@@ -17,6 +17,24 @@ import TopMusicCard from '../top_music_card/TopMusicCard';
 import API from '../../../api.js'
 import SpotifyOAuth from '../../login/SpotifyOAuth.jsx';
 
+function getAllSongs (resJSON){
+    let allSongs = []
+
+    if (!resJSON){ return []}
+
+    for (let i = 0; i < resJSON.length; i++){
+        const song = {
+            "index" : i,
+            "name" : resJSON[i].track.name,
+            "artist" : resJSON[i].track.artists? resJSON[i].track.artists[0].name : "No Artist"
+        }
+
+        allSongs = [...allSongs, song]
+    }
+
+    return allSongs;
+}
+
 function ListenerDashboard() {
     const [topArtists, setTopArtists] = useState([]);
     const [topTracks, setTopTracks] = useState([]);
@@ -83,6 +101,7 @@ function ListenerDashboard() {
 
     const handleLogout = () => {
         localStorage.removeItem('jwt');
+        localStorage.removeItem('spotifyAuth');
         navigate('/login');
     };
 
@@ -113,7 +132,7 @@ function ListenerDashboard() {
                         <div className='l-dashboard-user-name'>
                             <h4>Welcome, {userInfo.username}</h4>
                             <p>Premium Subscriber</p>
-                            <SpotifyOAuth />
+                            <SpotifyOAuth isSpotifySignedIn={isSpotifySignedIn} />
                             <button onClick={handleLogout}>Logout</button>
                         </div>
                     </div>
@@ -214,7 +233,9 @@ function ListenerDashboard() {
                         {isSpotifySignedIn ? (
                             globalTop50.length !== undefined ? (
                                 <div>
-                                    {JSON.stringify(globalTop50)}
+                                    {
+                                        JSON.stringify(getAllSongs(globalTop50))
+                                    }
                                 </div>
                             ) : (
                                 <p>No top 50 artists found.</p>
@@ -273,7 +294,9 @@ function ListenerDashboard() {
                             {isSpotifySignedIn ? (
                                 viral50Global !== undefined ? (
                                     <div>
-                                        {JSON.stringify(viral50Global)}
+                                        {
+                                            JSON.stringify(getAllSongs(viral50Global))
+                                        }
                                     </div>
                                 ) : (
                                     <p>No top 50 global songs found.</p>

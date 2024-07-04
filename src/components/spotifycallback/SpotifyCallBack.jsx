@@ -1,22 +1,24 @@
-import { useEffect } from 'react';
-import { useSearchParams, useNavigate, NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate, NavLink, Navigate } from 'react-router-dom';
 import './spotify_call_back.css';
 import logoImg from '/beatbridge_logo.png';
 import API from '../../api.js';
 
 function SpotifyCallBack() {
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    const [navDash, setNavDash] = useState(true)
 
     useEffect(() => {
-        const code = searchParams.get("code");
-        if (code) {
-            API.sendCode(code, localStorage.getItem("jwt")).then(() => {
-                localStorage.setItem("spotifyAuth", true);
-                navigate('/spotify-confirmation');
-            });
+        const doSpotifyAuth = async () => {
+            const code = searchParams.get("code");
+            await API.sendCode(code, localStorage.getItem("jwt"));
+            window.location.href="/l/dashboard";
         }
-    }, [searchParams, navigate]);
+
+        doSpotifyAuth();
+    }, []);
+
 
     return (
         <div className="container">

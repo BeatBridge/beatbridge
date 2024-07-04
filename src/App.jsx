@@ -8,8 +8,8 @@ import SignUp from './components/signup/SignUp';
 import EmailVerification from './components/signup/EmailVerification.jsx';
 import API from './api.js';
 import SpotifyCallBack from './components/spotifycallback/SpotifyCallBack.jsx';
-import SpotifyConfirmation from './components/spotifyconfirmation/SpotifyConfirmation.jsx';
 import Error from './components/error/Error.jsx';
+import RequireAuth from './components/require_auth/RequireAuth.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);
@@ -42,12 +42,11 @@ function App() {
         <>
             <Routes>
                 <Route path="/" element={<Landing />} />
-                <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} />} />
                 <Route path='/login' element={<Login setJWT={setJWT} />} />
+                <Route path="/l/dashboard" element={<RequireAuth><ListenerDashboard userInfo={userInfo} /> </RequireAuth> } />
                 <Route path='/signup' element={<SignUp setJWT={setJWT} />} />
                 <Route path='/verify/:token' element={<EmailVerification />} />
                 <Route path='/callback' element={<SpotifyCallBack />} />
-                <Route path='/spotify-confirmation' element={<SpotifyConfirmation />} />
 				<Route path='/error' element={<Error />} />
             </Routes>
         </>
