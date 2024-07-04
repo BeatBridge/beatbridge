@@ -88,36 +88,6 @@ const API = {
             return { error: 'Failed to verify Spotify login' };
         }
     },
-    getTopArtists: async () => {
-        try {
-            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/top-artists`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch top artists');
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching top artists:', error);
-            return { error: 'Failed to fetch top artists' };
-        }
-    },
-    getTopTracks: async () => {
-        try {
-            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/top-tracks`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch top tracks');
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching top tracks:', error);
-            return { error: 'Failed to fetch top tracks' };
-        }
-    },
     sendCode: async (code, jwt) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;

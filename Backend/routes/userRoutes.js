@@ -202,42 +202,6 @@ router.post('/create-access-token', authenticateJWT, async (req, res) => {
     }
 });
 
-router.get('/spotify/top-artists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
-    const user = await prisma.user.findUnique({
-        where: { username: req.user.username },
-    });
-    try {
-        const response = await fetch('https://api.spotify.com/v1/me/top/artists', {
-            headers: {
-                'Authorization': `Bearer ${user.spotifyAccessToken}`
-            }
-        });
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching top artists:', error);
-        res.status(500).json({ error: "Failed to fetch top artists." });
-    }
-});
-
-router.get('/spotify/top-tracks', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
-    const user = await prisma.user.findUnique({
-        where: { username: req.user.username },
-    });
-    try {
-        const response = await fetch('https://api.spotify.com/v1/me/top/tracks', {
-            headers: {
-                'Authorization': `Bearer ${user.spotifyAccessToken}`
-            }
-        });
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching top tracks:', error);
-        res.status(500).json({ error: "Failed to fetch top tracks." });
-    }
-});
-
 router.get('/spotify/global-top-50', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { username: req.user.username },

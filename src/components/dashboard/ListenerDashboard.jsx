@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { NavLink, useNavigate } from 'react-router-dom';
-import "./ldashboard.css";
+import TopArtistCard from '../topartistcard/TopArtistCard.jsx';
+import TopMusicCard from '../topmusiccard/TopMusicCard.jsx';
 import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm.jsx';
 import { FaBell, FaHeart, FaMusic, FaTag, FaUser } from 'react-icons/fa';
-import TopArtistCard from '../topartistcard/TopArtistCard.jsx';
 import { faCircleQuestion, faGauge, faGear, faHeadphonesSimple, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
 import discoImg from '../../assets/genres/disco.jpg';
@@ -13,27 +13,11 @@ import popImg from '../../assets/genres/pop.jpg';
 import danceImg from '../../assets/genres/dance.jpeg';
 import reggaeImg from '../../assets/genres/reggae.jpeg';
 import rockImg from '../../assets/genres/rock.jpg';
-import TopMusicCard from '../topmusiccard/TopMusicCard.jsx';
-import API from '../../api.js'
 import SpotifyOAuth from '../spotifyoauth/SpotifyOAuth.jsx';
-
-function getAllSongs (resJSON){
-    let allSongs = []
-
-    if (!resJSON){ return []}
-
-    for (let i = 0; i < resJSON.length; i++){
-        const song = {
-            "index" : i,
-            "name" : resJSON[i].track.name,
-            "artist" : resJSON[i].track.artists? resJSON[i].track.artists[0].name : "No Artist"
-        }
-
-        allSongs = [...allSongs, song]
-    }
-
-    return allSongs;
-}
+import API from '../../api.js'
+import "./ldashboard.css";
+import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
+import Viral50Global from '../viral50global/Viral50Global.jsx';
 
 function ListenerDashboard() {
     const [topArtists, setTopArtists] = useState([]);
@@ -56,17 +40,6 @@ function ListenerDashboard() {
 
     useEffect(() => {
         if (isSpotifySignedIn) {
-            const fetchData = async () => {
-                try {
-                    const artistData = await API.getTopArtists(userInfo.spotifyAccessToken);
-                    const trackData = await API.getTopTracks(userInfo.spotifyAccessToken);
-                    setTopArtists(artistData.items || []);
-                    setTopTracks(trackData.items || []);
-                } catch (err) {
-                    setError(err.message || 'Failed to fetch data from Spotify.');
-                }
-            };
-
             const fetchGlobalTop50 = async () => {
                 try {
                     const data = await API.getGlobalTop50(userInfo.spotifyAccessToken);
@@ -84,8 +57,6 @@ function ListenerDashboard() {
                     setError(err.message || 'Failed to fetch viral 50 global.');
                 }
             };
-
-            fetchData();
             fetchGlobalTop50();
             fetchViral50Global();
         }
@@ -212,30 +183,11 @@ function ListenerDashboard() {
                     </div>
 
                     <div className='col-md-3 l-right-menu'>
-                        <h4 className='l-top-artist-column'>Top Artist</h4>
-                        {isSpotifySignedIn ? (
-                            topArtists.length > 0 ? (
-                                topArtists.map(artist => (
-                                    <TopArtistCard
-                                        key={artist.id}
-                                        artist_name={artist.name}
-                                        artist_music={artist.genres[0]}
-                                    />
-                                ))
-                            ) : (
-                                <p>No top artists found.</p>
-                            )
-                        ) : (
-                            <p>Please sign in to Spotify to view this data.</p>
-                        )}
-
                         <h4 className='l-top-artist-column'>Global Top 50</h4>
                         {isSpotifySignedIn ? (
                             globalTop50.length !== undefined ? (
                                 <div>
-                                    {
-                                        JSON.stringify(getAllSongs(globalTop50))
-                                    }
+                                    <GlobalTop50 tracks={globalTop50.slice(1, 4)} />
                                 </div>
                             ) : (
                                 <p>No top 50 artists found.</p>
@@ -268,35 +220,15 @@ function ListenerDashboard() {
                                 <FontAwesomeIcon icon={faHeadphonesSimple} className='l-top-music-icon-header' />
                             </h5>
                             <h2>
-                                Top Music
+                                Top 50 Viral Songs
                             </h2>
                         </div>
 
-                        <div className='l-top-music-bottom'>
-                            {isSpotifySignedIn ? (
-                                topTracks.length > 0 ? (
-                                    topTracks.map((track, index) => (
-                                        <TopMusicCard
-                                            key={track.id}
-                                            music_num={index + 1}
-                                            music_name={track.name}
-                                            music_duration={track.duration_ms}
-                                            music_artist={track.artists[0].name}
-                                        />
-                                    ))
-                                ) : (
-                                    <p>No top tracks available.</p>
-                                )
-                            ) : (
-                                <p>Please sign in to Spotify to view this data.</p>
-                            )}
-                            <h4 className='l-top-artist-column'>Global Top 50</h4>
+                        <div>
                             {isSpotifySignedIn ? (
                                 viral50Global !== undefined ? (
                                     <div>
-                                        {
-                                            JSON.stringify(getAllSongs(viral50Global))
-                                        }
+                                        <Viral50Global tracks={viral50Global.slice(0, 10)} />
                                     </div>
                                 ) : (
                                     <p>No top 50 global songs found.</p>

@@ -10,6 +10,7 @@ import API from './api.js';
 import SpotifyCallBack from './components/spotifycallback/SpotifyCallBack.jsx';
 import Error from './components/error/Error.jsx';
 import RequireAuth from './components/requireauth/RequireAuth.jsx';
+import TaggingScreen from './components/tagscreen/TaggingScreen.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);
@@ -43,7 +44,14 @@ function App() {
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path='/login' element={<Login setJWT={setJWT} />} />
-                <Route path="/l/dashboard" element={<RequireAuth><ListenerDashboard userInfo={userInfo} /> </RequireAuth> } />
+                <Route path="/l/dashboard" element={
+                    <RequireAuth>
+                        <ListenerDashboard userInfo={userInfo} />
+                    </RequireAuth> } />
+                <Route path="/l/tags" element={
+                    <RequireAuth>
+                        <TaggingScreen userInfo={userInfo} />
+                    </RequireAuth> } />
                 <Route path='/signup' element={<SignUp setJWT={setJWT} />} />
                 <Route path='/verify/:token' element={<EmailVerification />} />
                 <Route path='/callback' element={<SpotifyCallBack />} />

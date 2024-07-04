@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import API from '../../api';
+import API from '../../api.js';
 import './taggingscreen.css'
 
 const TaggingScreen = ({ songId, onBack, jwt }) => {
