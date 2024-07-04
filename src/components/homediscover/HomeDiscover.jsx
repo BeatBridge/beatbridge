@@ -1,5 +1,5 @@
 import React from "react";
-import './home_discover.css';
+import './homediscover.css';
 import AboutCard from '../aboutcard/AboutCard';
 
 function HomeDiscover () {

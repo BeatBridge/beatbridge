@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api';
-import './tagging_screen.css'
+import './taggingscreen.css'
 
 const TaggingScreen = ({ songId, onBack, jwt }) => {
   const [songDetails, setSongDetails] = useState({});

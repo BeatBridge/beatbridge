@@ -1,4 +1,4 @@
-import './discover_genre.css';
+import './discovergenre.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlay } from '@fortawesome/free-solid-svg-icons';
 

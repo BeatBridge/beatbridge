@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, NavLink, Navigate } from 'react-router-dom';
-import './spotify_call_back.css';
+import './spotifycallback.css';
 import logoImg from '/beatbridge_logo.png';
 import API from '../../api.js';
 

@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlay, faPause } from '@fortawesome/free-solid-svg-icons';
-import './top_music_card.css';
+import './topmusiccard.css';
 import { FaUser } from 'react-icons/fa';
 
 function TopMusicCard(props) {

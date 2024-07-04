@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import Landing from './components/landing/Landing';
-import ListenerDashboard from './components/listener/dashboard/ListenerDashboard';
+import ListenerDashboard from './components/dashboard/ListenerDashboard.jsx';
 import Login from './components/login/Login';
 import SignUp from './components/signup/SignUp';
-import EmailVerification from './components/signup/EmailVerification.jsx';
+import EmailVerification from './components/emailverification/EmailVerification.jsx';
 import API from './api.js';
 import SpotifyCallBack from './components/spotifycallback/SpotifyCallBack.jsx';
 import Error from './components/error/Error.jsx';
-import RequireAuth from './components/require_auth/RequireAuth.jsx';
+import RequireAuth from './components/requireauth/RequireAuth.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);

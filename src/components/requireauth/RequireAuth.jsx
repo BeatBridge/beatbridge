@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import './require_auth.css';
+import './requireauth.css';
 
 function RequireAuth ({ children }) {
     const location = useLocation();

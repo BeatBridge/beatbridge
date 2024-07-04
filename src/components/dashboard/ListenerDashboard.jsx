@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { NavLink, useNavigate } from 'react-router-dom';
-import "./l_dashboard.css";
+import "./ldashboard.css";
 import logoImg from '/beatbridge_logo.png';
-import LSearchForm from '../searchform/LSearchForm';
+import LSearchForm from '../searchform/LSearchForm.jsx';
 import { FaBell, FaHeart, FaMusic, FaTag, FaUser } from 'react-icons/fa';
-import TopArtistCard from '../top_artist_card/TopArtistCard';
+import TopArtistCard from '../topartistcard/TopArtistCard.jsx';
 import { faCircleQuestion, faGauge, faGear, faHeadphonesSimple, faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import DiscoverGenre from '../discover_genre/DiscoverGenre';
-import discoImg from '../../../assets/genres/disco.jpg';
-import popImg from '../../../assets/genres/pop.jpg';
-import danceImg from '../../../assets/genres/dance.jpeg';
-import reggaeImg from '../../../assets/genres/reggae.jpeg';
-import rockImg from '../../../assets/genres/rock.jpg';
-import TopMusicCard from '../top_music_card/TopMusicCard';
-import API from '../../../api.js'
-import SpotifyOAuth from '../../login/SpotifyOAuth.jsx';
+import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
+import discoImg from '../../assets/genres/disco.jpg';
+import popImg from '../../assets/genres/pop.jpg';
+import danceImg from '../../assets/genres/dance.jpeg';
+import reggaeImg from '../../assets/genres/reggae.jpeg';
+import rockImg from '../../assets/genres/rock.jpg';
+import TopMusicCard from '../topmusiccard/TopMusicCard.jsx';
+import API from '../../api.js'
+import SpotifyOAuth from '../spotifyoauth/SpotifyOAuth.jsx';
 
 function getAllSongs (resJSON){
     let allSongs = []

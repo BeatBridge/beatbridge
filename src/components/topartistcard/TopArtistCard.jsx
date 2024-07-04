@@ -1,5 +1,5 @@
 import { FaEllipsisV, FaUser } from 'react-icons/fa';
-import './top_artist_card.css';
+import './topartistcard.css';
 
 function TopArtistCard (props) {
     return (
