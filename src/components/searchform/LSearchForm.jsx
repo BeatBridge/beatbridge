@@ -8,11 +8,17 @@ function LSearchForm ({ onSearchResults }) {
     const [suggestions, setSuggestions] = useState([]);
     const [debounceTimeout, setDebounceTimeout] = useState(null);
     const suggestionsRef = useRef(null);
+    const [skipSearch, setSkipSearch] = useState(false);
 
     useEffect(() => {
-        if (searchQuery.length > 2) {
-            if (debounceTimeout) clearTimeout(debounceTimeout);
+        if (skipSearch) {
+            setSkipSearch(false);
+            return;
+        }
 
+        if (debounceTimeout) clearTimeout(debounceTimeout);
+
+        if (searchQuery.length > 2) {
             const timeout = setTimeout(async () => {
                 try {
                     const jwt = localStorage.getItem('jwt');
@@ -23,7 +29,6 @@ function LSearchForm ({ onSearchResults }) {
                     console.error('Error searching songs:', error);
                 }
             }, 300);
-
             setDebounceTimeout(timeout);
         } else {
             setSuggestions([]);
@@ -32,7 +37,7 @@ function LSearchForm ({ onSearchResults }) {
         return () => {
             if (debounceTimeout) clearTimeout(debounceTimeout);
         };
-    }, [searchQuery]);
+    }, [searchQuery, debounceTimeout, onSearchResults]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -61,12 +66,13 @@ function LSearchForm ({ onSearchResults }) {
     };
 
     const handleSuggestionClick = async (suggestion) => {
+        setSkipSearch(true);
         setSearchQuery(suggestion.name);
         setSuggestions([]);
         try {
             const jwt = localStorage.getItem('jwt');
             const results = await API.searchSongs(suggestion.name, jwt);
-            onSearchResults(results.tracks.items);
+            onSearchResults([suggestion]);
         } catch (error) {
             console.error('Error searching songs:', error);
         }
@@ -84,7 +90,7 @@ function LSearchForm ({ onSearchResults }) {
                 onKeyDown={handleKeyDown}
             />
             {suggestions.length > 0 && (
-                <ul className="suggestions-list">
+                <ul className="suggestions-list" ref={suggestionsRef}>
                     {suggestions.map((suggestion, index) => (
                         <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
                             <div className='l-viral-50-global-img-cont'>

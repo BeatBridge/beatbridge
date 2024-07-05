@@ -76,6 +76,9 @@ function ListenerDashboard() {
     };
 
     const handleSearchResults = (results) => {
+        if (results.length === 1) {
+            setSelectedTrack(results[0]);
+        }
         setSearchResults(results);
     }
 
@@ -269,15 +272,23 @@ function ListenerDashboard() {
                     </div>
 
                     <div className='col-md-3'>
-                        {searchResults.length > 0 && (
-                            <div className='search-results'>
-                                {searchResults.map((track, index) => (
-                                    <div key={index} className='search-result' onClick={() => handleTrackClick(track)}>
-                                        <h4>{track.name}</h4>
-                                        <p>{track.artists[0].name}</p>
-                                    </div>
-                                ))}
+                        {selectedTrack ? (
+                            <div className='selected-track-details'>
+                                <h4>{selectedTrack.name}</h4>
+                                <p>{selectedTrack.artists[0].name}</p>
+                                <img src={selectedTrack.album.images[0]?.url} alt="Track Art" />
                             </div>
+                        ) : (
+                            searchResults.length > 0 && (
+                                <div className='search-results'>
+                                    {searchResults.map((track, index) => (
+                                        <div key={index} className='search-result' onClick={() => handleTrackClick(track)}>
+                                            <h4>{track.name}</h4>
+                                            <p>{track.artists[0].name}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
                         )}
                     </div>
                 </div>
