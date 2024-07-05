@@ -3,7 +3,7 @@ import { FaSearch } from 'react-icons/fa';
 import API from '../../api.js';
 import './lsearchform.css';
 
-function LSearchForm({ onSearchResults }) {
+function LSearchForm({ onSearchResults, onSuggestionClick }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const debounceTimeoutRef = useRef(null);
@@ -62,16 +62,10 @@ function LSearchForm({ onSearchResults }) {
         }
     };
 
-    const handleSuggestionClick = async (suggestion) => {
+    const handleSuggestionClick = (suggestion) => {
         setSearchQuery('');
         setSuggestions([]);
-        try {
-            const jwt = localStorage.getItem('jwt');
-            const results = await API.searchSongs(suggestion.name, jwt);
-            onSearchResults([suggestion]);
-        } catch (error) {
-            console.error('Error searching songs:', error);
-        }
+        onSuggestionClick(suggestion);
     };
 
     return (

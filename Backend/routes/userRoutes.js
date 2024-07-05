@@ -259,14 +259,18 @@ router.get('/spotify/search', authenticateJWT, spotifyTokenRefresh, async (req, 
     }
 });
 
-router.post('/songs', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
-    const {title, artist, album} = req.body;
+router.post('/songs', authenticateJWT, async (req, res) => {
+    const { title, artist, album, genre, mood, tempo, customTags } = req.body;
     try {
         const song = await prisma.song.create({
             data: {
                 title,
                 artist,
                 album,
+                genre,
+                mood,
+                tempo,
+                customTags,
                 userId: req.user.id
             }
         });
@@ -277,7 +281,7 @@ router.post('/songs', authenticateJWT, spotifyTokenRefresh, async (req, res) => 
     }
 });
 
-router.post('/songs/:songId/tags', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
     const { songId } = req.params;
     const { genre, mood, tempo, customTags } = req.body;
     try {
@@ -290,10 +294,10 @@ router.post('/songs/:songId/tags', authenticateJWT, spotifyTokenRefresh, async (
                 customTags: JSON.stringify(customTags)
             }
         });
-        res.JSON(updatedSong);
+        res.json(updatedSong);
     } catch (error) {
         console.error('Error saving tags:', error);
-        res.status(500).json({ error : 'Failed to save tags.'})
+        res.status(500).json({ error: 'Failed to save tags.'});
     }
 });
 

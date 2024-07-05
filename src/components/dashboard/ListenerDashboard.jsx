@@ -16,11 +16,12 @@ import API from '../../api.js'
 import "./ldashboard.css";
 import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
 import Viral50Global from '../viral50global/Viral50Global.jsx';
-import SongActions from '../songactions/SongActions.jsx';
+import TaggingForm from '../tagform/TaggingForm.jsx';
 
 function ListenerDashboard() {
     const [searchResults, setSearchResults] = useState([]);
     const [selectedTrack, setSelectedTrack] = useState(null);
+    const [showTaggingForm, setShowTaggingForm] = useState(false);
     const [globalTop50, setGlobalTop50] = useState([]);
     const [viral50Global, setViral50Global] = useState([]);
     const [error, setError] = useState(null);
@@ -76,22 +77,38 @@ function ListenerDashboard() {
     };
 
     const handleSearchResults = (results) => {
-        if (results.length === 1) {
-            setSelectedTrack(results[0]);
-        }
         setSearchResults(results);
     }
 
+    const handleSuggestionClick = (track) => {
+        setSelectedTrack(track);
+        setShowTaggingForm(false);
+    };
+
     const handleTrackClick = (track) => {
-        setSelectedTrack(null);
+        const updatedTrack = {
+            ...track,
+            images: track.images || []
+        };
+        setSelectedTrack(updatedTrack);
+        setShowTaggingForm(false);
     }
+
+    const handleTagButtonClick = () => {
+        setShowTaggingForm(true);
+    };
 
     const handleTag = async (track, tags) => {
         const songData = {
             title: track.name,
-            artist: track.artists[0].name
-        }
-        try{
+            artist: track.artists[0].name,
+            album: track.album.name,
+            genre: tags.genre,
+            mood: tags.mood,
+            tempo: tags.tempo,
+            customTags: JSON.stringify(tags.customTags),
+        };
+        try {
             const song = await API.createSong(songData);
             await API.tagSong(song.id, tags);
             console.log('Song tagged:', song);
@@ -99,14 +116,6 @@ function ListenerDashboard() {
             console.error('Error tagging track:', error);
         }
     };
-
-    const handleViewDetails = (track) => {
-        console.log('Viewing details of track:', track);
-    }
-
-    const handleAddToLibrary = (track) => {
-        console.log('Adding track to library:', track);
-    }
 
     return (
         <div className='l-dashbaord-container'>
@@ -123,7 +132,7 @@ function ListenerDashboard() {
                 </div>
 
                 <div className='col-md-7'>
-                    <LSearchForm onSearchResults={handleSearchResults} />
+                    <LSearchForm onSearchResults={handleSearchResults} onSuggestionClick={handleSuggestionClick} />
                 </div>
 
                 <div className='l-right-sidebar col-md-3'>
@@ -272,23 +281,34 @@ function ListenerDashboard() {
                     </div>
 
                     <div className='col-md-3'>
-                        {selectedTrack ? (
+                        {selectedTrack && (
                             <div className='selected-track-details'>
                                 <h4>{selectedTrack.name}</h4>
-                                <p>{selectedTrack.artists[0].name}</p>
-                                <img src={selectedTrack.album.images[0]?.url} alt="Track Art" />
+                                <p>{selectedTrack.artist}</p>
+                                {selectedTrack.images.length > 0 ? (
+                                    <img src={selectedTrack.images[0].url} alt="Track Art" />
+                                ) : (
+                                    <div>No image available</div>
+                                )}
+                                <button className="btn btn-primary mt-2" onClick={handleTagButtonClick}>Tag</button>
+                                {showTaggingForm && (
+                                    <TaggingForm
+                                        song={selectedTrack}
+                                        onTag={handleTag}
+                                        onClose={() => setShowTaggingForm(false)}
+                                    />
+                                )}
                             </div>
-                        ) : (
-                            searchResults.length > 0 && (
-                                <div className='search-results'>
-                                    {searchResults.map((track, index) => (
-                                        <div key={index} className='search-result' onClick={() => handleTrackClick(track)}>
-                                            <h4>{track.name}</h4>
-                                            <p>{track.artists[0].name}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )
+                        )}
+                        {!selectedTrack && searchResults.length > 0 && (
+                            <div className='search-results'>
+                                {searchResults.map((track, index) => (
+                                    <div key={index} className='search-result' onClick={() => handleTrackClick(track)}>
+                                        <h4>{track.name}</h4>
+                                        <p>{track.artists[0].name}</p>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
                 </div>
