@@ -3,41 +3,38 @@ import { FaSearch } from 'react-icons/fa';
 import API from '../../api.js';
 import './lsearchform.css';
 
-function LSearchForm ({ onSearchResults }) {
+function LSearchForm({ onSearchResults }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
-    const [debounceTimeout, setDebounceTimeout] = useState(null);
+    const debounceTimeoutRef = useRef(null);
     const suggestionsRef = useRef(null);
-    const [skipSearch, setSkipSearch] = useState(false);
 
     useEffect(() => {
-        if (skipSearch) {
-            setSkipSearch(false);
-            return;
-        }
+        const debounceSearch = () => {
+            if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
 
-        if (debounceTimeout) clearTimeout(debounceTimeout);
+            if (searchQuery.length > 2) {
+                debounceTimeoutRef.current = setTimeout(async () => {
+                    try {
+                        const jwt = localStorage.getItem('jwt');
+                        const results = await API.searchSongs(searchQuery, jwt);
+                        setSuggestions(results.tracks.items.slice(0, 5));
+                        onSearchResults(results.tracks.items);
+                    } catch (error) {
+                        console.error('Error searching songs:', error);
+                    }
+                }, 300);
+            } else {
+                setSuggestions([]);
+            }
+        };
 
-        if (searchQuery.length > 2) {
-            const timeout = setTimeout(async () => {
-                try {
-                    const jwt = localStorage.getItem('jwt');
-                    const results = await API.searchSongs(searchQuery, jwt);
-                    setSuggestions(results.tracks.items.slice(0, 5));
-                    onSearchResults(results.tracks.items);
-                } catch (error) {
-                    console.error('Error searching songs:', error);
-                }
-            }, 300);
-            setDebounceTimeout(timeout);
-        } else {
-            setSuggestions([]);
-        }
+        debounceSearch();
 
         return () => {
-            if (debounceTimeout) clearTimeout(debounceTimeout);
+            if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
         };
-    }, [searchQuery, debounceTimeout, onSearchResults]);
+    }, [searchQuery, onSearchResults]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -50,7 +47,7 @@ function LSearchForm ({ onSearchResults }) {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [suggestionsRef]);
+    }, []);
 
     const handleKeyDown = async (e) => {
         if (e.key === 'Enter') {
@@ -66,8 +63,7 @@ function LSearchForm ({ onSearchResults }) {
     };
 
     const handleSuggestionClick = async (suggestion) => {
-        setSkipSearch(true);
-        setSearchQuery(suggestion.name);
+        setSearchQuery('');
         setSuggestions([]);
         try {
             const jwt = localStorage.getItem('jwt');
@@ -80,7 +76,7 @@ function LSearchForm ({ onSearchResults }) {
 
     return (
         <div className="l-search-container">
-            <FaSearch className='search-icon'/>
+            <FaSearch className='search-icon' />
             <input
                 type="text"
                 placeholder='Search Artists, Genres, Songs, Lyrics, and More...'
@@ -90,7 +86,7 @@ function LSearchForm ({ onSearchResults }) {
                 onKeyDown={handleKeyDown}
             />
             {suggestions.length > 0 && (
-                <ul className="suggestions-list" ref={suggestionsRef}>
+                <ul className={`suggestions-list ${suggestions.length === 0 ? 'hidden' : ''}`} ref={suggestionsRef}>
                     {suggestions.map((suggestion, index) => (
                         <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
                             <div className='l-viral-50-global-img-cont'>
@@ -102,7 +98,7 @@ function LSearchForm ({ onSearchResults }) {
                 </ul>
             )}
         </div>
-    )
+    );
 }
 
 export default LSearchForm;
