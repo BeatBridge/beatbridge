@@ -139,6 +139,76 @@ const API = {
             return { error: 'Failed to fetch viral 50 global' };
         }
     },
+    searchSongs: async (query) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/spotify/search?q=${query}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to search songs');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error searching songs:', error);
+            return { error: 'Failed to search songs' };
+        }
+    },
+    createSong: async (songData) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch (`${backendUrlAccess}/user/songs`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                },
+                body: JSON.stringify(songData)
+            });
+            if (!response.ok) throw new Error('Failed to create song');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error creating song:', error);
+            return { error: 'Failed to create song' };
+        }
+    },
+    tagSong: async (songId, tags) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/songs/${songId}/tags`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                },
+                body: JSON.stringify(tags),
+            });
+            if (!response.ok) throw new Error('Failed to save tags');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error saving tags:', error);
+            return { error: 'Failed to save tags'};
+        }
+    },
+    getTaggedSongs: async () => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/songs`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch tagged songs');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching tagged songs:', error);
+            return { error: 'Failed to fetch tagged songs' };
+        }
+    },
     getSongDetails: async (songId) => {
         const response = await fetch(`/api/song/${songId}`, {
             method: 'GET',

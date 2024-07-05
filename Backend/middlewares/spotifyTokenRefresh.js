@@ -21,6 +21,10 @@ async function spotifyTokenRefresh(req, res, next) {
 
         if (response.status === 401) {
             const newAccessToken = await refreshSpotifyToken(username);
+            await prisma.user.update({
+                where: { username },
+                data: { spotifyAccessToken: newAccessToken }
+            });
             user.spotifyAccessToken = newAccessToken;
         }
 

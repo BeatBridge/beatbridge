@@ -99,10 +99,6 @@ router.get('/spotify/login', authenticateJWT, (req, res) => {
     res.redirect(authUrl);
 });
 
-router.get('/protected-route', authenticateJWT, (req, res) => {
-    res.json({ message: 'This is a protected route' });
-});
-
 router.get('/spotify/callback', async (req, res) => {
     const { code, state } = req.query;
 
@@ -238,4 +234,87 @@ router.get('/spotify/viral-50-global', authenticateJWT, spotifyTokenRefresh, asy
         res.status(500).json({ error: "Failed to fetch viral 50 global." });
     }
 });
+
+router.get('/spotify/search', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    const query = req.query.q;
+    const type = 'track';
+    const url = `https://api.spotify.com/v1/search?q=${query}&type=${type}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error searching songs:', error);
+        res.status(500).json({ error: 'Failed to search songs.' });
+    }
+});
+
+router.post('/songs', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const {title, artist, album} = req.body;
+    try {
+        const song = await prisma.song.create({
+            data: {
+                title,
+                artist,
+                album,
+                userId: req.user.id
+            }
+        });
+        res.json(song);
+    } catch (error) {
+        console.error('Error creating song:', error);
+        res.status(500).json({error: 'Failed to create song.'});
+    }
+});
+
+router.post('/songs/:songId/tags', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { songId } = req.params;
+    const { genre, mood, tempo, customTags } = req.body;
+    try {
+        const updatedSong = await prisma.song.update({
+            where: { id: parseInt(songId) },
+            data: {
+                genre,
+                mood,
+                tempo,
+                customTags: JSON.stringify(customTags)
+            }
+        });
+        res.JSON(updatedSong);
+    } catch (error) {
+        console.error('Error saving tags:', error);
+        res.status(500).json({ error : 'Failed to save tags.'})
+    }
+});
+
+router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { songId } = req.params;
+    try {
+        const song = await prisma.song.findUnique({
+            where: { id: parseInt(songId)}
+        });
+        if (!song) {
+            return res.status(404).json({error: 'Song not found'});
+        }
+        res.json(song);
+    } catch (error) {
+        console.error('Error fetching song details:', error);
+        res.status(500).json({error: 'Failed to fetch song details.'});
+    }
+});
+
+router.get('/protected-route', authenticateJWT, (req, res) => {
+    res.json({ message: 'This is a protected route' });
+});
+
 module.exports = router;

@@ -21,6 +21,18 @@ model User {
   isVerified            Boolean   @default(false)
   spotifyAccessToken    String?   // is null if user might has not authenticated with Spotify
   spotifyRefreshToken   String?   // is null if user might has not authenticated with Spotify
-  topArtists            Json?     // stores top artists as JSON
-  topTracks            Json?     // stores top tracks as JSON
+  songs                 Song[]
+}
+
+model Song {
+  id                    Int       @id @default(autoincrement())
+  title                 String
+  artist                String
+  album                 String
+  genre                 String
+  mood                  String?
+  tempo                 String?
+  customTags            String?
+  userId                Int
+  user                  User      @relation(fields: [userId], references: [id])
 }
