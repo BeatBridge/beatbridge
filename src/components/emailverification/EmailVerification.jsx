@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams } from 'react-router-dom';
 import API from '../../api.js';
-import './email_verification.css';
+import './emailverification.css';
 import logoImg from '/beatbridge_logo.png';
 
 function EmailVerification() {

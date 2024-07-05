@@ -2,10 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../navbar/Navbar';
 import './landing.css';
-import HomeDiscover from '../home_discover/HomeDiscover';
-import HomeFindOut from '../home_findout/HomeFindOut';
-import Footer from './Footer';
-
+import HomeDiscover from '../homediscover/HomeDiscover';
+import HomeFindOut from '../homefindout/HomeFindOut';
+import Footer from '../footer/Footer';
 import rockImg from '../../assets/genres/rock.jpg';
 import discoImg from '../../assets/genres/disco.jpg';
 import danceImg from '../../assets/genres/dance.jpeg';

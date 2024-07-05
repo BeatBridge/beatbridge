@@ -9,6 +9,7 @@ const querystring = require('querystring');
 const fetch = require('node-fetch');
 const authenticateJWT  = require("../middlewares/authenticateJWT");
 const { sendMail } = require('../utils/mailer');
+const spotifyTokenRefresh = require('../middlewares/spotifyTokenRefresh');
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
@@ -86,14 +87,77 @@ router.get("/info", authenticateJWT, async (req, res) => {
 });
 
 router.get('/spotify/login', authenticateJWT, (req, res) => {
+    const state = jwt.sign({ id: req.user.id, username: req.user.username }, process.env.JWT_SECRET, { expiresIn: '10m' });
     const scopes = 'user-top-read user-read-private';
     const authUrl = 'https://accounts.spotify.com/authorize?' + querystring.stringify({
         response_type: 'code',
         client_id: CLIENT_ID,
         scope: scopes,
         redirect_uri: REDIRECT_URI,
+        state: state
     });
     res.redirect(authUrl);
+});
+
+router.get('/spotify/callback', async (req, res) => {
+    const { code, state } = req.query;
+
+    try {
+        const decodedState = jwt.verify(state, process.env.JWT_SECRET);
+
+        const authOptions = {
+            url: 'https://accounts.spotify.com/api/token',
+            method: 'POST',
+            body: querystring.stringify({
+                code: code,
+                redirect_uri: REDIRECT_URI,
+                grant_type: 'authorization_code',
+            }),
+            headers: {
+                'Authorization': 'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        };
+
+        const response = await fetch(authOptions.url, {
+            method: authOptions.method,
+            body: authOptions.body,
+            headers: authOptions.headers
+        });
+
+        const data = await response.json();
+        const accessToken = data.access_token;
+        const refreshToken = data.refresh_token;
+
+        await prisma.user.update({
+            where: { id: decodedState.id },
+            data: { spotifyAccessToken: accessToken, spotifyRefreshToken: refreshToken },
+        });
+
+        const confirmationUrl = `${process.env.FRONTEND_URL}/spotify-confirmation?token=${state}`;
+        res.redirect(confirmationUrl);
+    } catch (error) {
+        console.error('Error during Spotify callback:', error);
+        res.redirect(`/error`);
+    }
+});
+
+router.post('/spotify/confirm', async (req, res) => {
+    const { token } = req.body;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+
+        if (user) {
+            res.json({ status: 'success' });
+        } else {
+            res.status(400).json({ error: 'Invalid token or user not found' });
+        }
+    } catch (error) {
+        console.error('Error verifying Spotify login:', error);
+        res.status(500).json({ error: 'Failed to verify Spotify login' });
+    }
 });
 
 router.post('/create-access-token', authenticateJWT, async (req, res) => {
@@ -127,94 +191,24 @@ router.post('/create-access-token', authenticateJWT, async (req, res) => {
             where: { username: req.user.username },
             data: { spotifyAccessToken: accessToken, spotifyRefreshToken: refreshToken },
         });
-
-        const token = jwt.sign({ id: user.id, username: user.username}, process.env.JWT_SECRET, { expiresIn: '1h'});
-        res.cookie('jwt', token, {httpOnly: true, secure: true});
+        return res.json(user);
     } catch (error) {
         console.error(error);
         res.redirect(`/error`);
     }
 });
 
-router.get('/spotify/top-artists', authenticateJWT, async (req, res) => {
-    const user = await prisma.user.findUnique({
-        where: { email: req.user.email },
-    });
-
-    if (!user || !user.spotifyAccessToken) {
-        return res.status(400).json({error: 'User not found or no Spotify acess token available.'});
-    }
-
-    try {
-        const response = await fetch('https://api.spotify.com/v1/me/top/artists', {
-            headers: {
-                'Authorization': `Bearer ${user.spotifyAccessToken}`
-            }
-        });
-
-        if (!response.ok) {
-            console.error(`Failed to fetch top artists:`, response.statusText);
-            return res.status(response.status).json({error : 'Failed to fetch top artists from Spotify.'})
-        }
-        const data = await express.response.json();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching top artists:', error);
-        res.status(500).json({error: "Failed to fetch top artists."});
-    }
-});
-
-router.get('/spotify/top-tracks', authenticateJWT, async (req, res) => {
-    const user = await prisma.user.findUnique({
-        where: { email: req.user.email },
-    });
-
-    if (!user || !user.spotifyAccessToken) {
-        return res.status(400).json({error: 'User not found or no Spotify acess token available.'});
-    }
-
-    try {
-        const response = await fetch('https://api.spotify.com/v1/me/top/tracks', {
-            headers: {
-                'Authorization': `Bearer ${user.spotifyAccessToken}`
-            }
-        });
-
-        if (!response.ok) {
-            console.error(`Failed to fetch top artists:`, response.statusText);
-            return res.status(response.status).json({error : 'Failed to fetch top tracks from Spotify.'})
-        }
-        const data = await express.response.json();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching top artists:', error);
-        res.status(500).json({error: "Failed to fetch top tracks."});
-    }
-});
-
-router.get('/spotify/global-top-50', authenticateJWT, async (req, res) => {
-    const playlistId = '37i9dQZEVXbMDoHDwVN2tF';
-
+router.get('/spotify/global-top-50', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { username: req.user.username },
     });
-
-    if (!user || !user.spotifyAccessToken) {
-        return res.status(400).json({ error: 'User not found or no Spotify access token available.' });
-    }
-
     try {
+        const playlistId = '37i9dQZEVXbMDoHDwVN2tF';
         const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
             headers: {
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }
         });
-
-        if (!response.ok) {
-            console.error(`Failed to fetch global top 50:`, response.statusText);
-            return res.status(response.status).json({ error: 'Failed to fetch global top 50 from Spotify.' });
-        }
-
         const data = await response.json();
         res.json(data);
     } catch (error) {
@@ -223,35 +217,104 @@ router.get('/spotify/global-top-50', authenticateJWT, async (req, res) => {
     }
 });
 
-router.get('/spotify/viral-50-global', authenticateJWT, async (req, res) => {
-    const playlistId = '37i9dQZEVXbLiRSasKsNU9';
-
+router.get('/spotify/viral-50-global', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { username: req.user.username },
     });
-
-    if (!user || !user.spotifyAccessToken) {
-        return res.status(400).json({ error: 'User not found or no Spotify access token available.' });
-    }
-
     try {
-        const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        const response = await fetch(`https://api.spotify.com/v1/playlists/37i9dQZEVXbLiRSasKsNU9`, {
             headers: {
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }
         });
-
-        if (!response.ok) {
-            console.error(`Failed to fetch viral 50 global:`, response.statusText);
-            return res.status(response.status).json({ error: 'Failed to fetch viral 50 global from Spotify.' });
-        }
-
         const data = await response.json();
         res.json(data);
     } catch (error) {
         console.error('Error fetching viral 50 global:', error);
         res.status(500).json({ error: "Failed to fetch viral 50 global." });
     }
+});
+
+router.get('/spotify/search', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    const query = req.query.q;
+    const type = 'track';
+    const url = `https://api.spotify.com/v1/search?q=${query}&type=${type}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error searching songs:', error);
+        res.status(500).json({ error: 'Failed to search songs.' });
+    }
+});
+
+router.post('/songs', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const {title, artist, album} = req.body;
+    try {
+        const song = await prisma.song.create({
+            data: {
+                title,
+                artist,
+                album,
+                userId: req.user.id
+            }
+        });
+        res.json(song);
+    } catch (error) {
+        console.error('Error creating song:', error);
+        res.status(500).json({error: 'Failed to create song.'});
+    }
+});
+
+router.post('/songs/:songId/tags', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { songId } = req.params;
+    const { genre, mood, tempo, customTags } = req.body;
+    try {
+        const updatedSong = await prisma.song.update({
+            where: { id: parseInt(songId) },
+            data: {
+                genre,
+                mood,
+                tempo,
+                customTags: JSON.stringify(customTags)
+            }
+        });
+        res.JSON(updatedSong);
+    } catch (error) {
+        console.error('Error saving tags:', error);
+        res.status(500).json({ error : 'Failed to save tags.'})
+    }
+});
+
+router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { songId } = req.params;
+    try {
+        const song = await prisma.song.findUnique({
+            where: { id: parseInt(songId)}
+        });
+        if (!song) {
+            return res.status(404).json({error: 'Song not found'});
+        }
+        res.json(song);
+    } catch (error) {
+        console.error('Error fetching song details:', error);
+        res.status(500).json({error: 'Failed to fetch song details.'});
+    }
+});
+
+router.get('/protected-route', authenticateJWT, (req, res) => {
+    res.json({ message: 'This is a protected route' });
 });
 
 module.exports = router;

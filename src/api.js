@@ -8,12 +8,13 @@ const API = {
                     'Authorization': `Bearer ${jwt}`
                 }
             });
+            if (response.status === 401) throw new Error('Unauthorized');
             if (!response.ok) throw new Error('Failed to fetch user info');
             const data = await response.json();
             return data;
         } catch (error) {
             console.error('Error fetching user info:', error);
-            return { error: 'Failed to fetch user info' };
+            return { error: error.message };
         }
     },
     signup: async (formData) => {
@@ -70,34 +71,21 @@ const API = {
             return { error: 'Failed to verify email' };
         }
     },
-    getTopArtists: async (token) => {
+    verifySpotify: async (token) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/spotify/top-artists`, {
+            const response = await fetch(`${backendUrlAccess}/user/spotify/confirm`, {
+                method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token }),
             });
-            if (!response.ok) throw new Error('Failed to fetch top artists');
+            if (!response.ok) throw new Error('Failed to verify Spotify login');
             return await response.json();
         } catch (error) {
-            console.error('Error fetching top artists:', error);
-            return { error: 'Failed to fetch top artists' };
-        }
-    },
-    getTopTracks: async (token) => {
-        try {
-            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/spotify/top-tracks`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch top tracks');
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching top tracks:', error);
-            return { error: 'Failed to fetch top tracks' };
+            console.error('Error verifying Spotify login:', error);
+            return { error: 'Failed to verify Spotify login' };
         }
     },
     sendCode: async (code, jwt) => {
@@ -119,12 +107,12 @@ const API = {
             return { error: 'Failed to create access token' };
         }
     },
-    getGlobalTop50: async (token) => {
+    getGlobalTop50: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/spotify/global-top-50`, {
+            const response = await fetch(`${backendUrlAccess}/user/spotify/global-top-50`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
             });
             if (!response.ok) throw new Error('Failed to fetch global top 50');
@@ -135,12 +123,12 @@ const API = {
             return { error: 'Failed to fetch global top 50' };
         }
     },
-    getViral50Global: async (token) => {
+    getViral50Global: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/spotify/viral-50-global`, {
+            const response = await fetch(`${backendUrlAccess}/user/spotify/viral-50-global`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
             });
             if (!response.ok) throw new Error('Failed to fetch viral 50 global');
@@ -150,7 +138,101 @@ const API = {
             console.error('Error fetching viral 50 global:', error);
             return { error: 'Failed to fetch viral 50 global' };
         }
-    }
+    },
+    searchSongs: async (query) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/spotify/search?q=${query}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to search songs');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error searching songs:', error);
+            return { error: 'Failed to search songs' };
+        }
+    },
+    createSong: async (songData) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch (`${backendUrlAccess}/user/songs`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                },
+                body: JSON.stringify(songData)
+            });
+            if (!response.ok) throw new Error('Failed to create song');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error creating song:', error);
+            return { error: 'Failed to create song' };
+        }
+    },
+    tagSong: async (songId, tags) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/songs/${songId}/tags`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                },
+                body: JSON.stringify(tags),
+            });
+            if (!response.ok) throw new Error('Failed to save tags');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error saving tags:', error);
+            return { error: 'Failed to save tags'};
+        }
+    },
+    getTaggedSongs: async () => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/songs`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch tagged songs');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching tagged songs:', error);
+            return { error: 'Failed to fetch tagged songs' };
+        }
+    },
+    getSongDetails: async (songId) => {
+        const response = await fetch(`/api/song/${songId}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt')}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch song details.');
+        }
+        return response.json();
+    },
+    getLibrary: async () => {
+        const response = await fetch('/api/library', {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt')}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch library.');
+        }
+        return response.json();
+    },
 };
 
 export default API;

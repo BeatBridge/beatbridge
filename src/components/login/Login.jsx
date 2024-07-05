@@ -43,7 +43,7 @@ const Login = ({ setJWT }) => {
                 alert('Invalid username or password')
             }
         } catch (error) {
-            console.error('Error signing up:', error);
+            console.error('Error logging in:', error);
             alert('An error occured. Please try again.');
         }
     };

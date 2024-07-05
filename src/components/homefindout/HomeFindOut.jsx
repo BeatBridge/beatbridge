@@ -1,4 +1,4 @@
-import './home_findout.css';
+import './homefindout.css';
 
 function HomeFindOut (props) {
     return (

@@ -1,18 +1,26 @@
-import { useEffect } from 'react';
-import { useSearchParams, NavLink, useFetcher } from 'react-router-dom';
-import './spotify_call_back.css';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate, NavLink, Navigate } from 'react-router-dom';
+import './spotifycallback.css';
 import logoImg from '/beatbridge_logo.png';
 import API from '../../api.js';
 
-function SpotifyCallBack () {
+function SpotifyCallBack() {
     const [searchParams, setSearchParams] = useSearchParams()
 
-    useEffect (() => {
-        API.sendCode(searchParams.get("code"), localStorage.getItem("jwt"));
-        window.location.href = "/l/dashboard/"
-    }, [])
+    const [navDash, setNavDash] = useState(true)
 
-    return(
+    useEffect(() => {
+        const doSpotifyAuth = async () => {
+            const code = searchParams.get("code");
+            await API.sendCode(code, localStorage.getItem("jwt"));
+            window.location.href="/l/dashboard";
+        }
+
+        doSpotifyAuth();
+    }, []);
+
+
+    return (
         <div className="container">
             <div className='row'>
                 <div className='col-md-2'>
@@ -32,7 +40,7 @@ function SpotifyCallBack () {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
-export default SpotifyCallBack
+export default SpotifyCallBack;
