@@ -78,21 +78,26 @@ function ListenerDashboard() {
 
     const handleSearchResults = (results) => {
         setSearchResults(results);
+        setShowTaggingForm(false);
     }
 
-    const handleSuggestionClick = (track) => {
-        setSelectedTrack(track);
+    const handleSuggestionClick = (suggestion) => {
+        setSelectedTrack(suggestion);
+        setSearchResults([]);
         setShowTaggingForm(false);
     };
 
     const handleTrackClick = (track) => {
         const updatedTrack = {
             ...track,
-            images: track.images || []
+            album: {
+                ...track.album,
+                images: track.images || []
+            }
         };
         setSelectedTrack(updatedTrack);
         setShowTaggingForm(false);
-    }
+    };
 
     const handleTagButtonClick = () => {
         setShowTaggingForm(true);
@@ -101,8 +106,8 @@ function ListenerDashboard() {
     const handleTag = async (track, tags) => {
         const songData = {
             title: track.name,
-            artist: track.artists[0].name,
-            album: track.album.name,
+            artist: track.artists ? track.artists[0].name : "Unknown Artist",
+            album: track.album ? track.album.name : "Unknown Album",
             genre: tags.genre,
             mood: tags.mood,
             tempo: tags.tempo,
@@ -115,6 +120,10 @@ function ListenerDashboard() {
         } catch (error) {
             console.error('Error tagging track:', error);
         }
+    };
+
+    const handleCloseTrack = () => {
+        setSelectedTrack(null);
     };
 
     return (
@@ -285,12 +294,13 @@ function ListenerDashboard() {
                             <div className='selected-track-details'>
                                 <h4>{selectedTrack.name}</h4>
                                 <p>{selectedTrack.artist}</p>
-                                {selectedTrack.images.length > 0 ? (
-                                    <img src={selectedTrack.images[0].url} alt="Track Art" />
+                                {selectedTrack.album.images && selectedTrack.album.images.length > 0 ? (
+                                    <img src={selectedTrack.album.images[0].url} alt="Track Art" />
                                 ) : (
                                     <div>No image available</div>
                                 )}
                                 <button className="btn btn-primary mt-2" onClick={handleTagButtonClick}>Tag</button>
+                                <button className="btn btn-secondary mt-2" onClick={handleCloseTrack}>Close</button>
                                 {showTaggingForm && (
                                     <TaggingForm
                                         song={selectedTrack}
@@ -308,6 +318,7 @@ function ListenerDashboard() {
                                         <p>{track.artists[0].name}</p>
                                     </div>
                                 ))}
+                                {JSON.stringify(selectedTrack)}
                             </div>
                         )}
                     </div>
