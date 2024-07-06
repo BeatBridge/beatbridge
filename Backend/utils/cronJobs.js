@@ -3,48 +3,70 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const fetch = require('node-fetch');
 const { refreshSpotifyToken } = require('./spotifyUtils');
+require('./createSystemUser.js');
+
+async function getSystemUserToken() {
+    const systemUser = await prisma.user.findUnique({
+        where: { username: 'system' },
+    });
+
+    if (!systemUser) {
+        throw new Error('System user not found.');
+    }
+
+    const response = await fetch('https://api.spotify.com/v1/me', {
+        headers: { 'Authorization': `Bearer ${systemUser.spotifyAccessToken}` }
+    });
+
+    if (response.status === 401 || !systemUser.spotifyAccessToken) {
+        const newAccessToken = await refreshSpotifyToken('system');
+        await prisma.user.update({
+            where: { username: 'system' },
+            data: { spotifyAccessToken: newAccessToken }
+        });
+        return newAccessToken;
+    }
+
+    return systemUser.spotifyAccessToken;
+}
 
 async function fetchAndStoreFeaturedPlaylists() {
     console.log('Fetching and storing featured playlists...');
-    const users = await prisma.user.findMany({
-        where: { spotifyAccessToken: { not: null } },
-    });
+    const accessToken = await getSystemUserToken();
 
-    for (const user of users) {
-        try {
-            const response = await fetch(`https://api.spotify.com/v1/browse/featured-playlists`, {
-                headers: {
-                    'Authorization': `Bearer ${user.spotifyAccessToken}`
-                }
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                for (const playlist of data.playlists.items) {
-                    await prisma.playlist.upsert({
-                        where: { spotifyId: playlist.id },
-                        update: {
-                            name: playlist.name,
-                            description: playlist.description,
-                            url: playlist.external_urls.spotify,
-                            images: playlist.images,
-                        },
-                        create: {
-                            spotifyId: playlist.id,
-                            name: playlist.name,
-                            description: playlist.description,
-                            url: playlist.external_urls.spotify,
-                            images: playlist.images,
-                        }
-                    });
-                }
-                console.log(`Featured playlists updated for user ${user.id}`);
-            } else {
-                console.error(`Failed to fetch featured playlists for user ${user.id}:`, data);
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/browse/featured-playlists`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
             }
-        } catch (error) {
-            console.error('Error fetching featured playlists:', error);
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            for (const playlist of data.playlists.items) {
+                await prisma.playlist.upsert({
+                    where: { spotifyId: playlist.id },
+                    update: {
+                        name: playlist.name,
+                        description: playlist.description,
+                        url: playlist.external_urls.spotify,
+                        images: playlist.images,
+                    },
+                    create: {
+                        spotifyId: playlist.id,
+                        name: playlist.name,
+                        description: playlist.description,
+                        url: playlist.external_urls.spotify,
+                        images: playlist.images,
+                    }
+                });
+            }
+            console.log(`Featured playlists updated`);
+        } else {
+            console.error(`Failed to fetch featured playlists:`, data);
         }
+    } catch (error) {
+        console.error('Error fetching featured playlists:', error);
     }
     console.log('Completed fetching and storing featured playlists.');
 }
@@ -52,12 +74,13 @@ async function fetchAndStoreFeaturedPlaylists() {
 async function fetchAndStoreTracksAndArtists() {
     console.log('Fetching and storing tracks and artists...');
     const playlists = await prisma.playlist.findMany();
+    const accessToken = await getSystemUserToken();
 
     for (const playlist of playlists) {
         try {
             const response = await fetch(`https://api.spotify.com/v1/playlists/${playlist.spotifyId}/tracks`, {
                 headers: {
-                    'Authorization': `Bearer ${process.env.SPOTIFY_ACCESS_TOKEN}`
+                    'Authorization': `Bearer ${accessToken}`
                 }
             });
             const data = await response.json();
@@ -66,7 +89,7 @@ async function fetchAndStoreTracksAndArtists() {
                 for (const item of data.items) {
                     const track = item.track;
 
-                    await prisma.track.upsert({
+                    const storedTrack = await prisma.track.upsert({
                         where: { spotifyId: track.id },
                         update: {
                             name: track.name,
@@ -84,7 +107,7 @@ async function fetchAndStoreTracksAndArtists() {
                     });
 
                     for (const artist of track.artists) {
-                        await prisma.artist.upsert({
+                        const storedArtist = await prisma.artist.upsert({
                             where: { spotifyId: artist.id },
                             update: {
                                 name: artist.name,
@@ -93,6 +116,16 @@ async function fetchAndStoreTracksAndArtists() {
                                 spotifyId: artist.id,
                                 name: artist.name,
                                 genres: [],
+                            }
+                        });
+
+                        // Link track to artist
+                        await prisma.track.update({
+                            where: { id: storedTrack.id },
+                            data: {
+                                artists: {
+                                    connect: { id: storedArtist.id }
+                                }
                             }
                         });
                     }
@@ -108,35 +141,48 @@ async function fetchAndStoreTracksAndArtists() {
     console.log('Completed fetching and storing tracks and artists.');
 }
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function fetchAndStoreArtistGenres() {
+    console.log('Fetching and storing artist genres...');
     const artists = await prisma.artist.findMany({
         where: { genres: { equals: [] } }
     });
 
-    const artistIds = artists.map(artist => artist.spotifyId).join(',');
+    const accessToken = await getSystemUserToken();
 
-    try {
-        const response = await fetch(`https://api.spotify.com/v1/artists?ids=${artistIds}`, {
-            headers: {
-                'Authorization': `Bearer ${process.env.SPOTIFY_ACCESS_TOKEN}`
-            }
-        });
-        const data = await response.json();
+    for (const artist of artists) {
+        try {
+            const response = await fetch(`https://api.spotify.com/v1/artists/${artist.spotifyId}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
 
-        if (response.ok) {
-            for (const artist of data.artists) {
-                await prisma.artist.update({
-                    where: { spotifyId: artist.id },
-                    data: { genres: artist.genres }
-                });
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Failed to fetch genres for artist ${artist.spotifyId}:`, errorText);
+                await delay(1000); // Delay for 1 second before the next request
+                continue; // Skip this artist and continue with the next
             }
-            console.log('Artist genres updated successfully.');
-        } else {
-            console.error('Failed to fetch artist genres:', data);
+
+            const data = await response.json();
+
+            await prisma.artist.update({
+                where: { spotifyId: artist.spotifyId },
+                data: { genres: data.genres }
+            });
+
+            console.log(`Genres updated for artist ${artist.name}`);
+        } catch (error) {
+            console.error(`Error fetching genres for artist ${artist.name}:`, error);
         }
-    } catch (error) {
-        console.error('Error fetching artist genres:', error);
+
+        await delay(1000); // Delay for 1 second before the next request
     }
+
     console.log('Completed fetching and storing artist genres.');
 }
 

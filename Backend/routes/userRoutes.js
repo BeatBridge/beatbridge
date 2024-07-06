@@ -259,6 +259,7 @@ router.get('/spotify/search', authenticateJWT, spotifyTokenRefresh, async (req, 
     }
 });
 
+//Direct API call
 router.get('/spotify/featured-playlists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { username: req.user.username },
@@ -346,6 +347,7 @@ router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req,
     }
 });
 
+//cronJob
 router.get('/playlists', authenticateJWT, async (req, res) => {
     try {
         const playlists = await prisma.playlist.findMany();
@@ -370,6 +372,22 @@ router.get('/playlists/:playlistId/tracks', authenticateJWT, spotifyTokenRefresh
     } catch (error) {
         console.error('Error fetching tracks:', error);
         res.status(500).json({ error: "Failed to fetch tracks." });
+    }
+});
+
+router.get('/artists/genres', authenticateJWT, async (req, res) => {
+    try {
+        const artists = await prisma.artist.findMany({
+            select: {
+                spotifyId: true,
+                name: true,
+                genres: true,
+            }
+        });
+        res.json(artists);
+    } catch (error) {
+        console.error('Error fetching artist genres:', error);
+        res.status(500).json({ error: "Failed to fetch artist genres." });
     }
 });
 
