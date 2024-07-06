@@ -36,3 +36,32 @@ model Song {
   userId                Int
   user                  User      @relation(fields: [userId], references: [id])
 }
+
+model Playlist {
+  id                    Int       @id @default(autoincrement())
+  spotifyId             String    @unique
+  name                  String
+  description           String?
+  url                   String
+  images                Json
+  tracks                Track[]
+}
+
+model Track {
+  id                    Int       @id @default(autoincrement())
+  spotifyId             String    @unique
+  name                  String
+  album                 String
+  duration              Int
+  playlistId            Int
+  playlist              Playlist  @relation(fields: [playlistId], references: [id])
+  artists               Artist[]
+}
+
+model Artist {
+  id                    Int       @id @default(autoincrement())
+  spotifyId             String    @unique
+  name                  String
+  genres                String[]
+  tracks                Track[]   @relation
+}

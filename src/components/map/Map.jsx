@@ -7,37 +7,27 @@ import './map.css';
 function Map () {
     const [playlists, setPlaylists] = useState([]);
     const [tracks, setTracks] = useState([]);
-    const [detailedTracks, setDetailedTracks] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchFeaturedPlaylists = async () => {
-            const result = await API.getFeaturedPlaylists();
+        const fetchPlaylists = async () => {
+            const result = await API.getStoredPlaylists();
             if (result.error) {
                 setError(result.error);
             } else {
-                setPlaylists(result.playlists.items);
+                setPlaylists(result);
             }
         };
 
-        fetchFeaturedPlaylists();
+        fetchPlaylists();
     }, []);
 
     const fetchPlaylistTracks = async (playlistId) => {
-        const result = await API.getPlaylistTracks(playlistId);
+        const result = await API.getStoredPlaylistTracks(playlistId);
         if (result.error) {
             setError(result.error);
         } else {
-            setTracks(result.items);
-
-            // Fetch detailed information for each track
-            const trackIds = result.items.map(item => item.track.id);
-            const trackDetailsResult = await API.getTrackDetails(trackIds);
-            if (trackDetailsResult.error) {
-                setError(trackDetailsResult.error);
-            } else {
-                setDetailedTracks(trackDetailsResult.tracks);
-            }
+            setTracks(result);
         }
     };
 
@@ -58,7 +48,7 @@ function Map () {
             <div className='row'>
                 <div className='col-md-12'>
                     <h1>Featured Playlists</h1>
-                    {error && <p>{error}</p>}
+                    {error && <p>{JSON.stringify(error)}</p>}
                     {!error && (
                         <ul>
                             {playlists.map(playlist => (
@@ -73,13 +63,20 @@ function Map () {
             <div className='row'>
                 <div className='col-md-12'>
                     <h2>Tracks</h2>
-                    {detailedTracks.length > 0 ? (
+                    {tracks.length > 0 ? (
                         <ul>
-                            {detailedTracks.map((track, index) => (
+                            {tracks.map((track, index) => (
                                 <li key={index}>
                                     {track.name} by {track.artists.map(artist => artist.name).join(', ')}
-                                    <p>Album: {track.album.name}</p>
-                                    <p>Duration: {track.duration_ms} ms</p>
+                                    <p>Album: {track.album}</p>
+                                    <p>Duration: {track.duration} ms</p>
+                                    <ul>
+                                        {track.artists.map(artist => (
+                                            <li key={artist.id}>
+                                                {artist.name}
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </li>
                             ))}
                         </ul>

@@ -298,6 +298,81 @@ router.get('/spotify/playlists/:playlistId/tracks', authenticateJWT, spotifyToke
     }
 });
 
+router.get('/spotify/tracks', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { trackIds } = req.query;
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    if (!trackIds) {
+        return res.status(400).json({ error: 'No track IDs provided.' });
+    }
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/tracks?ids=${trackIds}`, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching track details:', error);
+        res.status(500).json({ error: "Failed to fetch track details." });
+    }
+});
+
+router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { artistIds } = req.query;
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    if (!artistIds) {
+        return res.status(400).json({ error: 'No artist IDs provided.' });
+    }
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/artists?ids=${artistIds}`, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching artist details:', error);
+        res.status(500).json({ error: "Failed to fetch artist details." });
+    }
+});
+
+router.get('/playlists', authenticateJWT, async (req, res) => {
+    try {
+        const playlists = await prisma.playlist.findMany();
+        res.json(playlists);
+    } catch (error) {
+        console.error('Error fetching playlists:', error);
+        res.status(500).json({ error: "Failed to fetch playlists." });
+    }
+});
+
+router.get('/playlists/:playlistId/tracks', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { playlistId } = req.params;
+
+    try {
+        const tracks = await prisma.track.findMany({
+            where: { playlistId: parseInt(playlistId) },
+            include: {
+                artists: true,
+            }
+        });
+        res.json(tracks);
+    } catch (error) {
+        console.error('Error fetching tracks:', error);
+        res.status(500).json({ error: "Failed to fetch tracks." });
+    }
+});
+
 router.post('/songs', authenticateJWT, async (req, res) => {
     const { title, artist, album, genre, mood, tempo, customTags } = req.body;
     try {
@@ -356,29 +431,6 @@ router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, r
     }
 });
 
-router.get('/spotify/tracks', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
-    const { trackIds } = req.query;
-    const user = await prisma.user.findUnique({
-        where: { username: req.user.username },
-    });
-
-    if (!trackIds) {
-        return res.status(400).json({ error: 'No track IDs provided.' });
-    }
-
-    try {
-        const response = await fetch(`https://api.spotify.com/v1/tracks?ids=${trackIds}`, {
-            headers: {
-                'Authorization': `Bearer ${user.spotifyAccessToken}`
-            }
-        });
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching track details:', error);
-        res.status(500).json({ error: "Failed to fetch track details." });
-    }
-});
 
 router.get('/protected-route', authenticateJWT, (req, res) => {
     res.json({ message: 'This is a protected route' });

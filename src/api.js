@@ -281,6 +281,54 @@ const API = {
             return { error: 'Failed to fetch track details' };
         }
     },
+    getArtistDetails: async (artistIds) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds.join(',')}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch artist details');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching artist details:', error);
+            return { error: 'Failed to fetch artist details' };
+        }
+    },
+    getStoredPlaylists: async () => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/playlists`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch playlists');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching playlists:', error);
+            return { error: 'Failed to fetch playlists' };
+        }
+    },
+    getStoredPlaylistTracks: async (playlistId) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/playlists/${playlistId}/tracks`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch tracks');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching tracks:', error);
+            return { error: 'Failed to fetch tracks' };
+        }
+    },
 };
 
 export default API;
