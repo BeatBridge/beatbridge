@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import API from '../../api.js';
 import { NavLink } from 'react-router-dom';
 import logoImg from '/beatbridge_logo.png';
-import './taggingscreen.css'
+import './library.css';
 
-const TaggingScreen = () => {
-
-  return (
-    <div className="container">
+function Library () {
+    return (
+        <div className="container">
             <div className='row'>
                 <div className='col-md-2'>
                     <NavLink to="/" className="auth-logo" title='beatbridge_logo'>
@@ -22,11 +19,11 @@ const TaggingScreen = () => {
             </div>
             <div className='row'>
                 <div className='col-md-12'>
-                    <h1>In this screen, you can find songs that you tagged.</h1>
+                    <h1>In this screen, you can find songs that you added to your library.</h1>
                 </div>
             </div>
         </div>
-  )
+    )
 }
 
-export default TaggingScreen;
+export default Library;

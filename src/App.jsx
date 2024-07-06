@@ -11,6 +11,15 @@ import SpotifyCallBack from './components/spotifycallback/SpotifyCallBack.jsx';
 import Error from './components/error/Error.jsx';
 import RequireAuth from './components/requireauth/RequireAuth.jsx';
 import TaggingScreen from './components/tagscreen/TaggingScreen.jsx';
+import ArtistDashboard from './components/dashboard/ArtistDashboard.jsx';
+import TrendingScreen from './components/trendscreen/TrendingScreen.jsx';
+import Profile from './components/profile/Profile.jsx';
+import Friends from './components/friends/Friends.jsx';
+import Library from './components/library/Library.jsx';
+import Favourites from './components/favourites/Favourites.jsx';
+import Settings from './components/settings/Settings.jsx';
+import Chatbot from './components/chatbot/Chatbot.jsx';
+import Map from './components/map/Map.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);
@@ -44,13 +53,46 @@ function App() {
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path='/login' element={<Login setJWT={setJWT} />} />
+                <Route path='/map' element={<Map />} />
+                <Route path="/profile" element={
+                    <RequireAuth>
+                        <Profile userInfo={userInfo} />
+                    </RequireAuth> } />
+                <Route path="/friends" element={
+                    <RequireAuth>
+                        <Friends userInfo={userInfo} />
+                    </RequireAuth> } />
+                <Route path="/library" element={
+                    <RequireAuth>
+                        <Library userInfo={userInfo} />
+                    </RequireAuth> } />
+                <Route path="/favourites" element={
+                    <RequireAuth>
+                        <Favourites userInfo={userInfo} />
+                    </RequireAuth> } />
                 <Route path="/l/dashboard" element={
                     <RequireAuth>
                         <ListenerDashboard userInfo={userInfo} />
                     </RequireAuth> } />
-                <Route path="/l/tags" element={
+                <Route path="/tags" element={
                     <RequireAuth>
                         <TaggingScreen userInfo={userInfo} />
+                    </RequireAuth> } />
+                <Route path="/chatbot" element={
+                    <RequireAuth>
+                        <Chatbot userInfo={userInfo} />
+                    </RequireAuth> } />
+                <Route path="/settings" element={
+                    <RequireAuth>
+                        <Settings userInfo={userInfo} />
+                    </RequireAuth> } />
+                <Route path="a/dashboard" element={
+                    <RequireAuth>
+                        <ArtistDashboard userInfo={userInfo} />
+                    </RequireAuth> } />
+                <Route path="a/trends" element={
+                    <RequireAuth>
+                        <TrendingScreen userInfo={userInfo} />
                     </RequireAuth> } />
                 <Route path='/signup' element={<SignUp setJWT={setJWT} />} />
                 <Route path='/verify/:token' element={<EmailVerification />} />

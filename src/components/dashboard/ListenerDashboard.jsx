@@ -4,7 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm.jsx';
 import { FaBell, FaHeart, FaMusic, FaTag, FaUser } from 'react-icons/fa';
-import { faCircleQuestion, faGauge, faGear, faHeadphonesSimple, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmericas, faGauge, faGear, faHeadphonesSimple, faMicrochip, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
 import discoImg from '../../assets/genres/disco.jpg';
 import popImg from '../../assets/genres/pop.jpg';
@@ -180,15 +180,15 @@ function ListenerDashboard() {
                             </div>
                             <div className='l-dashbaord-menu-items'>
                                 <FaHeart className='menu-icon' />
-                                <h5>Favourite</h5>
+                                <NavLink to='/library'><h5>Favourite</h5></NavLink>
                             </div>
                             <div className='l-dashbaord-menu-items'>
                                 <FaTag className='menu-icon' />
-                                <h5>Tags</h5>
+                                <NavLink to='/tags'><h5>Tags</h5></NavLink>
                             </div>
                             <div className='l-dashbaord-menu-items'>
                                 <FontAwesomeIcon icon={faUserGroup} className='menu-icon' />
-                                <h5>Friends</h5>
+                                <NavLink to='/friends'><h5>Friends</h5></NavLink>
                             </div>
                         </div>
                     </div>
@@ -255,11 +255,15 @@ function ListenerDashboard() {
                         <div className='l-menu-items'>
                             <div className='l-dashbaord-menu-items'>
                                 <FontAwesomeIcon icon={faGear} className='menu-icon' />
-                                <h5>Profile</h5>
+                                <NavLink to='/settings'><h5>Settings</h5></NavLink>
                             </div>
                             <div className='l-dashbaord-menu-items'>
-                                <FontAwesomeIcon icon={faCircleQuestion} className='menu-icon' />
-                                <h5>FAQs</h5>
+                                <FontAwesomeIcon icon={faMicrochip} className='menu-icon' />
+                                <NavLink to='/chatbot'><h5>Chat With AI</h5></NavLink>
+                            </div>
+                            <div className='l-dashbaord-menu-items'>
+                                <FontAwesomeIcon icon={faEarthAmericas} className='menu-icon' />
+                                <NavLink to='/map'><h5>Map</h5></NavLink>
                             </div>
                         </div>
                     </div>
@@ -289,7 +293,7 @@ function ListenerDashboard() {
                         </div>
                     </div>
 
-                    <div className='col-md-3'>
+                    <div className='col-md-3 l-track-action'>
                         {selectedTrack && (
                             <div className='selected-track-details'>
                                 <h4>{selectedTrack.name}</h4>

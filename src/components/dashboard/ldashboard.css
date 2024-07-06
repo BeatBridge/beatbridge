@@ -3,6 +3,7 @@
     background-color: #151E3F;
     color: #F2F3D9;
     position: relative;
+    min-height: 100vh;
 }
 
 .l-logo {
@@ -15,7 +16,7 @@
     border-right: 1px solid #800080;
 }
 
-.l-right-sidebar, .l-right-menu {
+.l-right-sidebar, .l-right-menu, .l-track-action {
     border-left: 1px solid #800080;
 }
 
@@ -67,6 +68,7 @@
 .l-dash-bell-icon {
     font-size: 1.7rem;
     margin-bottom: 0.7rem;
+    cursor: pointer;
 }
 
 .l-menu-bar, .l-discover-genre, .l-right-menu, .l-top-music {
@@ -86,8 +88,12 @@
     color: #800080;
 }
 
-.l-discover-genre h5, .l-top-music h5 {
+.l-discover-genre h5, .l-top-music-icon-header{
     padding: 0.3rem 1rem 0 1rem;
+}
+
+.l-top-music h5 {
+    padding: 0;
 }
 
 .l-top-artist-column {
@@ -98,6 +104,12 @@
     display: flex;
     gap: 1rem;
     margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.l-dashbaord-menu-items a {
+    text-decoration: none;
+    color: inherit;
 }
 
 .l-menu-items {
@@ -112,7 +124,7 @@
     display: flex;
     overflow-y: hidden;
     overflow-x: auto;
-    scrollbar-color: #151E3F #F2F3D9;
+    scrollbar-color:#F2F3D9 #151E3F;
 }
 
 .l-top-music-top {
