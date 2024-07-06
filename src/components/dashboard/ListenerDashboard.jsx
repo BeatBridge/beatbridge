@@ -295,7 +295,9 @@ function ListenerDashboard() {
                                 <h4>{selectedTrack.name}</h4>
                                 <p>{selectedTrack.artist}</p>
                                 {selectedTrack.album.images && selectedTrack.album.images.length > 0 ? (
-                                    <img src={selectedTrack.album.images[0].url} alt="Track Art" />
+                                    <div className='tag-art-container'>
+                                        <img src={selectedTrack.album.images[0].url} alt="Track Art" className='tag-art' />
+                                    </div>
                                 ) : (
                                     <div>No image available</div>
                                 )}
@@ -318,7 +320,6 @@ function ListenerDashboard() {
                                         <p>{track.artists[0].name}</p>
                                     </div>
                                 ))}
-                                {JSON.stringify(selectedTrack)}
                             </div>
                         )}
                     </div>

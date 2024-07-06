@@ -143,11 +143,7 @@
 }
 
 .search-results {
-    padding: 10px;
-    background-color: #f2f2f2;
-    border-radius: 8px;
-    max-height: 300px;
-    overflow-y: auto;
+    display: none;
 }
 
 .search-result {
@@ -224,5 +220,9 @@
 }
 
 .suggestions-list img {
+    width: 100%;
+}
+
+.tag-art-container, .tag-art-container img {
     width: 100%;
 }
