@@ -3,7 +3,72 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const fetch = require('node-fetch');
 const { refreshSpotifyToken } = require('./spotifyUtils');
+const { emitUpdate } = require('../socket');
 require('./createSystemUser.js');
+require('./seedLocation.js');
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(url, options, retries = 3, delayMs = 1000) {
+    try {
+        const response = await fetch(url, options);
+        if (response.status === 429) { // Too Many Requests
+            if (retries > 0) {
+                console.warn(`Rate limited. Retrying in ${delayMs} ms...`);
+                await delay(delayMs);
+                return fetchWithRetry(url, options, retries - 1, delayMs * 2);
+            } else {
+                throw new Error('Too many requests, retry limit reached');
+            }
+        }
+        return response;
+    } catch (error) {
+        if (retries > 0) {
+            console.warn(`Fetch error. Retrying in ${delayMs} ms...`);
+            await delay(delayMs);
+            return fetchWithRetry(url, options, retries - 1, delayMs * 2);
+        } else {
+            throw error;
+        }
+    }
+}
+
+async function getLocationForArtist(artist) {
+    try {
+        const artistWithLocation = await prisma.artist.findUnique({
+            where: { id: artist.id },
+            include: { locations: true }
+        });
+
+        if (artistWithLocation && artistWithLocation.locations.length > 0) {
+            const location = artistWithLocation.locations[0];
+            return {
+                name: location.name,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                pathData: location.pathData || null
+            };
+        }
+
+        console.warn(`No location mapping found for artist ${artist.name}. Using default location.`);
+        return {
+            name: 'New York',
+            latitude: 40.7128,
+            longitude: -74.0060,
+            pathData: null
+        };
+    } catch (error) {
+        console.error(`Error fetching location for artist ${artist.name}:`, error);
+        return {
+            name: 'New York',
+            latitude: 40.7128,
+            longitude: -74.0060,
+            pathData: null
+        };
+    }
+}
 
 async function getSystemUserToken() {
     const systemUser = await prisma.user.findUnique({
@@ -35,11 +100,14 @@ async function fetchAndStoreFeaturedPlaylists() {
     const accessToken = await getSystemUserToken();
 
     try {
-        const response = await fetch(`https://api.spotify.com/v1/browse/featured-playlists`, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
+        const response = await fetchWithRetry(
+            `https://api.spotify.com/v1/browse/featured-playlists`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
             }
-        });
+        );
         const data = await response.json();
 
         if (response.ok) {
@@ -78,18 +146,21 @@ async function fetchAndStoreTracksAndArtists() {
 
     for (const playlist of playlists) {
         try {
-            const response = await fetch(`https://api.spotify.com/v1/playlists/${playlist.spotifyId}/tracks`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
+            const response = await fetchWithRetry(
+                `https://api.spotify.com/v1/playlists/${playlist.spotifyId}/tracks`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
                 }
-            });
+            );
             const data = await response.json();
 
             if (response.ok) {
                 for (const item of data.items) {
                     const track = item.track;
 
-                    const storedTrack = await prisma.track.upsert({
+                    await prisma.track.upsert({
                         where: { spotifyId: track.id },
                         update: {
                             name: track.name,
@@ -107,7 +178,7 @@ async function fetchAndStoreTracksAndArtists() {
                     });
 
                     for (const artist of track.artists) {
-                        const storedArtist = await prisma.artist.upsert({
+                        await prisma.artist.upsert({
                             where: { spotifyId: artist.id },
                             update: {
                                 name: artist.name,
@@ -116,16 +187,6 @@ async function fetchAndStoreTracksAndArtists() {
                                 spotifyId: artist.id,
                                 name: artist.name,
                                 genres: [],
-                            }
-                        });
-
-                        // Link track to artist
-                        await prisma.track.update({
-                            where: { id: storedTrack.id },
-                            data: {
-                                artists: {
-                                    connect: { id: storedArtist.id }
-                                }
                             }
                         });
                     }
@@ -137,16 +198,14 @@ async function fetchAndStoreTracksAndArtists() {
         } catch (error) {
             console.error('Error fetching tracks:', error);
         }
+
+        await delay(1000); // Add a delay between playlist fetches to reduce rate limiting
     }
     console.log('Completed fetching and storing tracks and artists.');
 }
 
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function fetchAndStoreArtistGenres() {
-    console.log('Fetching and storing artist genres...');
+    console.log('Fetching and storing artists genres...');
     const artists = await prisma.artist.findMany({
         where: { genres: { equals: [] } }
     });
@@ -155,11 +214,14 @@ async function fetchAndStoreArtistGenres() {
 
     for (const artist of artists) {
         try {
-            const response = await fetch(`https://api.spotify.com/v1/artists/${artist.spotifyId}`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
+            const response = await fetchWithRetry(
+                `https://api.spotify.com/v1/artists/${artist.spotifyId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
                 }
-            });
+            );
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -174,6 +236,41 @@ async function fetchAndStoreArtistGenres() {
                 where: { spotifyId: artist.spotifyId },
                 data: { genres: data.genres }
             });
+
+            const location = await getLocationForArtist(artist);
+
+            if (location) {
+                await prisma.location.upsert({
+                    where: { name: location.name },
+                    update: {
+                        genres: {
+                            set: data.genres // Assuming genres is a list of strings
+                        },
+                        artists: {
+                            connect: { id: artist.id }
+                        }
+                    },
+                    create: {
+                        name: location.name,
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        genres: data.genres,
+                        artists: {
+                            connect: { id: artist.id }
+                        },
+                        pathData: location.pathData // Include pathData if it exists
+                    }
+                });
+
+                // Emit real-time update to clients
+                emitUpdate('update', {
+                    name: location.name,
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    genres: data.genres,
+                    pathData: location.pathData
+                });
+            }
 
             console.log(`Genres updated for artist ${artist.name}`);
         } catch (error) {

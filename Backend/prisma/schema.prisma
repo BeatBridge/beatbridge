@@ -22,6 +22,8 @@ model User {
   spotifyAccessToken    String?   // is null if user might has not authenticated with Spotify
   spotifyRefreshToken   String?   // is null if user might has not authenticated with Spotify
   songs                 Song[]
+  locationId            Int?
+  location              Location? @relation(fields: [locationId], references: [id])
 }
 
 model Song {
@@ -64,4 +66,16 @@ model Artist {
   name                  String
   genres                String[]
   tracks                Track[]   @relation("TrackToArtist")
+  locations             Location[] @relation("ArtistToLocation")
+}
+
+model Location {
+  id                    Int       @id @default(autoincrement())
+  name                  String    @unique
+  latitude              Float
+  longitude             Float
+  pathData              String?
+  artists               Artist[]  @relation("ArtistToLocation")
+  genres                String[]
+  users                 User[]    @relation
 }

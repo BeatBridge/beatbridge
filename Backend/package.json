@@ -20,7 +20,8 @@
     "node-cron": "^3.0.3",
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.4",
-    "querystring": "^0.2.1"
+    "querystring": "^0.2.1",
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
     "prisma": "^5.16.0"

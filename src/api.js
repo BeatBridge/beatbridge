@@ -329,6 +329,22 @@ const API = {
             return { error: 'Failed to fetch tracks' };
         }
     },
+    getGenresByLocation: async () => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/genres-by-location`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch genres by location');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching genres by location:', error);
+            return { error: 'Failed to fetch genres by location' };
+        }
+    },
 };
 
 export default API;

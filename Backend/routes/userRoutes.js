@@ -391,6 +391,35 @@ router.get('/artists/genres', authenticateJWT, async (req, res) => {
     }
 });
 
+router.get('/genres-by-location', async (req, res) => {
+    try {
+        const locations = await prisma.location.findMany({
+            select: {
+                name: true,
+                latitude: true,
+                longitude: true,
+                pathData: true,
+                genres: true,
+                artists: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
+        });
+
+        const result = locations.map(location => ({
+            ...location,
+            genres: Array.from(new Set(location.artists.flatMap(artist => artist.genres)))
+        }));
+
+        res.json(result);
+    } catch (error) {
+        console.error('Error fetching genres by location:', error);
+        res.status(500).json({ error: "Failed to fetch genres by location." });
+    }
+});
+
 router.post('/songs', authenticateJWT, async (req, res) => {
     const { title, artist, album, genre, mood, tempo, customTags } = req.body;
     try {

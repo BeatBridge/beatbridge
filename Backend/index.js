@@ -2,11 +2,16 @@ require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const http = require('http');
 const userRoutes = require("./routes/userRoutes");
+const { configureSocket } = require('./socket.js');
 
 require('./utils/cronJobs');
 
 const app = express();
+const server = http.createServer(app);
+configureSocket(server);
+
 app.use(bodyParser.json())
 app.use(cors());
 app.use(express.json());
