@@ -398,7 +398,6 @@ router.get('/genres-by-location', async (req, res) => {
                 name: true,
                 latitude: true,
                 longitude: true,
-                pathData: true,
                 genres: true,
                 artists: {
                     select: {

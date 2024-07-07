@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const fetch = require('node-fetch');
+const { fetchLocationFromMusicBrainz } = require('./musicBrainzUtils');
 const { refreshSpotifyToken } = require('./spotifyUtils');
 const { emitUpdate } = require('../socket');
 require('./createSystemUser.js');
@@ -48,16 +49,28 @@ async function getLocationForArtist(artist) {
                 name: location.name,
                 latitude: location.latitude,
                 longitude: location.longitude,
-                pathData: location.pathData || null
             };
         }
 
-        console.warn(`No location mapping found for artist ${artist.name}. Using default location.`);
+        console.warn(`No location mapping found for artist ${artist.name}. Fetching from MusicBrainz.`);
+        const fetchedLocation = await fetchLocationFromMusicBrainz(artist.name);
+
+        // Store the fetched location in the database
+        const newLocation = await prisma.location.create({
+            data: {
+                name: fetchedLocation.name,
+                latitude: fetchedLocation.latitude,
+                longitude: fetchedLocation.longitude,
+                artists: {
+                    connect: { id: artist.id }
+                }
+            }
+        });
+
         return {
-            name: 'New York',
-            latitude: 40.7128,
-            longitude: -74.0060,
-            pathData: null
+            name: newLocation.name,
+            latitude: newLocation.latitude,
+            longitude: newLocation.longitude
         };
     } catch (error) {
         console.error(`Error fetching location for artist ${artist.name}:`, error);
@@ -65,7 +78,6 @@ async function getLocationForArtist(artist) {
             name: 'New York',
             latitude: 40.7128,
             longitude: -74.0060,
-            pathData: null
         };
     }
 }
@@ -257,8 +269,7 @@ async function fetchAndStoreArtistGenres() {
                         genres: data.genres,
                         artists: {
                             connect: { id: artist.id }
-                        },
-                        pathData: location.pathData // Include pathData if it exists
+                        }
                     }
                 });
 
@@ -268,7 +279,6 @@ async function fetchAndStoreArtistGenres() {
                     latitude: location.latitude,
                     longitude: location.longitude,
                     genres: data.genres,
-                    pathData: location.pathData
                 });
             }
 

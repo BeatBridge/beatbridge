@@ -27,8 +27,6 @@ async function main() {
             spotifyRefreshToken: SYSTEM_USER_REFRESH_TOKEN,
         },
     });
-
-    // console.log('System user created or updated:', systemUser);
 }
 
 main()
