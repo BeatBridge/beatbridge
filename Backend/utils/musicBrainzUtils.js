@@ -25,13 +25,6 @@ async function fetchLocationFromMusicBrainz(artistName) {
         coordinates = await fetchCoordinates(location.name);
     }
 
-    console.log(`Fetched location for artist ${artistName} from MusicBrainz:`, {
-        name: location.name,
-        countryCode: coordinates.countryCode,
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude
-    });
-
     return {
         name: location.name,
         countryCode: coordinates.countryCode !== 'Unknown' ? coordinates.countryCode : countryCode,

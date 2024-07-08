@@ -42,7 +42,6 @@ async function refreshSpotifyToken(username) {
                 spotifyRefreshToken: data.refresh_token ? data.refresh_token : user.spotifyRefreshToken,
             },
         });
-        console.log(`Updated access token for user ${username}: ${data.access_token}`);
         return data.access_token;
     } catch (error) {
         console.error('Error refreshing Spotify token:', error);

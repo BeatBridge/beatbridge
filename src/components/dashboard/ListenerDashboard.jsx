@@ -116,7 +116,6 @@ function ListenerDashboard() {
         try {
             const song = await API.createSong(songData);
             await API.tagSong(song.id, tags);
-            console.log('Song tagged:', song);
         } catch (error) {
             console.error('Error tagging track:', error);
         }

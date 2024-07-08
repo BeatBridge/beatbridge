@@ -45,14 +45,12 @@ async function getLocationForArtist(artist) {
         let location;
         if (artistWithLocation && artistWithLocation.locations.length > 0) {
             location = artistWithLocation.locations[0];
-            console.log(`Location found in database for artist ${artist.name}: ${location.name}, Country Code: ${location.countryCode}`);
 
             if (!location.countryCode || location.countryCode === 'Unknown') {
                 console.warn(`Country code missing or invalid for artist ${artist.name}. Updating country code.`);
                 let fetchedLocation;
                 try {
                     fetchedLocation = await fetchLocationFromMusicBrainz(artist.name);
-                    console.log(`Location fetched from MusicBrainz for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
                 } catch (error) {
                     if (error.message.includes('No artist found with name')) {
                         console.warn(`Artist ${artist.name} not found on MusicBrainz. Falling back to Spotify.`);
@@ -61,7 +59,6 @@ async function getLocationForArtist(artist) {
                     }
                     console.warn(`Falling back to fetching location from Spotify for artist ${artist.name}.`);
                     fetchedLocation = await fetchLocationFromSpotify(artist.spotifyId);
-                    console.log(`Location fetched from Spotify for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
                 }
 
                 location = await prisma.location.update({
@@ -70,8 +67,6 @@ async function getLocationForArtist(artist) {
                         countryCode: fetchedLocation.countryCode
                     }
                 });
-
-                console.log(`Updated country code for location of artist ${artist.name}: ${location.countryCode}`);
             }
 
             return {
@@ -86,12 +81,10 @@ async function getLocationForArtist(artist) {
         let fetchedLocation;
         try {
             fetchedLocation = await fetchLocationFromMusicBrainz(artist.name);
-            console.log(`Location fetched from MusicBrainz for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
         } catch(error) {
             console.error(`Failed to fetch location from MusicBrainz for artist ${artist.name}:`, error);
             console.warn(`Falling back to fetching location from Spotify for artist ${artist.name}.`);
             fetchedLocation = await fetchLocationFromSpotify(artist.spotifyId);
-            console.log(`Location fetched from Spotify for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
         }
 
         const newLocation = await prisma.location.upsert({
@@ -115,7 +108,6 @@ async function getLocationForArtist(artist) {
             }
         });
 
-        console.log(`Location upserted in database for artist ${artist.name}: ${newLocation.name}, Country Code: ${newLocation.countryCode}`);
         return {
             name: newLocation.name,
             latitude: newLocation.latitude,
@@ -159,7 +151,6 @@ async function getSystemUserToken() {
 }
 
 async function fetchAndStoreFeaturedPlaylists() {
-    console.log('Fetching and storing featured playlists...');
     const accessToken = await getSystemUserToken();
 
     try {
@@ -192,18 +183,15 @@ async function fetchAndStoreFeaturedPlaylists() {
                     }
                 });
             }
-            console.log(`Featured playlists updated`);
         } else {
             console.error(`Failed to fetch featured playlists:`, data);
         }
     } catch (error) {
         console.error('Error fetching featured playlists:', error);
     }
-    console.log('Completed fetching and storing featured playlists.');
 }
 
 async function fetchAndStoreTracksAndArtists() {
-    console.log('Fetching and storing tracks and artists...');
     const playlists = await prisma.playlist.findMany();
     const accessToken = await getSystemUserToken();
 
@@ -254,7 +242,6 @@ async function fetchAndStoreTracksAndArtists() {
                         });
                     }
                 }
-                console.log(`Tracks and artists updated for playlist ${playlist.id}`);
             } else {
                 console.error(`Failed to fetch tracks for playlist ${playlist.id}:`, data);
             }
@@ -264,18 +251,15 @@ async function fetchAndStoreTracksAndArtists() {
 
         await delay(1000); // Add a delay between playlist fetches to reduce rate limiting
     }
-    console.log('Completed fetching and storing tracks and artists.');
 }
 
 async function fetchAndStoreArtistGenres() {
-    console.log('Fetching and storing artists genres...');
     const artists = await prisma.artist.findMany(); // Fetch all artists, not just those with empty genres
 
     const accessToken = await getSystemUserToken();
 
     for (const artist of artists) {
         try {
-            console.log(`Fetching genres for artist: ${artist.name} (Spotify ID: ${artist.spotifyId})`);
 
             const response = await fetchWithRetry(
                 `https://api.spotify.com/v1/artists/${artist.spotifyId}`,
@@ -294,17 +278,14 @@ async function fetchAndStoreArtistGenres() {
             }
 
             const data = await response.json();
-            console.log(`Genres fetched for artist ${artist.name}: ${data.genres.join(', ')}`);
 
             await prisma.artist.update({
                 where: { spotifyId: artist.spotifyId },
                 data: { genres: data.genres }
             });
-            console.log(`Genres updated for artist ${artist.name} in database.`);
 
             // Ensure getLocationForArtist is called
             const location = await getLocationForArtist(artist);
-            console.log(`Location fetched for artist ${artist.name}: ${location.name}, ${location.latitude}, ${location.longitude}`);
 
             if (location && location.name) { // Check if location is valid
                 await prisma.location.upsert({
@@ -324,7 +305,6 @@ async function fetchAndStoreArtistGenres() {
                         }
                     }
                 });
-                console.log(`Location and artists updated for ${location.name} in database.`);
             } else {
                 console.warn(`No valid location found for artist ${artist.name}. Skipping location update.`);
             }
@@ -335,7 +315,6 @@ async function fetchAndStoreArtistGenres() {
         await delay(1000); // Delay for 1 second before the next request
     }
 
-    console.log('Completed fetching and storing artist genres.');
 }
 
 cron.schedule('0 * * * *', async () => {
