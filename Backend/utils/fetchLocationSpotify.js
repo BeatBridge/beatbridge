@@ -73,12 +73,11 @@ async function fetchLocationFromSpotify(spotifyId) {
     }
 
     const data = await response.json();
-    // I plan to create an app that shows users where artists are from so if they like an artists, they can easily locate where that artist is from
 
     return {
         name: data.name,
-        latitude: 0, // Placeholder, replace with actual latitude if available
-        longitude: 0 // Placeholder, replace with actual longitude if available
+        latitude: 0,
+        longitude: 0
     };
 }
 

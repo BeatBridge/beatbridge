@@ -345,6 +345,22 @@ const API = {
             return { error: 'Failed to fetch genres by location' };
         }
     },
+    getTrendingArtists: async (jwt) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/trending-artists`, {
+                headers: {
+                    'Authorization': `Bearer ${jwt}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch trending artists');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching trending artists:', error);
+            return { error: 'Failed to fetch trending artists' };
+        }
+    }
 };
 
 export default API;

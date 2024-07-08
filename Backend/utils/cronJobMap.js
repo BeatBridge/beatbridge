@@ -1,10 +1,10 @@
 const cron = require('node-cron');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { fetchLocationFromMusicBrainz } = require('./musicBrainzUtils');
-const { refreshSpotifyToken } = require('./spotifyUtils');
-const { fetchLocationFromSpotify } = require('./fetchLocationSpotify')
-const { emitUpdate } = require('../socket');
+const { fetchLocationFromMusicBrainz } = require('./musicBrainzUtils.js');
+const { refreshSpotifyToken } = require('./spotifyUtils.js');
+const { fetchLocationFromSpotify } = require('./fetchLocationSpotify.js')
+const { emitUpdate } = require('../socket.js');
 require('./createSystemUser.js');
 
 function delay(ms) {
@@ -229,17 +229,33 @@ async function fetchAndStoreTracksAndArtists() {
                     });
 
                     for (const artist of track.artists) {
-                        await prisma.artist.upsert({
-                            where: { spotifyId: artist.id },
-                            update: {
-                                name: artist.name,
-                            },
-                            create: {
-                                spotifyId: artist.id,
-                                name: artist.name,
-                                genres: [],
+                        const artistDetails = await fetchWithRetry(
+                            `https://api.spotify.com/v1/artists/${artist.id}`,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${accessToken}`
+                                }
                             }
-                        });
+                        );
+
+                        if (artistDetails.ok) {
+                            const artistData = await artistDetails.json();
+                            await prisma.artist.upsert({
+                                where: { spotifyId: artist.id },
+                                update: {
+                                    name: artist.name,
+                                    popularity: artistData.popularity,
+                                },
+                                create: {
+                                    spotifyId: artist.id,
+                                    name: artist.name,
+                                    genres: [],
+                                    popularity: artistData.popularity,
+                                }
+                            });
+                        } else {
+                            console.error(`Failed to fetch details for artist ${artist.id}`);
+                        }
                     }
                 }
             } else {

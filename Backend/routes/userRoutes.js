@@ -465,7 +465,8 @@ router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
                 genre,
                 mood,
                 tempo,
-                customTags: JSON.stringify(customTags)
+                customTags: JSON.stringify(customTags),
+                taggedAt: new Date()
             }
         });
         res.json(updatedSong);
@@ -488,6 +489,25 @@ router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, r
     } catch (error) {
         console.error('Error fetching song details:', error);
         res.status(500).json({error: 'Failed to fetch song details.'});
+    }
+});
+
+router.get('/trending-artists', authenticateJWT, async (req, res) => {
+    try {
+        const trendingArtists = await prisma.trendingArtist.findMany({
+            include: {
+                artist: true,
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: 5
+        });
+
+        res.json(trendingArtists);
+    } catch (error) {
+        console.error('Error fetching trending artists:', error);
+        res.status(500).json({ error: 'Failed to fetch trending artists.' });
     }
 });
 

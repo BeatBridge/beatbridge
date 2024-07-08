@@ -15,11 +15,11 @@ import ArtistDashboard from './components/dashboard/ArtistDashboard.jsx';
 import TrendingScreen from './components/trendscreen/TrendingScreen.jsx';
 import Profile from './components/profile/Profile.jsx';
 import Friends from './components/friends/Friends.jsx';
-import Library from './components/library/Library.jsx';
 import Favourites from './components/favourites/Favourites.jsx';
 import Settings from './components/settings/Settings.jsx';
 import Chatbot from './components/chatbot/Chatbot.jsx';
 import Map from './components/map/Map.jsx';
+import TrendingArtists from './components/trendingartists/TrendingArtists.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);
@@ -62,9 +62,9 @@ function App() {
                     <RequireAuth>
                         <Friends userInfo={userInfo} />
                     </RequireAuth> } />
-                <Route path="/library" element={
+                <Route path="/trending" element={
                     <RequireAuth>
-                        <Library userInfo={userInfo} />
+                        <TrendingArtists userInfo={userInfo} />
                     </RequireAuth> } />
                 <Route path="/favourites" element={
                     <RequireAuth>

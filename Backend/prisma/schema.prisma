@@ -36,6 +36,7 @@ model Song {
   mood                  String?
   tempo                 String?
   customTags            String?
+  taggedAt              DateTime? @default(now())
   userId                Int
   user                  User      @relation(fields: [userId], references: [id])
 }
@@ -61,13 +62,23 @@ model Track {
   artists               Artist[]  @relation("TrackToArtist")
 }
 
+model TrendingArtist {
+  id                    Int      @id @default(autoincrement())
+  artistId              Int
+  artist                Artist   @relation(fields: [artistId], references: [id])
+  momentum              Float
+  createdAt             DateTime @default(now())
+}
+
 model Artist {
   id                    Int       @id @default(autoincrement())
   spotifyId             String    @unique
   name                  String
   genres                String[]
+  popularity            Int?
   tracks                Track[]   @relation("TrackToArtist")
   locations             Location[] @relation("ArtistToLocation")
+  trending              TrendingArtist[]
 }
 
 model Location {
