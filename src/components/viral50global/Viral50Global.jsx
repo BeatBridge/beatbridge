@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlay, faPause } from '@fortawesome/free-solid-svg-icons';
 import { FaUser } from 'react-icons/fa';
 import './viral50global.css';
-import ActionModal from '../actionmodal/ActionModal';
 
 const getAllSongs = (resJSON) => {
     let allSongs = [];
@@ -22,7 +21,7 @@ const getAllSongs = (resJSON) => {
     return allSongs;
 };
 
-const TrackCard = ({ track }) => {
+const TrackCard = ({ track, onClick }) => {
     const formattedIndex = (track.index + 1).toString().padStart(2, '0');
     const formatDuration = (durationMs) => {
         const seconds = Math.floor((durationMs / 1000) % 60);
@@ -31,7 +30,7 @@ const TrackCard = ({ track }) => {
         return `${minutes}:${formattedSeconds}`;
     }
     return (
-        <div className="viral-50-global-container d-flex align-items-center justify-content-between">
+        <div className="viral-50-global-container d-flex align-items-center justify-content-between" onClick={onClick}>
             <div className="viral-50-global-sub-container d-flex flex-grow-1">
                 <div className='viral-50-global-info-1 d-flex align-items-center'>
                     <h3>{formattedIndex}</h3>
@@ -67,57 +66,17 @@ const TrackCard = ({ track }) => {
     );
 };
 
-function Viral50Global({ tracks, jwt }) {
+function Viral50Global({ tracks, onTrackClick }) {
     const allSongs = getAllSongs(tracks);
-    const [selectedTrack, setSelectedTrack] = useState(null);
-
-    const handleTrackClick = (track) => {
-        setSelectedTrack(track)
-    };
-
-    const handleClose = () => {
-        setSelectedTrack(null);
-    };
-
-    const handleTag = async (track, tags) => {
-        const songData = {
-            title: track.name,
-            artist: track.artist,
-        }
-        try {
-            const song = await API.createSong(songData);
-            await API.tagSong(song.id, tags);
-            console.log('Song tagged:', song);
-        } catch (error) {
-            console.error('Error tagging track:', error);
-        }
-    };
-
-    const handleViewDetails = (track) => {
-        console.log('Viewing Details:', track)
-    };
-    const handleAddToLibrary = (track) => {
-        console.log('Adding track to library:', track);
-    };
 
     return (
         <>
             {allSongs.length > 0 ? (
                 allSongs.map((track, index) => (
-                    <TrackCard key={index} track={track} onTrackClick={handleTrackClick} />
+                    <TrackCard key={index} track={track} onClick={() => onTrackClick(track)} />
                 ))
             ) : (
                 <p>No tracks available.</p>
-            )}
-            {selectedTrack && (
-                <ActionModal
-                    song={selectedTrack}
-                    jwt={jwt}
-                    onClose={handleClose}
-                    onTag={handleTag}
-                    onViewDetails={handleViewDetails}
-                    onAddToLibrary={handleAddToLibrary}
-                />
             )}
         </>
     );

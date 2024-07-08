@@ -1,0 +1,246 @@
+.a-dashbaord-container {
+    padding: 4vh 2vw;
+    background-color: #151E3F;
+    color: #F2F3D9;
+    position: relative;
+    min-height: 100vh;
+}
+
+.a-logo {
+    font-size: 2rem;
+    text-decoration: none;
+    color: #F2F3D9;
+}
+
+.a-left-sidebar, .a-menu-bar, .a-menu-bar-bottom {
+    border-right: 1px solid #800080;
+}
+
+.a-right-sidebar, .a-right-menu, .a-track-action {
+    border-left: 1px solid #800080;
+}
+
+.a-dashboard-profile-container {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #F2F3D9;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.a-right-sidebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.a-dash-user-icon {
+    font-size: 3rem;
+    padding-top: 5px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.a-right-sidebar-user-info {
+    display: flex;
+    align-items: center;
+}
+
+.a-dashboard-user-name {
+    display: flex;
+    flex-direction: column;
+    padding-left: 1rem;
+}
+
+.a-dashboard-user-name h4, .a-dashboard-user-name p {
+    margin: 0;
+    line-height: 1.2;
+}
+
+.a-dashboard-user-name p {
+    font-size: small;
+}
+
+.a-dash-bell-icon {
+    font-size: 1.7rem;
+    margin-bottom: 0.7rem;
+    cursor: pointer;
+}
+
+.a-artist-star-icon {
+    font-size: 1.7rem;
+    margin-bottom: 0.7rem;
+    cursor: pointer;
+}
+
+.a-menu-bar, .a-discover-genre, .a-right-menu, .a-top-music {
+    padding-top: 5vh;
+}
+
+.a-main-top hr, .a-menu-bar-bottom hr {
+    border-bottom: 3px solid #800080;
+}
+
+.a-discover-genre-top {
+    display: flex;
+    flex-direction: row;
+}
+
+.a-discover-genre-music-icon, .a-top-music-icon-header {
+    color: #800080;
+}
+
+.a-discover-genre h5, .a-top-music-icon-header {
+    padding: 0.3rem 1rem 0 1rem;
+}
+
+.a-top-music h5 {
+    padding: 0;
+}
+
+.a-top-artist-column {
+    margin-bottom: 20px;
+}
+
+.a-dashbaord-menu-items {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.a-dashbaord-menu-items a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.a-menu-items {
+    padding-left: 2vw;
+}
+
+.menu-icon {
+    font-size: 1.5rem;
+}
+
+.a-discover-genre-bottom {
+    display: flex;
+    overflow-y: hidden;
+    overflow-x: auto;
+    scrollbar-color:#F2F3D9 #151E3F;
+}
+
+.a-top-music-top {
+    display: flex;
+    flex-direction: row;
+}
+
+.search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+}
+
+.search-modaa-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+.search-results {
+    display: none;
+}
+
+.search-result {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.search-result img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.search-result h4 {
+    margin: 0;
+    font-size: 16px;
+    color: red;
+}
+
+.search-result p {
+    margin: 0;
+    color: red;
+}
+
+.a-search-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.search-textbox {
+    width: 100%;
+    height: 50px;
+    border-radius: 40px;
+    border: 1px solid #151E3F;
+    padding-left: 2.5rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #151E3F;
+    pointer-events: none;
+    font-size: 1rem;
+}
+
+.suggestions-list {
+    position: absolute;
+    top: 55px; /* Adjusted to be below the search box */
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.suggestions-list li {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.suggestions-list li:hover {
+    background: #f0f0f0;
+}
+
+.suggestions-list img {
+    width: 100%;
+}
+
+.tag-art-container, .tag-art-container img {
+    width: 100%;
+}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import './actionmodal.css';
 
 const ActionModal = ({ song, onClose, onTag, onViewDetails, onAddToLibrary }) => {
@@ -15,7 +15,7 @@ const ActionModal = ({ song, onClose, onTag, onViewDetails, onAddToLibrary }) =>
             customTags: customTags.split(',').map(tag => tag.trim()),
         };
         onTag(song, tags);
-    }
+    };
 
     return (
         <div className="action-modal">
@@ -75,14 +75,14 @@ const ActionModal = ({ song, onClose, onTag, onViewDetails, onAddToLibrary }) =>
                         </div>
                         <div className="d-flex justify-content-between">
                             <button type="button" className="btn btn-primary" onClick={handleTag}>Save</button>
-                            <button type="button" className="btn btn-secondary" onClick={onBack}>Cancel</button>
+                            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
                         </div>
                     </form>
                 </div>
             </div>
             <button className="close-button" onClick={onClose}>Close</button>
         </div>
-    )
+    );
 };
 
 export default ActionModal;

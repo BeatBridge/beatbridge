@@ -4,7 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm.jsx';
 import { FaBell, FaHeart, FaMusic, FaTag, FaUser } from 'react-icons/fa';
-import { faCircleQuestion, faGauge, faGear, faHeadphonesSimple, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmericas, faGauge, faGear, faHeadphonesSimple, faMicrochip, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
 import discoImg from '../../assets/genres/disco.jpg';
 import popImg from '../../assets/genres/pop.jpg';
@@ -16,11 +16,12 @@ import API from '../../api.js'
 import "./ldashboard.css";
 import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
 import Viral50Global from '../viral50global/Viral50Global.jsx';
-import SongActions from '../songactions/SongActions.jsx';
+import TaggingForm from '../tagform/TaggingForm.jsx';
 
 function ListenerDashboard() {
     const [searchResults, setSearchResults] = useState([]);
     const [selectedTrack, setSelectedTrack] = useState(null);
+    const [showTaggingForm, setShowTaggingForm] = useState(false);
     const [globalTop50, setGlobalTop50] = useState([]);
     const [viral50Global, setViral50Global] = useState([]);
     const [error, setError] = useState(null);
@@ -76,22 +77,43 @@ function ListenerDashboard() {
     };
 
     const handleSearchResults = (results) => {
-        if (results.length === 1) {
-            setSelectedTrack(results[0]);
-        }
         setSearchResults(results);
+        setShowTaggingForm(false);
     }
 
+    const handleSuggestionClick = (suggestion) => {
+        setSelectedTrack(suggestion);
+        setSearchResults([]);
+        setShowTaggingForm(false);
+    };
+
     const handleTrackClick = (track) => {
-        setSelectedTrack(null);
-    }
+        const updatedTrack = {
+            ...track,
+            album: {
+                ...track.album,
+                images: track.images || []
+            }
+        };
+        setSelectedTrack(updatedTrack);
+        setShowTaggingForm(false);
+    };
+
+    const handleTagButtonClick = () => {
+        setShowTaggingForm(true);
+    };
 
     const handleTag = async (track, tags) => {
         const songData = {
             title: track.name,
-            artist: track.artists[0].name
-        }
-        try{
+            artist: track.artists ? track.artists[0].name : "Unknown Artist",
+            album: track.album ? track.album.name : "Unknown Album",
+            genre: tags.genre,
+            mood: tags.mood,
+            tempo: tags.tempo,
+            customTags: JSON.stringify(tags.customTags),
+        };
+        try {
             const song = await API.createSong(songData);
             await API.tagSong(song.id, tags);
             console.log('Song tagged:', song);
@@ -100,13 +122,9 @@ function ListenerDashboard() {
         }
     };
 
-    const handleViewDetails = (track) => {
-        console.log('Viewing details of track:', track);
-    }
-
-    const handleAddToLibrary = (track) => {
-        console.log('Adding track to library:', track);
-    }
+    const handleCloseTrack = () => {
+        setSelectedTrack(null);
+    };
 
     return (
         <div className='l-dashbaord-container'>
@@ -123,7 +141,7 @@ function ListenerDashboard() {
                 </div>
 
                 <div className='col-md-7'>
-                    <LSearchForm onSearchResults={handleSearchResults} />
+                    <LSearchForm onSearchResults={handleSearchResults} onSuggestionClick={handleSuggestionClick} />
                 </div>
 
                 <div className='l-right-sidebar col-md-3'>
@@ -162,15 +180,15 @@ function ListenerDashboard() {
                             </div>
                             <div className='l-dashbaord-menu-items'>
                                 <FaHeart className='menu-icon' />
-                                <h5>Favourite</h5>
+                                <NavLink to='/library'><h5>Favourite</h5></NavLink>
                             </div>
                             <div className='l-dashbaord-menu-items'>
                                 <FaTag className='menu-icon' />
-                                <h5>Tags</h5>
+                                <NavLink to='/tags'><h5>Tags</h5></NavLink>
                             </div>
                             <div className='l-dashbaord-menu-items'>
                                 <FontAwesomeIcon icon={faUserGroup} className='menu-icon' />
-                                <h5>Friends</h5>
+                                <NavLink to='/friends'><h5>Friends</h5></NavLink>
                             </div>
                         </div>
                     </div>
@@ -237,11 +255,15 @@ function ListenerDashboard() {
                         <div className='l-menu-items'>
                             <div className='l-dashbaord-menu-items'>
                                 <FontAwesomeIcon icon={faGear} className='menu-icon' />
-                                <h5>Profile</h5>
+                                <NavLink to='/settings'><h5>Settings</h5></NavLink>
                             </div>
                             <div className='l-dashbaord-menu-items'>
-                                <FontAwesomeIcon icon={faCircleQuestion} className='menu-icon' />
-                                <h5>FAQs</h5>
+                                <FontAwesomeIcon icon={faMicrochip} className='menu-icon' />
+                                <NavLink to='/chatbot'><h5>Chat With AI</h5></NavLink>
+                            </div>
+                            <div className='l-dashbaord-menu-items'>
+                                <FontAwesomeIcon icon={faEarthAmericas} className='menu-icon' />
+                                <NavLink to='/map'><h5>Map</h5></NavLink>
                             </div>
                         </div>
                     </div>
@@ -271,24 +293,38 @@ function ListenerDashboard() {
                         </div>
                     </div>
 
-                    <div className='col-md-3'>
-                        {selectedTrack ? (
+                    <div className='col-md-3 l-track-action'>
+                        {selectedTrack && (
                             <div className='selected-track-details'>
                                 <h4>{selectedTrack.name}</h4>
-                                <p>{selectedTrack.artists[0].name}</p>
-                                <img src={selectedTrack.album.images[0]?.url} alt="Track Art" />
+                                <p>{selectedTrack.artist}</p>
+                                {selectedTrack.album.images && selectedTrack.album.images.length > 0 ? (
+                                    <div className='tag-art-container'>
+                                        <img src={selectedTrack.album.images[0].url} alt="Track Art" className='tag-art' />
+                                    </div>
+                                ) : (
+                                    <div>No image available</div>
+                                )}
+                                <button className="btn btn-primary mt-2" onClick={handleTagButtonClick}>Tag</button>
+                                <button className="btn btn-secondary mt-2" onClick={handleCloseTrack}>Close</button>
+                                {showTaggingForm && (
+                                    <TaggingForm
+                                        song={selectedTrack}
+                                        onTag={handleTag}
+                                        onClose={() => setShowTaggingForm(false)}
+                                    />
+                                )}
                             </div>
-                        ) : (
-                            searchResults.length > 0 && (
-                                <div className='search-results'>
-                                    {searchResults.map((track, index) => (
-                                        <div key={index} className='search-result' onClick={() => handleTrackClick(track)}>
-                                            <h4>{track.name}</h4>
-                                            <p>{track.artists[0].name}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )
+                        )}
+                        {!selectedTrack && searchResults.length > 0 && (
+                            <div className='search-results'>
+                                {searchResults.map((track, index) => (
+                                    <div key={index} className='search-result' onClick={() => handleTrackClick(track)}>
+                                        <h4>{track.name}</h4>
+                                        <p>{track.artists[0].name}</p>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
                 </div>
