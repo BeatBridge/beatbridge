@@ -47,7 +47,6 @@ async function getLocationForArtist(artist) {
             location = artistWithLocation.locations[0];
             console.log(`Location found in database for artist ${artist.name}: ${location.name}, Country Code: ${location.countryCode}`);
 
-            // Check if countryCode is missing or invalid and update it
             if (!location.countryCode || location.countryCode === 'Unknown') {
                 console.warn(`Country code missing or invalid for artist ${artist.name}. Updating country code.`);
                 let fetchedLocation;
@@ -55,8 +54,11 @@ async function getLocationForArtist(artist) {
                     fetchedLocation = await fetchLocationFromMusicBrainz(artist.name);
                     console.log(`Location fetched from MusicBrainz for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
                 } catch (error) {
-                    console.error(`Failed to fetch location from MusicBrainz for artist ${artist.name}:`, error);
-                    // If fetching from MusicBrainz fails, fallback to Spotify
+                    if (error.message.includes('No artist found with name')) {
+                        console.warn(`Artist ${artist.name} not found on MusicBrainz. Falling back to Spotify.`);
+                    } else {
+                        console.error(`Failed to fetch location from MusicBrainz for artist ${artist.name}:`, error);
+                    }
                     console.warn(`Falling back to fetching location from Spotify for artist ${artist.name}.`);
                     fetchedLocation = await fetchLocationFromSpotify(artist.spotifyId);
                     console.log(`Location fetched from Spotify for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
@@ -87,13 +89,11 @@ async function getLocationForArtist(artist) {
             console.log(`Location fetched from MusicBrainz for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
         } catch(error) {
             console.error(`Failed to fetch location from MusicBrainz for artist ${artist.name}:`, error);
-            // If fetching from MusicBrainz fails, fallback to Spotify
             console.warn(`Falling back to fetching location from Spotify for artist ${artist.name}.`);
             fetchedLocation = await fetchLocationFromSpotify(artist.spotifyId);
             console.log(`Location fetched from Spotify for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
         }
 
-        // Store the fetched location in the database
         const newLocation = await prisma.location.create({
             data: {
                 name: fetchedLocation.name,
@@ -334,7 +334,7 @@ async function fetchAndStoreArtistGenres() {
     console.log('Completed fetching and storing artist genres.');
 }
 
-cron.schedule('*/30 * * * *', async () => {
+cron.schedule('*/10 * * * *', async () => {
     console.log('Cron job started: Running cron job to fetch Spotify data...');
     await fetchAndStoreFeaturedPlaylists();
     await fetchAndStoreTracksAndArtists();

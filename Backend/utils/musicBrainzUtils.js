@@ -19,15 +19,22 @@ async function fetchLocationFromMusicBrainz(artistName) {
     const location = artist["begin-area"] || artist.area || { name: 'Unknown', latitude: null, longitude: null };
     const countryCode = artist.country || 'Unknown';
 
-    let coordinates = { latitude: 0, longitude: 0 }; // Default coordinates
+    let coordinates = { latitude: 0, longitude: 0, countryCode: 'Unknown' };
 
     if (location.name && location.name !== 'Unknown') {
         coordinates = await fetchCoordinates(location.name);
     }
 
+    console.log(`Fetched location for artist ${artistName} from MusicBrainz:`, {
+        name: location.name,
+        countryCode: coordinates.countryCode,
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude
+    });
+
     return {
         name: location.name,
-        countryCode,
+        countryCode: coordinates.countryCode !== 'Unknown' ? coordinates.countryCode : countryCode,
         latitude: coordinates.latitude,
         longitude: coordinates.longitude
     };
