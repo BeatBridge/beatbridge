@@ -77,6 +77,12 @@ router.post('/verify-email', async (req, res) => {
 router.get("/info", authenticateJWT, async (req, res) => {
     const userInfo = await prisma.user.findUnique({
         where: { username: req.user.username },
+        select: {
+            username: true,
+            email: true,
+            isPremium: true,
+            spotifyAccessToken: true
+        }
     });
 
     if (userInfo === null) {
