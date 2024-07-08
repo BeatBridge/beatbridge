@@ -329,7 +329,7 @@ async function fetchAndStoreArtistGenres() {
     console.log('Completed fetching and storing artist genres.');
 }
 
-cron.schedule('*/10 * * * *', async () => {
+cron.schedule('0 * * * *', async () => {
     console.log('Cron job started: Running cron job to fetch Spotify data...');
     await fetchAndStoreFeaturedPlaylists();
     await fetchAndStoreTracksAndArtists();

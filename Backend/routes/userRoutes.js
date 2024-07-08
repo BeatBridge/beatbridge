@@ -410,7 +410,6 @@ router.get('/genres-by-location', async (req, res) => {
 
         const result = locations.map(location => {
             const genres = Array.from(new Set(location.artists.flatMap(artist => artist.genres)));
-            console.log(`Location: ${location.name}, Genres: ${JSON.stringify(genres)}`); // Debugging log
             return {
                 id: location.id,
                 name: location.name,
