@@ -260,9 +260,7 @@ async function fetchAndStoreTracksAndArtists() {
 
 async function fetchAndStoreArtistGenres() {
     console.log('Fetching and storing artists genres...');
-    const artists = await prisma.artist.findMany({
-        where: { genres: { equals: [] } }
-    });
+    const artists = await prisma.artist.findMany(); // Fetch all artists, not just those with empty genres
 
     const accessToken = await getSystemUserToken();
 
@@ -303,9 +301,6 @@ async function fetchAndStoreArtistGenres() {
                 await prisma.location.upsert({
                     where: { name: location.name },
                     update: {
-                        genres: {
-                            set: data.genres // Assuming genres is a list of strings
-                        },
                         artists: {
                             connect: { id: artist.id }
                         }
@@ -314,13 +309,13 @@ async function fetchAndStoreArtistGenres() {
                         name: location.name,
                         latitude: location.latitude,
                         longitude: location.longitude,
-                        genres: data.genres,
+                        countryCode: location.countryCode,
                         artists: {
                             connect: { id: artist.id }
                         }
                     }
                 });
-                console.log(`Location and genres updated for ${location.name} in database.`);
+                console.log(`Location and artists updated for ${location.name} in database.`);
             } else {
                 console.warn(`No valid location found for artist ${artist.name}. Skipping location update.`);
             }

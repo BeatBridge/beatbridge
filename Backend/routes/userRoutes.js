@@ -395,23 +395,31 @@ router.get('/genres-by-location', async (req, res) => {
     try {
         const locations = await prisma.location.findMany({
             select: {
+                id: true,
                 name: true,
                 latitude: true,
                 longitude: true,
                 countryCode: true,
-                genres: true,
                 artists: {
                     select: {
-                        name: true,
+                        genres: true
                     }
                 }
             }
         });
 
-        const result = locations.map(location => ({
-            ...location,
-            genres: Array.from(new Set(location.artists.flatMap(artist => artist.genres)))
-        }));
+        const result = locations.map(location => {
+            const genres = Array.from(new Set(location.artists.flatMap(artist => artist.genres)));
+            console.log(`Location: ${location.name}, Genres: ${JSON.stringify(genres)}`); // Debugging log
+            return {
+                id: location.id,
+                name: location.name,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                countryCode: location.countryCode,
+                genres
+            };
+        });
 
         res.json(result);
     } catch (error) {

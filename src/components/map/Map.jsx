@@ -35,9 +35,9 @@ function Map() {
 
         socket.on('update', (data) => {
             setLocations(prevLocations => {
-                const existingLocation = prevLocations.find(l => l.name === data.name);
+                const existingLocation = prevLocations.find(l => l.id === data.id);
                 if (existingLocation) {
-                    return prevLocations.map(l => l.name === data.name ? data : l);
+                    return prevLocations.map(l => l.id === data.id ? data : l);
                 } else {
                     return [...prevLocations, data];
                 }
@@ -56,7 +56,7 @@ function Map() {
                 attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
             />
             {locations.map(location => (
-                <Marker key={location.name} position={[location.latitude, location.longitude]}>
+                <Marker key={location.id} position={[location.latitude, location.longitude]}>
                     <Popup>
                         <strong>{location.name}</strong><br />
                         Genres: {location.genres.join(', ')}

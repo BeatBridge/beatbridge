@@ -77,6 +77,5 @@ model Location {
   longitude             Float
   pathData              String?
   artists               Artist[]  @relation("ArtistToLocation")
-  genres                String[]
   users                 User[]    @relation
 }
