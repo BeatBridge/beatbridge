@@ -94,8 +94,17 @@ async function getLocationForArtist(artist) {
             console.log(`Location fetched from Spotify for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
         }
 
-        const newLocation = await prisma.location.create({
-            data: {
+        const newLocation = await prisma.location.upsert({
+            where: { name: fetchedLocation.name },
+            update: {
+                latitude: fetchedLocation.latitude,
+                longitude: fetchedLocation.longitude,
+                countryCode: fetchedLocation.countryCode,
+                artists: {
+                    connect: { id: artist.id }
+                }
+            },
+            create: {
                 name: fetchedLocation.name,
                 latitude: fetchedLocation.latitude,
                 longitude: fetchedLocation.longitude,
@@ -106,7 +115,7 @@ async function getLocationForArtist(artist) {
             }
         });
 
-        console.log(`New location stored in database for artist ${artist.name}: ${newLocation.name}, Country Code: ${newLocation.countryCode}`);
+        console.log(`Location upserted in database for artist ${artist.name}: ${newLocation.name}, Country Code: ${newLocation.countryCode}`);
         return {
             name: newLocation.name,
             latitude: newLocation.latitude,
