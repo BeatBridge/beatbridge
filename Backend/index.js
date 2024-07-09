@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const { configureSocket } = require('./socket.js');
 
 // require('./utils/cronJobMap.js');
+require('./utils/cronJobTrendingArtists.js')
 
 const app = express();
 const server = http.createServer(app);

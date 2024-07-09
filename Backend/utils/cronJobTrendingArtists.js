@@ -18,14 +18,28 @@ async function calculateTrendingArtists() {
         }
     });
 
+    const recentSearches = await prisma.artistSearch.findMany({
+        where: {
+            createdAt: {
+                gte: oneDayAgo
+            }
+        },
+        include: {
+            artist: true
+        }
+    });
+
     // Calculate momentum for each artist
     const artistMomentum = {};
+
+    //Add tagged songs momentum
     for (const tag of recentTags) {
         const artistName = tag.artist;
         if (!artistMomentum[artistName]) {
             artistMomentum[artistName] = {
                 tagCount: 0,
                 popularity: 0,
+                searchCount: 0,
                 artistId: null,
             };
         }
@@ -41,11 +55,25 @@ async function calculateTrendingArtists() {
         }
     }
 
-    // Combine tag count and popularity to calculate momentum
+    //Add search count momentum
+    for (const search of recentSearches) {
+        const artistName = search.artist.name;
+        if (!artistMomentum[artistName]) {
+            artistMomentum[artistName] = {
+                tagCount: 0,
+                popularity: 0,
+                searchCount: 0,
+                artistId: search.artist.id,
+            };
+        }
+        artistMomentum[artistName].searchCount += 1;
+    }
+
+    // Combine tag count, search count, and popularity to calculate momentum
     const trendingArtists = Object.entries(artistMomentum)
         .map(([name, data]) => ({
             artistId: data.artistId,
-            momentum: data.tagCount + data.popularity * 0.1
+            momentum: data.tagCount + data.searchCount + data.popularity * 0.1
         }))
         .sort((a, b) => b.momentum - a.momentum)
         .slice(0, 5); // Top 5 artists
