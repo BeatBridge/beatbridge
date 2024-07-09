@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { fetchLocationFromMusicBrainz } = require('./musicBrainzUtils.js');
 const { refreshSpotifyToken } = require('./spotifyUtils.js');
-const { fetchLocationFromSpotify } = require('./fetchLocationSpotify.js')
+const { fetchLocationFromSpotify } = require('./fetchLocationSpotify.js');
 const { emitUpdate } = require('../socket.js');
 require('./createSystemUser.js');
 
@@ -229,6 +229,16 @@ async function fetchAndStoreTracksAndArtists() {
                     });
 
                     for (const artist of track.artists) {
+                        const existingArtist = await prisma.artist.findUnique({
+                            where: { spotifyId: artist.id },
+                            include: { locations: true }
+                        });
+
+                        if (existingArtist && existingArtist.genres.length > 0 && existingArtist.popularity !== null && existingArtist.locations.length > 0) {
+                            //Artist already has genres, popularity, and location.
+                            continue; // Skip to the next artist
+                        }
+
                         const artistDetails = await fetchWithRetry(
                             `https://api.spotify.com/v1/artists/${artist.id}`,
                             {
@@ -240,19 +250,30 @@ async function fetchAndStoreTracksAndArtists() {
 
                         if (artistDetails.ok) {
                             const artistData = await artistDetails.json();
+                            const updateData = {
+                                name: artist.name,
+                                popularity: artistData.popularity
+                            };
+
+                            if (!existingArtist || existingArtist.genres.length === 0) {
+                                updateData.genres = artistData.genres;
+                            }
+
                             await prisma.artist.upsert({
                                 where: { spotifyId: artist.id },
-                                update: {
-                                    name: artist.name,
-                                    popularity: artistData.popularity,
-                                },
+                                update: updateData,
                                 create: {
                                     spotifyId: artist.id,
                                     name: artist.name,
-                                    genres: [],
+                                    genres: artistData.genres || [],
                                     popularity: artistData.popularity,
                                 }
                             });
+
+                            if (!existingArtist || existingArtist.locations.length === 0) {
+                                // Fetch location only if it does not exist
+                                await getLocationForArtist(artist);
+                            }
                         } else {
                             console.error(`Failed to fetch details for artist ${artist.id}`);
                         }
@@ -276,6 +297,15 @@ async function fetchAndStoreArtistGenres() {
 
     for (const artist of artists) {
         try {
+            const existingArtist = await prisma.artist.findUnique({
+                where: { spotifyId: artist.spotifyId },
+                include: { locations: true }
+            });
+
+            if (existingArtist && existingArtist.genres.length > 0 && existingArtist.popularity !== null && existingArtist.locations.length > 0) {
+                //Artist already has genres, popularity, and location.
+                continue; // Skip to the next artist
+            }
 
             const response = await fetchWithRetry(
                 `https://api.spotify.com/v1/artists/${artist.spotifyId}`,
@@ -294,35 +324,20 @@ async function fetchAndStoreArtistGenres() {
             }
 
             const data = await response.json();
+            const updateData = { popularity: data.popularity };
+
+            if (!existingArtist || existingArtist.genres.length === 0) {
+                updateData.genres = data.genres;
+            }
 
             await prisma.artist.update({
                 where: { spotifyId: artist.spotifyId },
-                data: { genres: data.genres }
+                data: updateData
             });
 
-            // Ensure getLocationForArtist is called
-            const location = await getLocationForArtist(artist);
-
-            if (location && location.name) { // Check if location is valid
-                await prisma.location.upsert({
-                    where: { name: location.name },
-                    update: {
-                        artists: {
-                            connect: { id: artist.id }
-                        }
-                    },
-                    create: {
-                        name: location.name,
-                        latitude: location.latitude,
-                        longitude: location.longitude,
-                        countryCode: location.countryCode,
-                        artists: {
-                            connect: { id: artist.id }
-                        }
-                    }
-                });
-            } else {
-                console.warn(`No valid location found for artist ${artist.name}. Skipping location update.`);
+            if (!existingArtist || existingArtist.locations.length === 0) {
+                // Fetch location only if it does not exist
+                await getLocationForArtist(artist);
             }
         } catch (error) {
             console.error(`Error fetching genres for artist ${artist.name}:`, error);
@@ -330,7 +345,6 @@ async function fetchAndStoreArtistGenres() {
 
         await delay(1000); // Delay for 1 second before the next request
     }
-
 }
 
 cron.schedule('0 * * * *', async () => {
