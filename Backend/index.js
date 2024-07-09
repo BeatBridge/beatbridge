@@ -1,12 +1,17 @@
+require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const http = require('http');
 const userRoutes = require("./routes/userRoutes");
-require('dotenv').config()
+const { configureSocket } = require('./socket.js');
 
 require('./utils/cronJobs');
 
 const app = express();
+const server = http.createServer(app);
+configureSocket(server);
+
 app.use(bodyParser.json())
 app.use(cors());
 app.use(express.json());
@@ -28,6 +33,6 @@ app.get('/', (req, res) => {
 app.use("/user", userRoutes);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

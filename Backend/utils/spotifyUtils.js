@@ -35,14 +35,13 @@ async function refreshSpotifyToken(username) {
             throw new Error('Failed to refresh token');
         }
 
-        await prisma.user.update({
+        const updatedUser = await prisma.user.update({
             where: { username },
             data: {
                 spotifyAccessToken: data.access_token,
                 spotifyRefreshToken: data.refresh_token ? data.refresh_token : user.spotifyRefreshToken,
             },
         });
-
         return data.access_token;
     } catch (error) {
         console.error('Error refreshing Spotify token:', error);

@@ -233,6 +233,118 @@ const API = {
         }
         return response.json();
     },
+    getFeaturedPlaylists: async () => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/spotify/featured-playlists`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch featured playlists');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching featured playlists:', error);
+            return { error: 'Failed to fetch featured playlists' };
+        }
+    },
+    getPlaylistTracks: async (playlistId) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/spotify/playlists/${playlistId}/tracks`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch playlist tracks');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching playlist tracks:', error);
+            return { error: 'Failed to fetch playlist tracks' };
+        }
+    },
+    getTrackDetails: async (trackIds) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/spotify/tracks?trackIds=${trackIds.join(',')}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch track details');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching track details:', error);
+            return { error: 'Failed to fetch track details' };
+        }
+    },
+    getArtistDetails: async (artistIds) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds.join(',')}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch artist details');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching artist details:', error);
+            return { error: 'Failed to fetch artist details' };
+        }
+    },
+    getStoredPlaylists: async () => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/playlists`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch playlists');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching playlists:', error);
+            return { error: 'Failed to fetch playlists' };
+        }
+    },
+    getStoredPlaylistTracks: async (playlistId) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/playlists/${playlistId}/tracks`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch tracks');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching tracks:', error);
+            return { error: 'Failed to fetch tracks' };
+        }
+    },
+    getGenresByLocation: async () => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/genres-by-location`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch genres by location');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching genres by location:', error);
+            return { error: 'Failed to fetch genres by location' };
+        }
+    },
 };
 
 export default API;

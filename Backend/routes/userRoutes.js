@@ -259,6 +259,174 @@ router.get('/spotify/search', authenticateJWT, spotifyTokenRefresh, async (req, 
     }
 });
 
+//Direct API call
+router.get('/spotify/featured-playlists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/browse/featured-playlists`, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching featured playlists:', error);
+        res.status(500).json({ error: "Failed to fetch featured playlists." });
+    }
+});
+
+router.get('/spotify/playlists/:playlistId/tracks', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { playlistId } = req.params;
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching playlist tracks:', error);
+        res.status(500).json({ error: "Failed to fetch playlist tracks." });
+    }
+});
+
+router.get('/spotify/tracks', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { trackIds } = req.query;
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    if (!trackIds) {
+        return res.status(400).json({ error: 'No track IDs provided.' });
+    }
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/tracks?ids=${trackIds}`, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching track details:', error);
+        res.status(500).json({ error: "Failed to fetch track details." });
+    }
+});
+
+router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { artistIds } = req.query;
+    const user = await prisma.user.findUnique({
+        where: { username: req.user.username },
+    });
+
+    if (!artistIds) {
+        return res.status(400).json({ error: 'No artist IDs provided.' });
+    }
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/artists?ids=${artistIds}`, {
+            headers: {
+                'Authorization': `Bearer ${user.spotifyAccessToken}`
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching artist details:', error);
+        res.status(500).json({ error: "Failed to fetch artist details." });
+    }
+});
+
+//cronJob
+router.get('/playlists', authenticateJWT, async (req, res) => {
+    try {
+        const playlists = await prisma.playlist.findMany();
+        res.json(playlists);
+    } catch (error) {
+        console.error('Error fetching playlists:', error);
+        res.status(500).json({ error: "Failed to fetch playlists." });
+    }
+});
+
+router.get('/playlists/:playlistId/tracks', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
+    const { playlistId } = req.params;
+
+    try {
+        const tracks = await prisma.track.findMany({
+            where: { playlistId: parseInt(playlistId) },
+            include: {
+                artists: true,
+            }
+        });
+        res.json(tracks);
+    } catch (error) {
+        console.error('Error fetching tracks:', error);
+        res.status(500).json({ error: "Failed to fetch tracks." });
+    }
+});
+
+router.get('/artists/genres', authenticateJWT, async (req, res) => {
+    try {
+        const artists = await prisma.artist.findMany({
+            select: {
+                spotifyId: true,
+                name: true,
+                genres: true,
+            }
+        });
+        res.json(artists);
+    } catch (error) {
+        console.error('Error fetching artist genres:', error);
+        res.status(500).json({ error: "Failed to fetch artist genres." });
+    }
+});
+
+router.get('/genres-by-location', async (req, res) => {
+    try {
+        const locations = await prisma.location.findMany({
+            select: {
+                id: true,
+                name: true,
+                latitude: true,
+                longitude: true,
+                countryCode: true,
+                artists: {
+                    select: {
+                        genres: true
+                    }
+                }
+            }
+        });
+
+        const result = locations.map(location => {
+            const genres = Array.from(new Set(location.artists.flatMap(artist => artist.genres)));
+            return {
+                id: location.id,
+                name: location.name,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                countryCode: location.countryCode,
+                genres
+            };
+        });
+
+        res.json(result);
+    } catch (error) {
+        console.error('Error fetching genres by location:', error);
+        res.status(500).json({ error: "Failed to fetch genres by location." });
+    }
+});
+
 router.post('/songs', authenticateJWT, async (req, res) => {
     const { title, artist, album, genre, mood, tempo, customTags } = req.body;
     try {
@@ -316,6 +484,7 @@ router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, r
         res.status(500).json({error: 'Failed to fetch song details.'});
     }
 });
+
 
 router.get('/protected-route', authenticateJWT, (req, res) => {
     res.json({ message: 'This is a protected route' });
