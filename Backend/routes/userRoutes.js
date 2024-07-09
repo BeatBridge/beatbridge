@@ -492,6 +492,33 @@ router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, r
     }
 });
 
+router.post('/track-artist-search', authenticateJWT, async (req, res) => {
+    const { artistSpotifyId } = req.body;
+
+    try {
+        // Find the artist by Spotify ID
+        const artist = await prisma.artist.findUnique({
+            where: { spotifyId: artistSpotifyId },
+        });
+
+        if (!artist) {
+            return res.status(404).json({ error: 'Artist not found' });
+        }
+
+        // Use the artist's database ID
+        await prisma.artistSearch.create({
+            data: {
+                artistId: artist.id,  // Use the integer ID
+            }
+        });
+
+        res.status(201).json({ message: 'Artist search tracked successfully' });
+    } catch (error) {
+        console.error('Error tracking artist search:', error);
+        res.status(500).json({ error: 'Failed to track artist search' });
+    }
+});
+
 router.get('/trending-artists', authenticateJWT, async (req, res) => {
     try {
         const trendingArtists = await prisma.trendingArtist.findMany({
@@ -510,7 +537,6 @@ router.get('/trending-artists', authenticateJWT, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch trending artists.' });
     }
 });
-
 
 router.get('/protected-route', authenticateJWT, (req, res) => {
     res.json({ message: 'This is a protected route' });

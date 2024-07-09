@@ -73,7 +73,7 @@ function LSearchForm({ onSearchResults, onSuggestionClick }) {
             <FaSearch className='search-icon' />
             <input
                 type="text"
-                placeholder='Search Songs and More...'
+                placeholder='Search Artists, Genres, Songs, Lyrics, and More...'
                 className="search-textbox"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

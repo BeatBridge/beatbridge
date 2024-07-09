@@ -234,11 +234,6 @@ async function fetchAndStoreTracksAndArtists() {
                             include: { locations: true }
                         });
 
-                        if (existingArtist && existingArtist.genres.length > 0 && existingArtist.popularity !== null && existingArtist.locations.length > 0) {
-                            //Artist already has genres, popularity, and location.
-                            continue; // Skip to the next artist
-                        }
-
                         const artistDetails = await fetchWithRetry(
                             `https://api.spotify.com/v1/artists/${artist.id}`,
                             {
@@ -302,11 +297,6 @@ async function fetchAndStoreArtistGenres() {
                 include: { locations: true }
             });
 
-            if (existingArtist && existingArtist.genres.length > 0 && existingArtist.popularity !== null && existingArtist.locations.length > 0) {
-                //Artist already has genres, popularity, and location.
-                continue; // Skip to the next artist
-            }
-
             const response = await fetchWithRetry(
                 `https://api.spotify.com/v1/artists/${artist.spotifyId}`,
                 {
@@ -338,6 +328,31 @@ async function fetchAndStoreArtistGenres() {
             if (!existingArtist || existingArtist.locations.length === 0) {
                 // Fetch location only if it does not exist
                 await getLocationForArtist(artist);
+            }
+
+            // Ensure getLocationForArtist is called
+            const location = await getLocationForArtist(artist);
+
+            if (location && location.name) { // Check if location is valid
+                await prisma.location.upsert({
+                    where: { name: location.name },
+                    update: {
+                        artists: {
+                            connect: { id: artist.id }
+                        }
+                    },
+                    create: {
+                        name: location.name,
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        countryCode: location.countryCode,
+                        artists: {
+                            connect: { id: artist.id }
+                        }
+                    }
+                });
+            } else {
+                console.warn(`No valid location found for artist ${artist.name}. Skipping location update.`);
             }
         } catch (error) {
             console.error(`Error fetching genres for artist ${artist.name}:`, error);

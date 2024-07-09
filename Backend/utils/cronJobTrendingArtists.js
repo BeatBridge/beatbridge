@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const cron = require('node-cron');
 
 async function calculateTrendingArtists() {
     const now = new Date();

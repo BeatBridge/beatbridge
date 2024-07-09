@@ -79,6 +79,7 @@ model Artist {
   tracks                Track[]   @relation("TrackToArtist")
   locations             Location[] @relation("ArtistToLocation")
   trending              TrendingArtist[]
+  artistSearches        ArtistSearch[]
 }
 
 model Location {
@@ -90,4 +91,11 @@ model Location {
   pathData              String?
   artists               Artist[]  @relation("ArtistToLocation")
   users                 User[]    @relation
+}
+
+model ArtistSearch {
+  id         Int      @id @default(autoincrement())
+  artistId   Int
+  artist     Artist   @relation(fields: [artistId], references: [id])
+  createdAt  DateTime @default(now())
 }

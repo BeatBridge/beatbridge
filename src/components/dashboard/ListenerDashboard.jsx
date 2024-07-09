@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { NavLink, useNavigate } from 'react-router-dom';
 import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm.jsx';
-import { FaBell, FaHeart, FaMusic, FaTag, FaUser } from 'react-icons/fa';
+import { FaBell, FaMusic, FaTag, FaUser } from 'react-icons/fa';
 import { faEarthAmericas, faChartLine, faGauge, faGear, faHeadphonesSimple, faMicrochip, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
 import discoImg from '../../assets/genres/disco.jpg';
@@ -85,6 +85,10 @@ function ListenerDashboard() {
         setSelectedTrack(suggestion);
         setSearchResults([]);
         setShowTaggingForm(false);
+
+        if (suggestion.artists && suggestion.artists.length > 0) {
+            trackArtistSearch(suggestion.artists[0].id);
+        }
     };
 
     const handleTrackClick = (track) => {
@@ -97,6 +101,7 @@ function ListenerDashboard() {
         };
         setSelectedTrack(updatedTrack);
         setShowTaggingForm(false);
+        trackArtistSearch(suggestion.artists[0].id);
     };
 
     const handleTagButtonClick = () => {
@@ -123,6 +128,14 @@ function ListenerDashboard() {
 
     const handleCloseTrack = () => {
         setSelectedTrack(null);
+    };
+
+    const trackArtistSearch = async (artistId) => {
+        try {
+            await API.trackArtistSearch(artistId);
+        } catch (error) {
+            console.error('Error tracking artist search:', error);
+        }
     };
 
     return (
@@ -236,7 +249,7 @@ function ListenerDashboard() {
                         {isSpotifySignedIn ? (
                             globalTop50.length !== undefined ? (
                                 <div>
-                                    <GlobalTop50 tracks={globalTop50.slice(1, 4)} onTrackClick={handleTrackClick} />
+                                    <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
                                 </div>
                             ) : (
                                 <p>No top 50 artists found.</p>
