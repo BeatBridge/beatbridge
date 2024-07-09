@@ -7,10 +7,16 @@ const { fetchLocationFromSpotify } = require('./fetchLocationSpotify.js');
 const { emitUpdate } = require('../socket.js');
 require('./createSystemUser.js');
 
+//delays execution by the specified number of milliseconds. ms represents the number of milliseconds to delay, while the promise resolves after that delay.
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+//fetch with rety function to prevent rate limits.
+//paramter url - the URL to fetch
+//paramter options - Fetch options
+//paramter retries - number of retry attempts
+//paramter delayMs - initial delay between reties in milliseconds
 async function fetchWithRetry(url, options, retries = 3, delayMs = 1000) {
     try {
         const response = await fetch(url, options);
@@ -35,6 +41,7 @@ async function fetchWithRetry(url, options, retries = 3, delayMs = 1000) {
     }
 }
 
+//retrieves the location for a given artis, and updating if necessary.
 async function getLocationForArtist(artist) {
     try {
         const artistWithLocation = await prisma.artist.findUnique({
@@ -125,6 +132,7 @@ async function getLocationForArtist(artist) {
     }
 }
 
+//Retrieves the Spotify access token for the system user, refreshing it if necessary.
 async function getSystemUserToken() {
     const systemUser = await prisma.user.findUnique({
         where: { username: 'system' },
@@ -150,6 +158,7 @@ async function getSystemUserToken() {
     return systemUser.spotifyAccessToken;
 }
 
+// Fetches and stores featured playlists from Spotify in the database
 async function fetchAndStoreFeaturedPlaylists() {
     const accessToken = await getSystemUserToken();
 
@@ -191,6 +200,7 @@ async function fetchAndStoreFeaturedPlaylists() {
     }
 }
 
+//Fetches and stores tracks and artists from the playlists in the database.
 async function fetchAndStoreTracksAndArtists() {
     const playlists = await prisma.playlist.findMany();
     const accessToken = await getSystemUserToken();
@@ -285,6 +295,7 @@ async function fetchAndStoreTracksAndArtists() {
     }
 }
 
+//Fetches and stores genres for all artists in the database.
 async function fetchAndStoreArtistGenres() {
     const artists = await prisma.artist.findMany(); // Fetch all artists, not just those with empty genres
 
@@ -362,10 +373,13 @@ async function fetchAndStoreArtistGenres() {
     }
 }
 
+// Schedule a cron job to fetch Spotify data every hour
 cron.schedule('0 * * * *', async () => {
+    //TODO: cleanup
     console.log('Cron job started: Running cron job to fetch Spotify data...');
     await fetchAndStoreFeaturedPlaylists();
     await fetchAndStoreTracksAndArtists();
     await fetchAndStoreArtistGenres();
+    //TODO: cleanup
     console.log('Cron job completed: All tasks finished.');
 });

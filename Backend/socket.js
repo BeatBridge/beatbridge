@@ -11,9 +11,11 @@ function configureSocket(server) {
     });
 
     io.on('connection', (socket) => {
+        //TODO: cleanup
         console.log('A user connected');
 
         socket.on('disconnect', () => {
+            //TODO: cleanup
             console.log('User disconnected');
         });
     });

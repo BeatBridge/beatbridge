@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const cron = require('node-cron');
 
+//Calculates trending artists based on recent tags and searches, then stores the top 5 trending artists in the database.
 async function calculateTrendingArtists() {
     const now = new Date();
     const oneDayAgo = new Date(now.setDate(now.getDate() - 1));
@@ -18,6 +19,7 @@ async function calculateTrendingArtists() {
         }
     });
 
+    // Fetch artist searches from the past day
     const recentSearches = await prisma.artistSearch.findMany({
         where: {
             createdAt: {
@@ -90,12 +92,15 @@ async function calculateTrendingArtists() {
             });
         }
     }
-
+    //TODO: cleanup
     console.log('Trending Artists stored:', trendingArtists);
 }
 
+// Schedule a cron job to calculate trending artists every day at midnight
 cron.schedule('0 0 * * *', async () => {
+    //TODO: cleanup
     console.log('Cron job started: Calculating trending artists...');
     await calculateTrendingArtists();
+    //TODO: cleanup
     console.log('Cron job completed: Trending artists calculated and stored.');
 });

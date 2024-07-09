@@ -6,7 +6,7 @@ const http = require('http');
 const userRoutes = require("./routes/userRoutes");
 const { configureSocket } = require('./socket.js');
 
-// require('./utils/cronJobMap.js');
+require('./utils/cronJobMap.js');
 require('./utils/cronJobTrendingArtists.js')
 
 const app = express();
@@ -35,5 +35,6 @@ app.use("/user", userRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
+    //TODO: cleanup
     console.log(`Server is running on http://localhost:${PORT}`);
 });
