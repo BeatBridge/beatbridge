@@ -151,7 +151,7 @@ function ListenerDashboard() {
 
                         <div className='l-dashboard-user-name'>
                             <h4>Welcome, {userInfo.username}</h4>
-                            <p>Premium Subscriber</p>
+                            <p>{userInfo.isPremium ? 'Premium' : 'Free'} Subscriber</p>
                             <SpotifyOAuth isSpotifySignedIn={isSpotifySignedIn} />
                             <button onClick={handleLogout}>Logout</button>
                         </div>

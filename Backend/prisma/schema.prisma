@@ -19,6 +19,7 @@ model User {
   email                 String    @unique
   password              String
   isVerified            Boolean   @default(false)
+  isPremium             Boolean   @default(false)
   spotifyAccessToken    String?   // is null if user might has not authenticated with Spotify
   spotifyRefreshToken   String?   // is null if user might has not authenticated with Spotify
   songs                 Song[]
