@@ -2,10 +2,12 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const cron = require('node-cron');
 
-//Calculates trending artists based on recent tags and searches, then stores the top 5 trending artists in the database.
 async function calculateTrendingArtists() {
     const now = new Date();
     const oneDayAgo = new Date(now.setDate(now.getDate() - 1));
+
+    // Clear the existing trending artists
+    await prisma.trendingArtist.deleteMany({});
 
     // Fetch tagged songs from the past day
     const recentTags = await prisma.song.findMany({
@@ -34,7 +36,7 @@ async function calculateTrendingArtists() {
     // Calculate momentum for each artist
     const artistMomentum = {};
 
-    //Add tagged songs momentum
+    // Add tagged songs momentum
     for (const tag of recentTags) {
         const artistName = tag.artist;
         if (!artistMomentum[artistName]) {
@@ -47,7 +49,7 @@ async function calculateTrendingArtists() {
         }
         artistMomentum[artistName].tagCount += 1;
 
-        const artist = await prisma.artist.findUnique({
+        const artist = await prisma.artist.findFirst({
             where: { name: artistName }
         });
 
@@ -57,7 +59,7 @@ async function calculateTrendingArtists() {
         }
     }
 
-    //Add search count momentum
+    // Add search count momentum
     for (const search of recentSearches) {
         const artistName = search.artist.name;
         if (!artistMomentum[artistName]) {
@@ -80,9 +82,10 @@ async function calculateTrendingArtists() {
         .sort((a, b) => b.momentum - a.momentum)
         .slice(0, 5); // Top 5 artists
 
-    // Store trending artists in the database
+    // Store trending artists in the database without duplicates
+    const uniqueArtistIds = new Set();
     for (const artist of trendingArtists) {
-        if (artist.artistId) {
+        if (artist.artistId && !uniqueArtistIds.has(artist.artistId)) {
             await prisma.trendingArtist.create({
                 data: {
                     artistId: artist.artistId,
@@ -90,9 +93,10 @@ async function calculateTrendingArtists() {
                     createdAt: new Date()
                 }
             });
+            uniqueArtistIds.add(artist.artistId);
         }
     }
-    //TODO: cleanup
+
     console.log('Trending Artists stored:', trendingArtists);
 }
 

@@ -38,6 +38,8 @@ function TrendingArtists() {
                 if (trendingData.error) {
                     setError(trendingData.error);
                 } else {
+                    // Sort the trending artists by momentum in descending order
+                    trendingData.sort((a, b) => b.momentum - a.momentum);
                     setArtistsTrending(trendingData);
                 }
             } catch (err) {
