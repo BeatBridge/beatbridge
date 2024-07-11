@@ -5,6 +5,7 @@ const cron = require('node-cron');
 async function calculateTrendingArtists() {
     const now = new Date();
     const oneDayAgo = new Date(now.setDate(now.getDate() - 1));
+    const popularityWeight = 0.1;
 
     // Fetch tagged songs from the past day
     const recentTags = await prisma.song.findMany({
@@ -74,7 +75,7 @@ async function calculateTrendingArtists() {
     const dailyTrendingArtists = Object.entries(artistMomentum)
         .map(([name, data]) => ({
             artistId: data.artistId,
-            momentum: data.tagCount + data.searchCount + data.popularity * 0.1
+            momentum: data.tagCount + data.searchCount + data.popularity * popularityWeight
         }))
         .sort((a, b) => b.momentum - a.momentum);
 
