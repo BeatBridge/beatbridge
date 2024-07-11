@@ -95,7 +95,7 @@ async function calculateTrendingArtists() {
             uniqueArtistIds.add(artist.artistId);
         }
     }
-
+    //TODO: cleanup
     console.log('Trending Artists stored:', trendingArtists);
 }
 
