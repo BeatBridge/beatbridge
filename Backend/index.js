@@ -35,6 +35,5 @@ app.use("/user", userRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    //TODO: cleanup
     console.log(`Server is running on http://localhost:${PORT}`);
 });

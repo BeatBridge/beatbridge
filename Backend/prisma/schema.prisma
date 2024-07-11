@@ -65,9 +65,10 @@ model Track {
 model TrendingArtist {
   id                    Int      @id @default(autoincrement())
   artistId              Int
-  artist                Artist   @relation(fields: [artistId], references: [id])
   momentum              Float
   createdAt             DateTime @default(now())
+  date                  DateTime @default(now())
+  artist                Artist   @relation(fields: [artistId], references: [id])
 }
 
 model Artist {

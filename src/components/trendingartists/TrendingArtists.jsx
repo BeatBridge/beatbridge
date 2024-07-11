@@ -38,9 +38,28 @@ function TrendingArtists() {
                 if (trendingData.error) {
                     setError(trendingData.error);
                 } else {
-                    // Sort the trending artists by momentum in descending order
-                    trendingData.sort((a, b) => b.momentum - a.momentum).slice(0, 5); // Display only Top 5 artists
-                    setArtistsTrending(trendingData);
+                    // Aggregate weekly momentum
+                    const artistMomentum = {};
+                    for (const record of trendingData) {
+                        if (!artistMomentum[record.artistId]) {
+                            artistMomentum[record.artistId] = {
+                                momentum: 0,
+                                artist: record.artist
+                            };
+                        }
+                        artistMomentum[record.artistId].momentum += record.momentum;
+                    }
+
+                    // Calculate the average momentum for the week
+                    const weeklyTrendingArtists = Object.values(artistMomentum)
+                        .map(data => ({
+                            artist: data.artist,
+                            momentum: data.momentum / 7 // Average over a week
+                        }))
+                        .sort((a, b) => b.momentum - a.momentum)
+                        .slice(0, 5); // Display only Top 5 artists
+
+                    setArtistsTrending(weeklyTrendingArtists);
                 }
             } catch (err) {
                 setError('Failed to fetch trending artists');
@@ -73,7 +92,7 @@ function TrendingArtists() {
                     <ul>
                         {artistsTrending.map((trending) => (
                             <li key={trending.artist.id}>
-                                {trending.artist.name} - Momentum: {trending.momentum}
+                                {trending.artist.name} - Momentum: {trending.momentum.toFixed(2)}
                             </li>
                         ))}
                     </ul>
