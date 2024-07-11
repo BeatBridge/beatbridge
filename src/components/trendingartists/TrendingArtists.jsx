@@ -39,7 +39,7 @@ function TrendingArtists() {
                     setError(trendingData.error);
                 } else {
                     // Sort the trending artists by momentum in descending order
-                    trendingData.sort((a, b) => b.momentum - a.momentum);
+                    trendingData.sort((a, b) => b.momentum - a.momentum).slice(0, 5); // Display only Top 5 artists
                     setArtistsTrending(trendingData);
                 }
             } catch (err) {

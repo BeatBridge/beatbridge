@@ -1,22 +1,15 @@
 const cron = require('node-cron');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { fetchLocationFromMusicBrainz } = require('./musicBrainzUtils.js');
-const { refreshSpotifyToken } = require('./spotifyUtils.js');
-const { fetchLocationFromSpotify } = require('./fetchLocationSpotify.js');
-const { emitUpdate } = require('../socket.js');
+const { fetchLocationFromMusicBrainz } = require('./musicBrainzUtils');
+const { refreshSpotifyToken } = require('./spotifyUtils');
+const { fetchLocationFromSpotify } = require('./fetchLocationSpotify');
 require('./createSystemUser.js');
 
-//delays execution by the specified number of milliseconds. ms represents the number of milliseconds to delay, while the promise resolves after that delay.
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-//fetch with rety function to prevent rate limits.
-//paramter url - the URL to fetch
-//paramter options - Fetch options
-//paramter retries - number of retry attempts
-//paramter delayMs - initial delay between reties in milliseconds
 async function fetchWithRetry(url, options, retries = 3, delayMs = 1000) {
     try {
         const response = await fetch(url, options);
@@ -41,9 +34,12 @@ async function fetchWithRetry(url, options, retries = 3, delayMs = 1000) {
     }
 }
 
-//retrieves the location for a given artis, and updating if necessary.
 async function getLocationForArtist(artist) {
     try {
+        //TODO: cleanup
+        console.log(`Fetching location for artist ID (should be integer): ${artist.id}`);
+        console.log(`Fetching location for artist Spotify ID: ${artist.spotifyId}`);
+
         const artistWithLocation = await prisma.artist.findUnique({
             where: { id: artist.id },
             include: { locations: true }
@@ -52,12 +48,16 @@ async function getLocationForArtist(artist) {
         let location;
         if (artistWithLocation && artistWithLocation.locations.length > 0) {
             location = artistWithLocation.locations[0];
+            //TODO: cleanup
+            console.log(`Location found in database for artist ${artist.name}: ${location.name}, Country Code: ${location.countryCode}`);
 
             if (!location.countryCode || location.countryCode === 'Unknown') {
                 console.warn(`Country code missing or invalid for artist ${artist.name}. Updating country code.`);
                 let fetchedLocation;
                 try {
                     fetchedLocation = await fetchLocationFromMusicBrainz(artist.name);
+                    //TODO: cleanup
+                    console.log(`Location fetched from MusicBrainz for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
                 } catch (error) {
                     if (error.message.includes('No artist found with name')) {
                         console.warn(`Artist ${artist.name} not found on MusicBrainz. Falling back to Spotify.`);
@@ -66,6 +66,8 @@ async function getLocationForArtist(artist) {
                     }
                     console.warn(`Falling back to fetching location from Spotify for artist ${artist.name}.`);
                     fetchedLocation = await fetchLocationFromSpotify(artist.spotifyId);
+                    //TODO: cleanup
+                    console.log(`Location fetched from Spotify for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
                 }
 
                 location = await prisma.location.update({
@@ -74,6 +76,8 @@ async function getLocationForArtist(artist) {
                         countryCode: fetchedLocation.countryCode
                     }
                 });
+                //TODO: cleanup
+                console.log(`Updated country code for location of artist ${artist.name}: ${location.countryCode}`);
             }
 
             return {
@@ -88,10 +92,14 @@ async function getLocationForArtist(artist) {
         let fetchedLocation;
         try {
             fetchedLocation = await fetchLocationFromMusicBrainz(artist.name);
-        } catch(error) {
+            //TODO: cleanup
+            console.log(`Location fetched from MusicBrainz for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
+        } catch (error) {
             console.error(`Failed to fetch location from MusicBrainz for artist ${artist.name}:`, error);
             console.warn(`Falling back to fetching location from Spotify for artist ${artist.name}.`);
             fetchedLocation = await fetchLocationFromSpotify(artist.spotifyId);
+            //TODO: cleanup
+            console.log(`Location fetched from Spotify for artist ${artist.name}: ${fetchedLocation.name}, Country Code: ${fetchedLocation.countryCode}`);
         }
 
         const newLocation = await prisma.location.upsert({
@@ -114,7 +122,8 @@ async function getLocationForArtist(artist) {
                 }
             }
         });
-
+        //TODO: cleanup
+        console.log(`Location upserted in database for artist ${artist.name}: ${newLocation.name}, Country Code: ${newLocation.countryCode}`);
         return {
             name: newLocation.name,
             latitude: newLocation.latitude,
@@ -132,7 +141,6 @@ async function getLocationForArtist(artist) {
     }
 }
 
-//Retrieves the Spotify access token for the system user, refreshing it if necessary.
 async function getSystemUserToken() {
     const systemUser = await prisma.user.findUnique({
         where: { username: 'system' },
@@ -158,8 +166,9 @@ async function getSystemUserToken() {
     return systemUser.spotifyAccessToken;
 }
 
-// Fetches and stores featured playlists from Spotify in the database
 async function fetchAndStoreFeaturedPlaylists() {
+    //TODO: cleanup
+    console.log('Fetching and storing featured playlists...');
     const accessToken = await getSystemUserToken();
 
     try {
@@ -192,16 +201,21 @@ async function fetchAndStoreFeaturedPlaylists() {
                     }
                 });
             }
+            //TODO: cleanup
+            console.log(`Featured playlists updated`);
         } else {
             console.error(`Failed to fetch featured playlists:`, data);
         }
     } catch (error) {
         console.error('Error fetching featured playlists:', error);
     }
+    //TODO: cleanup
+    console.log('Completed fetching and storing featured playlists.');
 }
 
-//Fetches and stores tracks and artists from the playlists in the database.
 async function fetchAndStoreTracksAndArtists() {
+    //TODO: cleanup
+    console.log('Fetching and storing tracks and artists...');
     const playlists = await prisma.playlist.findMany();
     const accessToken = await getSystemUserToken();
 
@@ -239,6 +253,9 @@ async function fetchAndStoreTracksAndArtists() {
                     });
 
                     for (const artist of track.artists) {
+                        //TODO: cleanup
+                        console.log(`Processing artist ID: ${artist.id}`);
+
                         const existingArtist = await prisma.artist.findUnique({
                             where: { spotifyId: artist.id },
                             include: { locations: true }
@@ -264,7 +281,7 @@ async function fetchAndStoreTracksAndArtists() {
                                 updateData.genres = artistData.genres;
                             }
 
-                            await prisma.artist.upsert({
+                            const updatedArtist = await prisma.artist.upsert({
                                 where: { spotifyId: artist.id },
                                 update: updateData,
                                 create: {
@@ -277,13 +294,16 @@ async function fetchAndStoreTracksAndArtists() {
 
                             if (!existingArtist || existingArtist.locations.length === 0) {
                                 // Fetch location only if it does not exist
-                                await getLocationForArtist(artist);
+                                // await getLocationForArtist({ id: updatedArtist.id });
+                                await getLocationForArtist(updatedArtist);
                             }
                         } else {
                             console.error(`Failed to fetch details for artist ${artist.id}`);
                         }
                     }
                 }
+                //TODO: cleanup
+                console.log(`Tracks and artists updated for playlist ${playlist.id}`);
             } else {
                 console.error(`Failed to fetch tracks for playlist ${playlist.id}:`, data);
             }
@@ -293,20 +313,21 @@ async function fetchAndStoreTracksAndArtists() {
 
         await delay(1000); // Add a delay between playlist fetches to reduce rate limiting
     }
+    //TODO: cleanup
+    console.log('Completed fetching and storing tracks and artists.');
 }
 
-//Fetches and stores genres for all artists in the database.
 async function fetchAndStoreArtistGenres() {
+    //TODO: cleanup
+    console.log('Fetching and storing artists genres...');
     const artists = await prisma.artist.findMany(); // Fetch all artists, not just those with empty genres
 
     const accessToken = await getSystemUserToken();
 
     for (const artist of artists) {
         try {
-            const existingArtist = await prisma.artist.findUnique({
-                where: { spotifyId: artist.spotifyId },
-                include: { locations: true }
-            });
+            //TODO: cleanup
+            console.log(`Fetching genres for artist: ${artist.name} (Spotify ID: ${artist.spotifyId})`);
 
             const response = await fetchWithRetry(
                 `https://api.spotify.com/v1/artists/${artist.spotifyId}`,
@@ -325,24 +346,20 @@ async function fetchAndStoreArtistGenres() {
             }
 
             const data = await response.json();
-            const updateData = { popularity: data.popularity };
-
-            if (!existingArtist || existingArtist.genres.length === 0) {
-                updateData.genres = data.genres;
-            }
+            //TODO: cleanup
+            console.log(`Genres fetched for artist ${artist.name}: ${data.genres.join(', ')}`);
 
             await prisma.artist.update({
                 where: { spotifyId: artist.spotifyId },
-                data: updateData
+                data: { genres: data.genres }
             });
-
-            if (!existingArtist || existingArtist.locations.length === 0) {
-                // Fetch location only if it does not exist
-                await getLocationForArtist(artist);
-            }
+            //TODO: cleanup
+            console.log(`Genres updated for artist ${artist.name} in database.`);
 
             // Ensure getLocationForArtist is called
             const location = await getLocationForArtist(artist);
+            //TODO: cleanup
+            console.log(`Location fetched for artist ${artist.name}: ${location.name}, ${location.latitude}, ${location.longitude}`);
 
             if (location && location.name) { // Check if location is valid
                 await prisma.location.upsert({
@@ -362,6 +379,8 @@ async function fetchAndStoreArtistGenres() {
                         }
                     }
                 });
+                //TODO: cleanup
+                console.log(`Location and artists updated for ${location.name} in database.`);
             } else {
                 console.warn(`No valid location found for artist ${artist.name}. Skipping location update.`);
             }
@@ -371,10 +390,11 @@ async function fetchAndStoreArtistGenres() {
 
         await delay(1000); // Delay for 1 second before the next request
     }
+    //TODO: cleanup
+    console.log('Completed fetching and storing artist genres.');
 }
 
-// Schedule a cron job to fetch Spotify data every hour
-cron.schedule('0 * * * *', async () => {
+cron.schedule('0 0 * * *', async () => {
     //TODO: cleanup
     console.log('Cron job started: Running cron job to fetch Spotify data...');
     await fetchAndStoreFeaturedPlaylists();
@@ -383,3 +403,13 @@ cron.schedule('0 * * * *', async () => {
     //TODO: cleanup
     console.log('Cron job completed: All tasks finished.');
 });
+
+//TODO: cleanup
+
+// (async () => {
+//     console.log('Initial run: Running cron job to fetch Spotify data..');
+//     await fetchAndStoreFeaturedPlaylists();
+//     await fetchAndStoreTracksAndArtists();
+//     await fetchAndStoreArtistGenres();
+//     console.log('Initial run completed: All tasks finished.');
+// })();

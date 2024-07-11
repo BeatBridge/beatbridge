@@ -6,6 +6,9 @@ const prisma = new PrismaClient();
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 
+// const CLIENT_ID_2 = process.env.SPOTIFY_CLIENT_ID_2;
+// const CLIENT_SECRET_2 = process.env.SPOTIFY_CLIENT_SECRET_2;
+
 async function refreshSpotifyToken(username) {
     const user = await prisma.user.findUnique({
         where: { username },
@@ -18,6 +21,7 @@ async function refreshSpotifyToken(username) {
     const refreshOptions = {
         method: 'POST',
         headers: {
+            // 'Authorization': 'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
             'Authorization': 'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
             'Content-Type': 'application/x-www-form-urlencoded'
         },
@@ -28,9 +32,10 @@ async function refreshSpotifyToken(username) {
     };
 
     try {
+        console.log(Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'));
         const response = await fetch('https://accounts.spotify.com/api/token', refreshOptions);
         const data = await response.json();
-
+        console.log(data)
         if (!response.ok) {
             throw new Error('Failed to refresh token');
         }

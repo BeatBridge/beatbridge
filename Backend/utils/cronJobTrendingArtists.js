@@ -80,7 +80,6 @@ async function calculateTrendingArtists() {
             momentum: data.tagCount + data.searchCount + data.popularity * 0.1
         }))
         .sort((a, b) => b.momentum - a.momentum)
-        .slice(0, 5); // Top 5 artists
 
     // Store trending artists in the database without duplicates
     const uniqueArtistIds = new Set();
@@ -108,3 +107,9 @@ cron.schedule('0 0 * * *', async () => {
     //TODO: cleanup
     console.log('Cron job completed: Trending artists calculated and stored.');
 });
+
+// (async () => {
+//     console.log('Initial run: Calculating trending artists...');
+//     await calculateTrendingArtists();
+//     console.log('Initial run completed: Trending artists calculated and stored.');
+// })();
