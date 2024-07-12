@@ -101,7 +101,6 @@ function ListenerDashboard() {
         };
         setSelectedTrack(updatedTrack);
         setShowTaggingForm(false);
-        trackArtistSearch(suggestion.artists[0].id);
 
         if (track.artists && track.artists.length > 0) {
             trackArtistSearch(track.artists[0].id);
