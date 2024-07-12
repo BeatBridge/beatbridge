@@ -3,7 +3,22 @@
     background-color: #151E3F;
     color: #F2F3D9;
     position: relative;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.l-left-sidebar, .l-right-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 .l-logo {
@@ -12,12 +27,25 @@
     color: #F2F3D9;
 }
 
-.l-left-sidebar, .l-menu-bar, .l-menu-bar-bottom {
+.l-left-sidebar {
     border-right: 1px solid #800080;
 }
 
-.l-right-sidebar, .l-right-menu, .l-track-action {
+.l-right-sidebar {
     border-left: 1px solid #800080;
+}
+
+.scrollable-column {
+    overflow-y: auto;
+    height: 100vh;
+    padding-left: 15px;
+    padding-right: 15px;
+    scrollbar-color:#F2F3D9 #151E3F;
+}
+
+.l-left-sidebar::-webkit-scrollbar, .l-right-sidebar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
 }
 
 .l-dashboard-profile-container {
@@ -31,10 +59,9 @@
     overflow: hidden;
 }
 
-.l-right-sidebar {
+.l-right-sidebar-top {
     display: flex;
     justify-content: space-between;
-    align-items: end;
 }
 
 .l-dash-user-icon {
@@ -47,7 +74,6 @@
 
 .l-right-sidebar-user-info {
     display: flex;
-    align-items: center;
 }
 
 .l-dashboard-user-name {
@@ -71,24 +97,25 @@
     cursor: pointer;
 }
 
-.l-menu-bar, .l-discover-genre, .l-right-menu, .l-top-music {
-    padding-top: 5vh;
-}
-
-.l-main-top hr, .l-menu-bar-bottom hr {
+.l-left-sidebar hr{
     border-bottom: 3px solid #800080;
 }
 
-.l-discover-genre-top {
+.menu-items-container {
+    margin-top: 2vh;
+}
+
+.l-discover-genre-top, .l-top-music-top {
     display: flex;
     flex-direction: row;
+    margin-top: 3vh;
 }
 
 .l-discover-genre-music-icon, .l-top-music-icon-header {
     color: #800080;
 }
 
-.l-discover-genre h5, .l-top-music-icon-header{
+.l-discover-genre-top h5, .l-top-music-icon-header{
     padding: 0.3rem 1rem 0 1rem;
 }
 
@@ -98,6 +125,7 @@
 
 .l-top-artist-column {
     margin-bottom: 20px;
+    margin-top: 3vh;
 }
 
 .l-dashbaord-menu-items {
@@ -126,11 +154,6 @@
     overflow-x: auto;
     scrollbar-color:#F2F3D9 #151E3F;
     padding-bottom: 15px;
-}
-
-.l-top-music-top {
-    display: flex;
-    flex-direction: row;
 }
 
 .search-modal {
@@ -212,7 +235,7 @@
 
 .suggestions-list {
     position: absolute;
-    top: 55px; /* Adjusted to be below the search box */
+    top: 55px;
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 4px;
