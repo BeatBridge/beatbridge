@@ -30,7 +30,6 @@ async function refreshSpotifyToken(username) {
     try {
         const response = await fetch('https://accounts.spotify.com/api/token', refreshOptions);
         const data = await response.json();
-
         if (!response.ok) {
             throw new Error('Failed to refresh token');
         }

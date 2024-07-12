@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { NavLink, useNavigate } from 'react-router-dom';
 import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm.jsx';
-import { FaBell, FaHeart, FaMusic, FaTag, FaUser } from 'react-icons/fa';
-import { faEarthAmericas, faGauge, faGear, faHeadphonesSimple, faMicrochip, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { FaBell, FaMusic, FaTag, FaUser } from 'react-icons/fa';
+import { faEarthAmericas, faChartLine, faGauge, faGear, faHeadphonesSimple, faMicrochip, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
 import discoImg from '../../assets/genres/disco.jpg';
 import popImg from '../../assets/genres/pop.jpg';
@@ -85,6 +85,10 @@ function ListenerDashboard() {
         setSelectedTrack(suggestion);
         setSearchResults([]);
         setShowTaggingForm(false);
+
+        if (suggestion.artists && suggestion.artists.length > 0) {
+            trackArtistSearch(suggestion.artists[0].id);
+        }
     };
 
     const handleTrackClick = (track) => {
@@ -97,6 +101,10 @@ function ListenerDashboard() {
         };
         setSelectedTrack(updatedTrack);
         setShowTaggingForm(false);
+
+        if (track.artists && track.artists.length > 0) {
+            trackArtistSearch(track.artists[0].id);
+        }
     };
 
     const handleTagButtonClick = () => {
@@ -123,6 +131,14 @@ function ListenerDashboard() {
 
     const handleCloseTrack = () => {
         setSelectedTrack(null);
+    };
+
+    const trackArtistSearch = async (artistId) => {
+        try {
+            await API.trackArtistSearch(artistId);
+        } catch (error) {
+            console.error('Error tracking artist search:', error);
+        }
     };
 
     return (
@@ -178,16 +194,16 @@ function ListenerDashboard() {
                                 <NavLink to='/l/dashboard'><h5>Dashboard</h5></NavLink>
                             </div>
                             <div className='l-dashbaord-menu-items'>
-                                <FaHeart className='menu-icon' />
-                                <NavLink to='/library'><h5>Favourite</h5></NavLink>
-                            </div>
-                            <div className='l-dashbaord-menu-items'>
                                 <FaTag className='menu-icon' />
                                 <NavLink to='/tags'><h5>Tags</h5></NavLink>
                             </div>
                             <div className='l-dashbaord-menu-items'>
                                 <FontAwesomeIcon icon={faUserGroup} className='menu-icon' />
                                 <NavLink to='/friends'><h5>Friends</h5></NavLink>
+                            </div>
+                            <div className='l-dashbaord-menu-items'>
+                                <FontAwesomeIcon icon={faChartLine} className='menu-icon' />
+                                <NavLink to='/trending'><h5>Trending</h5></NavLink>
                             </div>
                         </div>
                     </div>
@@ -236,7 +252,7 @@ function ListenerDashboard() {
                         {isSpotifySignedIn ? (
                             globalTop50.length !== undefined ? (
                                 <div>
-                                    <GlobalTop50 tracks={globalTop50.slice(1, 4)} onTrackClick={handleTrackClick} />
+                                    <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
                                 </div>
                             ) : (
                                 <p>No top 50 artists found.</p>

@@ -125,6 +125,7 @@
     overflow-y: hidden;
     overflow-x: auto;
     scrollbar-color:#F2F3D9 #151E3F;
+    padding-bottom: 15px;
 }
 
 .l-top-music-top {

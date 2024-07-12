@@ -21,6 +21,7 @@ const sendMail = (to, subject, text) => {
         if (error) {
             console.error('Error sending email:', error);
         } else {
+            //TODO: cleanup
             console.log('Email sent:', info.response);
         }
     });
