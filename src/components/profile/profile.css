@@ -12,6 +12,14 @@
     padding-top: 2vw;
 }
 
+.profile-info {
+    overflow-y: auto;
+    height: 100vh;
+    scrollbar-color:#F2F3D9 #151E3F;
+    padding-bottom: 5vh;
+    padding-right: 1rem;
+}
+
 .profile-pic {
     width: 180px;
     height: 180px;
@@ -30,8 +38,6 @@
     border-radius: 25px;
     border: 3px solid #800080;
     background-color: #0E152B;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
 }
 
 .profile-sub-details{
@@ -61,24 +67,17 @@
     background-color: #151E3F;
 }
 
-.profile-info {
-    overflow-y: auto;
-    height: 100vh;
-    scrollbar-color:#F2F3D9 #151E3F;
-    padding-bottom: 2vh;
-}
-
 .user-profile-details {
     margin-top: 3vh;
 }
 
 .user-profile-details-top {
-    padding: 0 20px;
+    padding-left: 10px;
 }
 
 .user-profile-details-bottom {
     margin-top: 3rem;
-    padding: 0 20px;
+    padding-left: 10px;
 }
 
 .user-profile-viral-container, .user-profile-trending-container {

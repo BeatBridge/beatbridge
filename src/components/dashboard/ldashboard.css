@@ -1,5 +1,5 @@
 .l-dashbaord-container {
-    padding: 4vh 2vw;
+    padding: 4vh 1.5vw;
     background-color: #151E3F;
     color: #F2F3D9;
     position: relative;
@@ -128,20 +128,27 @@
     margin-top: 3vh;
 }
 
-.l-dashbaord-menu-items {
+.l-menu-items {
+    padding-left: 0rem;
+}
+
+.menu {
     display: flex;
     gap: 1rem;
     margin-bottom: 20px;
+    padding: 1rem 0 0.5rem 0.75rem;
     cursor: pointer;
 }
 
-.l-dashbaord-menu-items a {
-    text-decoration: none;
-    color: inherit;
+.menu.active {
+    border: 1px solid #F2F3D9;
+    border-radius: 17px;
+    background-color: #0E152B;
 }
 
-.l-menu-items {
-    padding-left: 2vw;
+.menu-item {
+    text-decoration: none;
+    color: inherit;
 }
 
 .menu-icon {
