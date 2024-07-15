@@ -18,6 +18,7 @@ function DashboardLayout({
   searchResults,
   selectedTrack,
   showTaggingForm,
+  setShowTaggingForm,
   handleTagButtonClick,
   handleCloseTrack,
   handleTag,

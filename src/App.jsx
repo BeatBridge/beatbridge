@@ -175,6 +175,7 @@ function App() {
                             searchResults={searchResults}
                             selectedTrack={selectedTrack}
                             showTaggingForm={showTaggingForm}
+                            setShowTaggingForm={setShowTaggingForm}
                             handleTagButtonClick={handleTagButtonClick}
                             handleCloseTrack={handleCloseTrack}
                             handleTag={handleTag}
