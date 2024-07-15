@@ -25,6 +25,13 @@ import DashboardLayout from './components/dashboardlayout/DashboardLayout.jsx';
 function App() {
     const [JWT, setJWT] = useState(null);
     const [userInfo, setUserInfo] = useState({});
+    const [globalTop50, setGlobalTop50] = useState([]);
+    const [viral50Global, setViral50Global] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
+    const [selectedTrack, setSelectedTrack] = useState(null);
+    const [showTaggingForm, setShowTaggingForm] = useState(false);
+    const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -43,17 +50,107 @@ function App() {
                     navigate('/login');
                 } else {
                     setUserInfo(data);
+                    setIsSpotifySignedIn(!!data.spotifyAccessToken);
                 }
             }
         };
         fetchUserInfo();
     }, [JWT, navigate]);
 
+    useEffect(() => {
+        if (isSpotifySignedIn) {
+            const fetchGlobalTop50 = async () => {
+                try {
+                    const data = await API.getGlobalTop50(userInfo.spotifyAccessToken);
+                    setGlobalTop50(data.tracks.items || []);
+                } catch (err) {
+                    setError(err.message || 'Failed to fetch global top 50.');
+                }
+            };
+            fetchGlobalTop50();
+
+            const fetchViral50Global = async () => {
+                try {
+                    const data = await API.getViral50Global(userInfo.spotifyAccessToken);
+                    setViral50Global(data.tracks.items || []);
+                } catch (err) {
+                    setError(err.message || 'Failed to fetch viral 50 global.');
+                }
+            };
+            fetchViral50Global();
+        }
+    }, [userInfo, isSpotifySignedIn]);
+
     const handleLogout = () => {
         localStorage.removeItem('jwt');
         localStorage.removeItem('spotifyAuth');
         setJWT(null);
         navigate('/login');
+    };
+
+    const handleSearchResults = (results) => {
+        setSearchResults(results);
+        setShowTaggingForm(false);
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        setSelectedTrack(suggestion);
+        setSearchResults([]);
+        setShowTaggingForm(false);
+
+        if (suggestion.artists && suggestion.artists.length > 0) {
+            trackArtistSearch(suggestion.artists[0].id);
+        }
+    };
+
+    const handleTrackClick = (track) => {
+        const updatedTrack = {
+            ...track,
+            album: {
+                ...track.album,
+                images: track.images || []
+            }
+        };
+        setSelectedTrack(updatedTrack);
+        setShowTaggingForm(false);
+
+        if (track.artists && track.artists.length > 0) {
+            trackArtistSearch(track.artists[0].id);
+        }
+    };
+
+    const handleTagButtonClick = () => {
+        setShowTaggingForm(true);
+    };
+
+    const handleTag = async (track, tags) => {
+        const songData = {
+            title: track.name,
+            artist: track.artists ? track.artists[0].name : "Unknown Artist",
+            album: track.album ? track.album.name : "Unknown Album",
+            genre: tags.genre,
+            mood: tags.mood,
+            tempo: tags.tempo,
+            customTags: JSON.stringify(tags.customTags),
+        };
+        try {
+            const song = await API.createSong(songData);
+            await API.tagSong(song.id, tags);
+        } catch (error) {
+            console.error('Error tagging track:', error);
+        }
+    };
+
+    const handleCloseTrack = () => {
+        setSelectedTrack(null);
+    };
+
+    const trackArtistSearch = async (artistId) => {
+        try {
+            await API.trackArtistSearch(artistId);
+        } catch (error) {
+            console.error('Error tracking artist search:', error);
+        }
     };
 
     return (
@@ -66,12 +163,28 @@ function App() {
                 <Route path='/verify/:token' element={<EmailVerification />} />
                 <Route path='/callback' element={<SpotifyCallBack />} />
                 <Route path='/error' element={<Error />} />
-                <Route element={<RequireAuth><DashboardLayout userInfo={userInfo} handleLogout={handleLogout} /></RequireAuth>}>
+                <Route element={
+                    <RequireAuth>
+                        <DashboardLayout
+                            userInfo={userInfo}
+                            handleLogout={handleLogout}
+                            isSpotifySignedIn={isSpotifySignedIn}
+                            globalTop50={globalTop50}
+                            handleTrackClick={handleTrackClick}
+                            searchResults={searchResults}
+                            selectedTrack={selectedTrack}
+                            showTaggingForm={showTaggingForm}
+                            handleTagButtonClick={handleTagButtonClick}
+                            handleCloseTrack={handleCloseTrack}
+                            handleTag={handleTag}
+                        />
+                    </RequireAuth>
+                }>
                     <Route path="/profile" element={<Profile userInfo={userInfo} />} />
                     <Route path="/friends" element={<Friends userInfo={userInfo} />} />
                     <Route path="/trending" element={<TrendingArtists userInfo={userInfo} />} />
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
-                    <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} />} />
+                    <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} />} />
                     <Route path="/tags" element={<TaggingScreen userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
                     <Route path="/settings" element={<Settings userInfo={userInfo} />} />
