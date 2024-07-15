@@ -27,7 +27,7 @@ function ListenerDashboard({
   }, [isSpotifySignedIn, viral50Global, handleSearchResults]);
 
   return (
-    <div>
+    <div className='l-center-bar'>
       <div>
         <LSearchForm onSearchResults={handleSearchResults} onSuggestionClick={handleSuggestionClick} />
       </div>

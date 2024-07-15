@@ -1,5 +1,5 @@
 .l-dashbaord-container {
-    padding: 4vh 1.5vw;
+    padding: 2vh 1.5vw;
     background-color: #151E3F;
     color: #F2F3D9;
     position: relative;
@@ -17,7 +17,7 @@
 .l-left-sidebar, .l-right-sidebar {
     position: sticky;
     top: 0;
-    height: 100vh;
+    height: 95vh;
     overflow-y: auto;
 }
 
@@ -37,7 +37,7 @@
 
 .scrollable-column {
     overflow-y: auto;
-    height: 100vh;
+    height: 95vh;
     padding-left: 15px;
     padding-right: 15px;
     scrollbar-color:#F2F3D9 #151E3F;
