@@ -38,7 +38,7 @@ const Login = ({ setJWT }) => {
             if (response.token) {
                 localStorage.setItem('jwt', response.token);
                 setJWT(response.token);
-                navigate('/l/dashboard');
+                navigate('/profile');
             } else {
                 alert('Invalid username or password')
             }

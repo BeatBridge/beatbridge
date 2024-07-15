@@ -264,7 +264,6 @@ async function fetchAndStoreTracksAndArtists() {
 
                             if (!existingArtist || existingArtist.locations.length === 0) {
                                 // Fetch location only if it does not exist
-                                // await getLocationForArtist({ id: updatedArtist.id });
                                 await getLocationForArtist(updatedArtist);
                             }
                         } else {

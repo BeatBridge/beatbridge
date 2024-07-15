@@ -1,0 +1,18 @@
+.t-placeholder-container {
+    width: 230px;
+    height: 230px;
+    border: 3px solid #800080;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.t-placeholder-container img {
+    width: 100%;
+}
+
+.t-playlist-desc-container {
+    margin-top: 1rem;
+}
