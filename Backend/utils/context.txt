@@ -1,0 +1,78 @@
+Beats Bridge Application Context:
+
+1. Components:
+   - Landing: The homepage of the application.
+   - ListenerDashboard: Dashboard for listeners to view and manage their activities.
+   - Login: User login page.
+   - SignUp: User registration page.
+   - EmailVerification: Page for verifying user email addresses.
+   - TaggingScreen: Screen for tagging and categorizing music.
+   - ArtistDashboard: Dashboard for artists to manage their profiles and content.
+   - TrendingScreen: Screen displaying trending music and artists.
+   - Profile: User profile page.
+   - Friends: Page to manage friends and view their activities.
+   - Favourites: Page to view and manage favourite tracks and artists.
+   - Settings: Page to manage user settings and preferences.
+   - Chatbot: AI-powered chatbot for user assistance.
+   - Map: Map feature to locate events and activities.
+   - TrendingArtists: Page displaying trending artists.
+
+2. ## React Routes
+
+- /: Landing page
+- /listener-dashboard: Listener dashboard
+- /login: Login page
+- /signup: Signup page
+- /verify/:token: Email verification page
+- /tagging-screen: Tagging screen
+- /artist-dashboard: Artist dashboard
+- /trending: Trending screen
+- /profile: Profile page
+- /friends: Friends page
+- /favourites: Favourites page
+- /settings: Settings page
+- /chatbot: Chatbot page
+- /map: Map page
+- /trending-artists: Trending artists page
+- /error: Error handling page
+
+3. User Flows:
+   - User registration and email verification process.
+   - Login and authentication flow.
+   - Navigating between different dashboards and screens.
+   - Using the chatbot for assistance.
+
+4. ## Backend Routes
+
+- POST /signup: User signup route
+- POST /login: User login route
+- POST /verify-email: Email verification route
+- GET /info: Fetch user info (protected)
+- GET /spotify/login: Spotify login route (protected)
+- GET /spotify/callback: Spotify callback route
+- POST /spotify/confirm: Spotify login confirmation route
+- POST /create-access-token: Create Spotify access token (protected)
+- GET /spotify/global-top-50: Fetch global top 50 songs on Spotify (protected)
+- GET /spotify/viral-50-global: Fetch viral 50 global songs on Spotify (protected)
+- GET /spotify/search: Search songs on Spotify (protected)
+- GET /spotify/featured-playlists: Fetch featured playlists on Spotify (protected)
+- GET /spotify/playlists/:playlistId/tracks: Fetch tracks of a playlist on Spotify (protected)
+- GET /spotify/tracks: Fetch details of specific tracks on Spotify (protected)
+- GET /spotify/artists: Fetch details of specific artists on Spotify (protected)
+- GET /playlists: Fetch all playlists (protected)
+- GET /playlists/:playlistId/tracks: Fetch tracks of a playlist (protected)
+- GET /artists/genres: Fetch genres of artists (protected)
+- GET /genres-by-location: Fetch genres by location
+- POST /songs: Create a new song (protected)
+- POST /songs/:songId/tags: Add tags to a song (protected)
+- GET /songs/:songId: Fetch details of a song (protected)
+- POST /track-artist-search: Track artist search (protected)
+- GET /trending-artists: Fetch trending artists (protected)
+- GET /protected-route: Example of a protected route
+- POST /chat-with-ai: Chat with AI using Replicate
+
+5. Technologies Used:
+   - React for frontend components.
+   - Express for backend API.
+   - Postgres for database.
+
