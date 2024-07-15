@@ -120,10 +120,10 @@ async function calculateTrendingArtists() {
             const scoreLength = scores.length;
             const recentScore = scores[scoreLength - 1] || 0;
             const previousScore = scores[scoreLength - 8] || 0; // 7 days ago score
-            const momentum = recentScore / (previousScore || 1); // avoid division by zero
+            const momentumScore = recentScore / (previousScore || 1); // avoid division by zero
             return {
                 artistId: parseInt(artistId),
-                momentum: momentum
+                momentum: momentumScore
             };
         })
         .sort((a, b) => b.momentum - a.momentum);
