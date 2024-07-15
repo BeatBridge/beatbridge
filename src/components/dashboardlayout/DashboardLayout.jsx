@@ -18,6 +18,7 @@ function DashboardLayout({
   searchResults,
   selectedTrack,
   showTaggingForm,
+  setShowTaggingForm,
   handleTagButtonClick,
   handleCloseTrack,
   handleTag,
@@ -131,7 +132,7 @@ function DashboardLayout({
           <div>
             <h4 className="l-top-artist-column">Global Top 50</h4>
             {isSpotifySignedIn ? (
-              globalTop50.length !== undefined ? (
+              globalTop50.length > 0 ? (
                 <div>
                   <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
                 </div>
@@ -166,7 +167,7 @@ function DashboardLayout({
                 )}
               </div>
             )}
-            {!selectedTrack && searchResults.length > 0 && (
+            {searchResults !== undefined && !selectedTrack && searchResults.length > 0 && (
               <div className="search-results">
                 {searchResults.map((track, index) => (
                   <div key={index} className="search-result" onClick={() => handleTrackClick(track)}>

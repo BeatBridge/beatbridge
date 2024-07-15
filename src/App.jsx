@@ -169,11 +169,13 @@ function App() {
                             userInfo={userInfo}
                             handleLogout={handleLogout}
                             isSpotifySignedIn={isSpotifySignedIn}
-                            globalTop50={globalTop50}
+                            globalTop50={globalTop50 || []}
+                            viral50Global={viral50Global || []}
                             handleTrackClick={handleTrackClick}
                             searchResults={searchResults}
                             selectedTrack={selectedTrack}
                             showTaggingForm={showTaggingForm}
+                            setShowTaggingForm={setShowTaggingForm}
                             handleTagButtonClick={handleTagButtonClick}
                             handleCloseTrack={handleCloseTrack}
                             handleTag={handleTag}
