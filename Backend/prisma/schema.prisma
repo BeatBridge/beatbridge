@@ -25,6 +25,15 @@ model User {
   songs                 Song[]
   locationId            Int?
   location              Location? @relation(fields: [locationId], references: [id])
+  recommendations       Recommendation[]
+}
+
+model Recommendation {
+  id                    Int       @id @default(autoincrement())
+  userId                Int
+  user                  User      @relation(fields: [userId], references: [id])
+  artistName            String
+  createdAt             DateTime  @default(now())
 }
 
 model Song {
