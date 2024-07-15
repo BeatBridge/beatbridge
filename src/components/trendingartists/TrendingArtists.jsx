@@ -38,28 +38,9 @@ function TrendingArtists() {
                 if (trendingData.error) {
                     setError(trendingData.error);
                 } else {
-                    // Aggregate weekly momentum
-                    const artistMomentum = {};
-                    for (const record of trendingData) {
-                        if (!artistMomentum[record.artistId]) {
-                            artistMomentum[record.artistId] = {
-                                momentum: 0,
-                                artist: record.artist
-                            };
-                        }
-                        artistMomentum[record.artistId].momentum += record.momentum;
-                    }
-
-                    // Calculate the average momentum for the week
-                    const weeklyTrendingArtists = Object.values(artistMomentum)
-                        .map(data => ({
-                            artist: data.artist,
-                            momentum: data.momentum / 7 // Average over a week
-                        }))
-                        .sort((a, b) => b.momentum - a.momentum)
-                        .slice(0, 5); // Display only Top 5 artists
-
-                    setArtistsTrending(weeklyTrendingArtists);
+                    // Sort the artists by momentum from highest to lowest
+                    const sortedTrendingData = trendingData.sort((a, b) => b.momentum - a.momentum);
+                    setArtistsTrending(sortedTrendingData);
                 }
             } catch (err) {
                 setError('Failed to fetch trending artists');
@@ -88,7 +69,7 @@ function TrendingArtists() {
             </div>
             <div className='row'>
                 <div className='col-md-12'>
-                    <h1>Hi {userInfo.username}, here are some artists who have been gaining momentum recently and may be worth checking out:</h1>
+                    <h1>Hi {userInfo?.username}, here are some artists who have been gaining momentum recently and may be worth checking out:</h1>
                     <ul>
                         {artistsTrending.map((trending) => (
                             <li key={trending.artist.id}>

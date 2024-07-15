@@ -12,8 +12,8 @@ async function main() {
             update: { pathData: location.path_data },
             create: {
                 name: location.name,
-                latitude: 0, // Use actual latitude if available
-                longitude: 0, // Use actual longitude if available
+                latitude: 0, // default location
+                longitude: 0, // default location
                 pathData: location.path_data
             }
         });
