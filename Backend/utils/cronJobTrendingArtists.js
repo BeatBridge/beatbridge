@@ -72,6 +72,7 @@ async function calculateTrendingArtists() {
         artistScores[artistName].searchCount += 1;
     }
 
+    // Calculate popularity score
     const dailyTrendingArtists = Object.entries(artistScores)
         .map(([name, data]) => ({
             artistId: data.artistId,
