@@ -8,6 +8,7 @@ const { configureSocket } = require('./socket.js');
 
 require('./utils/cronJobMap.js');
 require('./utils/cronJobTrendingArtists.js')
+require('./utils/cronJobRecommendation.js')
 
 const app = express();
 const server = http.createServer(app);
