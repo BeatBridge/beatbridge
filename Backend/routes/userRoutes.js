@@ -538,6 +538,26 @@ router.get('/trending-artists', authenticateJWT, async (req, res) => {
     }
 });
 
+router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const latestRecommendation = await prisma.recommendation.findFirst({
+            where: { userId: userId },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        if (!latestRecommendation) {
+            return res.status(404).json({ error: 'No recommendations found' });
+        }
+
+        res.json(latestRecommendation);
+    } catch (error) {
+        console.error('Error fetching latest recommendation:', error);
+        res.status(500).json({ error: 'Failed to fetch latest recommendation.' });
+    }
+});
+
 router.get('/protected-route', authenticateJWT, (req, res) => {
     res.json({ message: 'This is a protected route' });
 });
