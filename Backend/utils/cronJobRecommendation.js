@@ -2,6 +2,13 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const cron = require('node-cron');
 
+// Define tag values
+const tagValues = {
+    genre: { pop: 1, rock: 2, jazz: 3 },
+    mood: { happy: 1, sad: 2, energetic: 3 },
+    tempo: { slow: 1, medium: 2, fast: 3 }
+};
+
 async function calculateRecommendations() {
     // Fetch all songs with tags from the database
     const songs = await prisma.song.findMany({
@@ -15,12 +22,19 @@ async function calculateRecommendations() {
 
     // Populate userTagHistory with song tags
     for (const song of songs) {
-        const { userId, customTags } = song;
+        const { userId, genre, mood, tempo } = song;
         if (!userTagHistory[userId]) {
-            userTagHistory[userId] = new Set();
+            userTagHistory[userId] = [];
         }
-        const tags = customTags ? JSON.parse(customTags) : [];
-        tags.forEach(tag => userTagHistory[userId].add(tag));
+
+        // Assign numerical values to tags
+        const tagCombination = [
+            tagValues.genre[genre],
+            mood ? tagValues.mood[mood] : 0,
+            tempo ? tagValues.tempo[tempo] : 0
+        ];
+
+        userTagHistory[userId].push(tagCombination.join('-'));
     }
 
     // Calculate vector similarity between users based on their tag histories
@@ -32,7 +46,7 @@ async function calculateRecommendations() {
         for (let j = i + 1; j < users.length; j++) {
             const user1 = users[i];
             const user2 = users[j];
-            const commonTags = [...userTagHistory[user1]].filter(tag => userTagHistory[user2].has(tag));
+            const commonTags = userTagHistory[user1].filter(tag => userTagHistory[user2].includes(tag));
 
             if (commonTags.length > 0) {
                 if (!userSimilarities[user1]) {
