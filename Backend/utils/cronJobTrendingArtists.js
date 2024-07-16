@@ -119,8 +119,8 @@ async function calculateTrendingArtists() {
         .map(([artistId, scores]) => {
             const scoreLength = scores.length;
             const recentScore = scores[scoreLength - 1] || 0;
-            const previousScore = scores[scoreLength - 8] || 0; // 7 days ago score
-            const momentumScore = recentScore / (previousScore || 1); // avoid division by zero
+            const previousScore = scores[scoreLength - 8]; // 7 days ago score
+            const momentumScore = (recentScore / previousScore) || 0; // if momentum doesnt exist then momentumScore is zero
             return {
                 artistId: parseInt(artistId),
                 momentum: momentumScore
