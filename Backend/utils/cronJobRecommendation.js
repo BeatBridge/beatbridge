@@ -47,11 +47,12 @@ async function calculateRecommendations() {
         }
     }
 
-    // Recommend artists based on similar users' tags
+    // Recommend a single artist based on similar users' tags
     const recommendations = {};
 
     for (const user in userSimilarities) {
         const similarUsers = userSimilarities[user];
+        const artistCount = {};
 
         for (const similarUser of similarUsers) {
             const similarUserId = similarUser.userId;
@@ -63,36 +64,39 @@ async function calculateRecommendations() {
                 }
             });
 
-            // Recommend artists from similar users' songs
+            // Count artists from similar users' songs
             for (const song of similarUserSongs) {
                 const { artist } = song;
 
-                if (!recommendations[user]) {
-                    recommendations[user] = new Set();
+                if (!artistCount[artist]) {
+                    artistCount[artist] = 0;
                 }
-                recommendations[user].add(artist);
+                artistCount[artist]++;
             }
         }
+
+        // Find the most common artist
+        const recommendedArtist = Object.keys(artistCount).reduce((a, b) => artistCount[a] > artistCount[b] ? a : b);
+
+        recommendations[user] = recommendedArtist;
     }
 
     // Save recommendations to the database
     for (const user in recommendations) {
-        const recommendedArtists = [...recommendations[user]];
+        const recommendedArtist = recommendations[user];
 
-        // Clear existing recommendations for the user
+        // Delete existing recommendation for the user
         await prisma.recommendation.deleteMany({
             where: { userId: parseInt(user) }
         });
 
-        // Save new recommendations
-        for (const artistName of recommendedArtists) {
-            await prisma.recommendation.create({
-                data: {
-                    userId: parseInt(user),
-                    artistName: artistName
-                }
-            });
-        }
+        // Save new recommendation
+        await prisma.recommendation.create({
+            data: {
+                userId: parseInt(user),
+                artistName: recommendedArtist
+            }
+        });
     }
 }
 
