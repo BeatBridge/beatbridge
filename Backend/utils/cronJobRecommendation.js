@@ -85,11 +85,6 @@ async function calculateRecommendations() {
     for (const user in recommendations) {
         const recommendedArtist = recommendations[user];
 
-        // Delete existing recommendation for the user
-        await prisma.recommendation.deleteMany({
-            where: { userId: parseInt(user) }
-        });
-
         // Save new recommendation
         await prisma.recommendation.create({
             data: {
