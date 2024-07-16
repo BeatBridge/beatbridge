@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import './trendingartists.css';
+import React, { useState, useEffect } from 'react';
+import './recommendedscreen.css';
 import API from '../../api.js';
 
-function TrendingArtists() {
+function RecommendedScreen() {
     const [userInfo, setUserInfo] = useState(null);
-    const [artistsTrending, setArtistsTrending] = useState([]);
+    const [recommendedArtist, setRecommendedArtist] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -29,23 +29,21 @@ function TrendingArtists() {
     }, []);
 
     useEffect(() => {
-        const fetchTrendingArtists = async () => {
+        const fetchRecommendedArtist = async () => {
             try {
                 const jwt = localStorage.getItem('jwt');
-                const trendingData = await API.getTrendingArtists(jwt);
-                if (trendingData.error) {
-                    setError(trendingData.error);
+                const data = await API.getLatestRecommendation(jwt);
+                if (data.error) {
+                    setError(data.error);
                 } else {
-                    // Sort the artists by momentum from highest to lowest
-                    const sortedTrendingData = trendingData.sort((a, b) => b.momentum - a.momentum);
-                    setArtistsTrending(sortedTrendingData);
+                    setRecommendedArtist(data);
                 }
             } catch (err) {
-                setError('Failed to fetch trending artists');
+                setError('Failed to fetch recommended artist');
             }
         };
 
-        fetchTrendingArtists();
+        fetchRecommendedArtist();
     }, []);
 
     if (loading) return <div>Loading...</div>;
@@ -55,18 +53,12 @@ function TrendingArtists() {
         <div className="container">
             <div className='row'>
                 <div className='col-md-12 sub-screen'>
-                    <h1>Hi {userInfo?.username}, here are some artists who have been gaining momentum recently and may be worth checking out:</h1>
-                    <ul>
-                        {artistsTrending.map((trending) => (
-                            <li key={trending.artist.id}>
-                                {trending.artist.name} - Momentum: {trending.momentum.toFixed(2)}
-                            </li>
-                        ))}
-                    </ul>
+                    <h1>Hi {userInfo?.username}, we recommend you to check out this artist:</h1>
+                    <h2>{recommendedArtist?.artistName}</h2>
                 </div>
             </div>
         </div>
     );
 }
 
-export default TrendingArtists;
+export default RecommendedScreen;

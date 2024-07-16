@@ -208,7 +208,8 @@ async function fetchAndStoreTracksAndArtists() {
                 for (const item of data.items) {
                     const track = item.track;
 
-                    await prisma.track.upsert({
+                    // Upsert the track first
+                    const updatedTrack = await prisma.track.upsert({
                         where: { spotifyId: track.id },
                         update: {
                             name: track.name,
@@ -226,6 +227,7 @@ async function fetchAndStoreTracksAndArtists() {
                     });
 
                     for (const artist of track.artists) {
+                        // Fetch existing artist data
                         const existingArtist = await prisma.artist.findUnique({
                             where: { spotifyId: artist.id },
                             include: { locations: true }
@@ -244,7 +246,8 @@ async function fetchAndStoreTracksAndArtists() {
                             const artistData = await artistDetails.json();
                             const updateData = {
                                 name: artist.name,
-                                popularity: artistData.popularity
+                                popularity: artistData.popularity,
+                                genres: artistData.genres
                             };
 
                             if (!existingArtist || existingArtist.genres.length === 0) {
@@ -262,8 +265,18 @@ async function fetchAndStoreTracksAndArtists() {
                                 }
                             });
 
+                            // Critical: Ensure the artist is connected to the track
+                            await prisma.track.update({
+                                where: { id: updatedTrack.id },
+                                data: {
+                                    artists: {
+                                        connect: { id: updatedArtist.id }
+                                    }
+                                }
+                            });
+
+                            // Fetch and update location only if it does not exist
                             if (!existingArtist || existingArtist.locations.length === 0) {
-                                // Fetch location only if it does not exist
                                 await getLocationForArtist(updatedArtist);
                             }
                         } else {

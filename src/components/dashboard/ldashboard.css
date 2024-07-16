@@ -269,3 +269,45 @@
 .tag-art-container, .tag-art-container img {
     width: 100%;
 }
+
+/* Hamburger menu styles */
+.hamburger-wrapper {
+  display: none;
+  background: none;
+  border: none;
+  color: #F2F3D9;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.sidebar-content {
+  display: block;
+}
+
+@media only screen and (max-width: 768px) {
+    .hamburger-wrapper {
+        display: block;
+    }
+
+    .sidebar-content {
+        display: none;
+    }
+
+    .sidebar-content.show {
+        display: block;
+        position: fixed;
+        z-index: 999;
+        background-color: #151E3F;
+        width: 60%;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .scrollable-column {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}

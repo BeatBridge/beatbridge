@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import logoImg from '/beatbridge_logo.png';
-import './trendingscreen.css';
+import './artiststrendingscreen.css';
 
 function TrendingScreen () {
     return (

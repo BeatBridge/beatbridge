@@ -12,7 +12,7 @@ import Error from './components/error/Error.jsx';
 import RequireAuth from './components/requireauth/RequireAuth.jsx';
 import TaggingScreen from './components/tagscreen/TaggingScreen.jsx';
 import ArtistDashboard from './components/dashboard/ArtistDashboard.jsx';
-import TrendingScreen from './components/trendscreen/TrendingScreen.jsx';
+import TrendingScreen from './components/trendscreen/ArtistsTrendingScreen.jsx';
 import Profile from './components/profile/Profile.jsx';
 import Friends from './components/friends/Friends.jsx';
 import Favourites from './components/favourites/Favourites.jsx';
@@ -21,6 +21,7 @@ import Chatbot from './components/chatbot/Chatbot.jsx';
 import Map from './components/map/Map.jsx';
 import TrendingArtists from './components/trendingartists/TrendingArtists.jsx';
 import DashboardLayout from './components/dashboardlayout/DashboardLayout.jsx';
+import RecommendedScreen from './components/recommendedscreen/RecommendedScreen.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);
@@ -188,6 +189,7 @@ function App() {
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
                     <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} />} />
                     <Route path="/tags" element={<TaggingScreen userInfo={userInfo} />} />
+                    <Route path="/recommended" element={<RecommendedScreen userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
                     <Route path="/settings" element={<Settings userInfo={userInfo} />} />
                     <Route path="/a/dashboard" element={<ArtistDashboard userInfo={userInfo} />} />

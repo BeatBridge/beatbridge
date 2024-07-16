@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaBell, FaUser, FaTag } from 'react-icons/fa';
-import { faEarthAmericas, faChartLine, faGauge, faGear, faMicrochip, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmericas, faChartLine, faGauge, faGear, faMicrochip, faUserGroup, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import logoImg from '/beatbridge_logo.png';
 import SpotifyOAuth from '../spotifyoauth/SpotifyOAuth.jsx';
 import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
 import TaggingForm from '../tagform/TaggingForm.jsx';
 import '../dashboard/ldashboard.css';
+import './dashboardlayout.css';
+import Hamburger from 'hamburger-react';
 
 function DashboardLayout({
   userInfo,
@@ -23,82 +25,99 @@ function DashboardLayout({
   handleCloseTrack,
   handleTag,
 }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const getNavLinkClass = ({ isActive }) => (isActive ? 'menu active' : 'menu');
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <div className="l-dashbaord-container">
       <div className="row">
         {/* LEFT COLUMN */}
         <div className="l-left-sidebar col-md-2">
-          <NavLink to="/" className="l-logo" title="beatbridge_logo">
-            <div className="parent-logo-container">
-              <div className="logo-container">
-                <img src={logoImg} alt="logo img-fluid" />
-              </div>
-              <div>BeatBridge</div>
-            </div>
-          </NavLink>
-
-          <div className="menu-items-container">
-            <h4>Menu</h4>
-            <hr />
-
-            <div className="l-menu-items">
-              <div className={getNavLinkClass({ isActive: window.location.pathname === '/profile' })}>
-                <FaUser className="menu-icon" />
-                <NavLink to="/profile" className="menu-item">
-                  <h5>Profile</h5>
-                </NavLink>
-              </div>
-              <div className={getNavLinkClass({ isActive: window.location.pathname === '/l/dashboard' })}>
-                <FontAwesomeIcon icon={faGauge} className="menu-icon" />
-                <NavLink to="/l/dashboard" className="menu-item">
-                  <h5>Dashboard</h5>
-                </NavLink>
-              </div>
-              <div className={getNavLinkClass({ isActive: window.location.pathname === '/tags' })}>
-                <FaTag className="menu-icon" />
-                <NavLink to="/tags" className="menu-item">
-                  <h5>Tags</h5>
-                </NavLink>
-              </div>
-              <div className={getNavLinkClass({ isActive: window.location.pathname === '/friends' })}>
-                <FontAwesomeIcon icon={faUserGroup} className="menu-icon" />
-                <NavLink to="/friends" className="menu-item">
-                  <h5>Friends</h5>
-                </NavLink>
-              </div>
-              <div className={getNavLinkClass({ isActive: window.location.pathname === '/trending' })}>
-                <FontAwesomeIcon icon={faChartLine} className="menu-icon" />
-                <NavLink to="/trending" className="menu-item">
-                  <h5>Trending</h5>
-                </NavLink>
-              </div>
-            </div>
+          <div className="hamburger-wrapper">
+            <Hamburger toggled={isMenuOpen} toggle={toggleMenu} size={20} />
           </div>
-
-          <div>
-            <h4>Help</h4>
-            <hr />
-
-            <div className="l-menu-items">
-              <div className={getNavLinkClass({ isActive: window.location.pathname === '/settings' })}>
-                <FontAwesomeIcon icon={faGear} className="menu-icon" />
-                <NavLink to="/settings" className="menu-item">
-                  <h5>Settings</h5>
-                </NavLink>
+          <div className={`sidebar-content ${isMenuOpen ? 'show' : ''}`}>
+            <NavLink to="/" className="l-logo" title="beatbridge_logo">
+              <div className="parent-logo-container">
+                <div className="logo-container">
+                  <img src={logoImg} alt="logo img-fluid" />
+                </div>
+                <div>BeatBridge</div>
               </div>
-              <div className={getNavLinkClass({ isActive: window.location.pathname === '/chatbot' })}>
-                <FontAwesomeIcon icon={faMicrochip} className="menu-icon" />
-                <NavLink to="/chatbot" className="menu-item">
-                  <h5>Chat With AI</h5>
-                </NavLink>
+            </NavLink>
+
+            <div className="menu-items-container">
+              <h4>Menu</h4>
+              <hr />
+
+              <div className="l-menu-items">
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/profile' })}>
+                  <FaUser className="menu-icon" />
+                  <NavLink to="/profile" className="menu-item">
+                    <h5>Profile</h5>
+                  </NavLink>
+                </div>
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/l/dashboard' })}>
+                  <FontAwesomeIcon icon={faGauge} className="menu-icon" />
+                  <NavLink to="/l/dashboard" className="menu-item">
+                    <h5>Dashboard</h5>
+                  </NavLink>
+                </div>
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/tags' })}>
+                  <FaTag className="menu-icon" />
+                  <NavLink to="/tags" className="menu-item">
+                    <h5>Tags</h5>
+                  </NavLink>
+                </div>
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/trending' })}>
+                  <FontAwesomeIcon icon={faChartLine} className="menu-icon" />
+                  <NavLink to="/trending" className="menu-item">
+                    <h5>Trending</h5>
+                  </NavLink>
+                </div>
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/friends' })}>
+                  <FontAwesomeIcon icon={faUserGroup} className="menu-icon" />
+                  <NavLink to="/friends" className="menu-item">
+                    <h5>Friends</h5>
+                  </NavLink>
+                </div>
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/recommended' })}>
+                  <FontAwesomeIcon icon={faWandMagicSparkles} className="menu-icon" />
+                  <NavLink to="/recommended" className="menu-item">
+                    <h5>Recommended</h5>
+                  </NavLink>
+                </div>
               </div>
-              <div className={getNavLinkClass({ isActive: window.location.pathname === '/map' })}>
-                <FontAwesomeIcon icon={faEarthAmericas} className="menu-icon" />
-                <NavLink to="/map" className="menu-item">
-                  <h5>Map</h5>
-                </NavLink>
+            </div>
+
+            <div>
+              <h4>Help</h4>
+              <hr />
+
+              <div className="l-menu-items">
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/settings' })}>
+                  <FontAwesomeIcon icon={faGear} className="menu-icon" />
+                  <NavLink to="/settings" className="menu-item">
+                    <h5>Settings</h5>
+                  </NavLink>
+                </div>
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/chatbot' })}>
+                  <FontAwesomeIcon icon={faMicrochip} className="menu-icon" />
+                  <NavLink to="/chatbot" className="menu-item">
+                    <h5>Chat With AI</h5>
+                  </NavLink>
+                </div>
+                <div className={getNavLinkClass({ isActive: window.location.pathname === '/map' })}>
+                  <FontAwesomeIcon icon={faEarthAmericas} className="menu-icon" />
+                  <NavLink to="/map" className="menu-item">
+                    <h5>Map</h5>
+                  </NavLink>
+                </div>
               </div>
             </div>
           </div>

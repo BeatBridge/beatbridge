@@ -35,6 +35,7 @@ async function calculateRecommendations() {
         ];
 
         userTagHistory[userId].push(tagCombination.join('-'));
+        //dont compare exactly. compare by creating vector for each tag value. come upw with a fucntion that compares teh vectors and gives a vector, and make teh threshold 2. so ut doenst have to completely match.
     }
 
     // Calculate vector similarity between users based on their tag histories
@@ -60,6 +61,10 @@ async function calculateRecommendations() {
             }
         }
     }
+
+    //create a mao for each artist, and link users to the tags. directly comparing the
+    //billish eilish has 200, for jazz, 300 for pop, and then loop over the user, so loop over the user and find the artist for that user. based on tthe tag count.
+    //link each artist with theur popularity score from spotify.
 
     // Recommend a single artist based on similar users' tags
     const recommendations = {};
@@ -93,6 +98,8 @@ async function calculateRecommendations() {
         const recommendedArtist = Object.keys(artistCount).reduce((a, b) => artistCount[a] > artistCount[b] ? a : b);
 
         recommendations[user] = recommendedArtist;
+
+        //if teh artist already doesnt exist on the user's taggeed songs yet
     }
 
     // Save recommendations to the database
@@ -108,6 +115,9 @@ async function calculateRecommendations() {
         });
     }
 }
+
+//have a minimun bar if user doesnt have enough data to genrate recmmended songs. and redisplay global trending.
+//find how small an artist is with their followers count, and their position in the top50 global trending.
 
 // Schedule a cron job to calculate recommendations every 3 hours
 cron.schedule('0 */3 * * *', async () => {
