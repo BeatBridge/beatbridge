@@ -441,9 +441,9 @@ router.post('/songs', authenticateJWT, async (req, res) => {
                 title,
                 artist,
                 album,
-                genre,
-                mood,
-                tempo,
+                genre: genre.toLowerCase(),
+                mood: mood.toLowerCase(),
+                tempo: mood.toLowerCase(),
                 customTags,
                 userId: req.user.id
             }
@@ -462,9 +462,9 @@ router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
         const updatedSong = await prisma.song.update({
             where: { id: parseInt(songId) },
             data: {
-                genre,
-                mood,
-                tempo,
+                genre: genre.toLowerCase(),
+                mood: mood.toLowerCase(),
+                tempo: tempo.toLowerCase(),
                 customTags: JSON.stringify(customTags),
                 taggedAt: new Date()
             }

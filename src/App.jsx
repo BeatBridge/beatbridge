@@ -180,6 +180,8 @@ function App() {
                             handleTagButtonClick={handleTagButtonClick}
                             handleCloseTrack={handleCloseTrack}
                             handleTag={handleTag}
+                            handleSearchResults={handleSearchResults}
+                            handleSuggestionClick={handleSuggestionClick}
                         />
                     </RequireAuth>
                 }>
