@@ -40,7 +40,6 @@ function MobileDashboard({
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    console.log("Menu Opened");
   };
 
   const handleClickOutside = (event) => {

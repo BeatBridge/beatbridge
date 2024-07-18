@@ -364,6 +364,7 @@ const API = {
     trackArtistSearch: async (artistSpotifyId) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            console.log(`Sending request to ${backendUrlAccess}/user/track-artist-search`);
             const response = await fetch(`${backendUrlAccess}/user/track-artist-search`, {
                 method: 'POST',
                 headers: {
