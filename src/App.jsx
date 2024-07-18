@@ -12,7 +12,7 @@ import Error from './components/error/Error.jsx';
 import RequireAuth from './components/requireauth/RequireAuth.jsx';
 import TaggingScreen from './components/tagscreen/TaggingScreen.jsx';
 import ArtistDashboard from './components/dashboard/ArtistDashboard.jsx';
-import TrendingScreen from './components/trendscreen/ArtistsTrendingScreen.jsx';
+import ArtistTrendingScreen from './components/artisttrendscreen/ArtistTrendingScreen.jsx';
 import Profile from './components/profile/Profile.jsx';
 import Friends from './components/friends/Friends.jsx';
 import Favourites from './components/favourites/Favourites.jsx';
@@ -195,7 +195,7 @@ function App() {
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
                     <Route path="/settings" element={<Settings userInfo={userInfo} />} />
                     <Route path="/a/dashboard" element={<ArtistDashboard userInfo={userInfo} />} />
-                    <Route path="/a/trends" element={<TrendingScreen userInfo={userInfo} />} />
+                    <Route path="/a/trends" element={<ArtistTrendingScreen userInfo={userInfo} />} />
                 </Route>
             </Routes>
         </>

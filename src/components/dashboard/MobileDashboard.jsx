@@ -5,7 +5,7 @@ import { FaUser, FaMusic } from 'react-icons/fa';
 import { faHeadphonesSimple, faTag, faChartLine, faGauge, faUserGroup, faWandMagicSparkles, faGear, faMicrochip, faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
 import Hamburger from 'hamburger-react';
 import logoImg from '/beatbridge_logo.png';
-import LSearchForm from '../searchform/LSearchForm.jsx';  // Import the search form component
+import LSearchForm from '../searchform/LSearchForm.jsx';
 import SpotifyOAuth from '../spotifyoauth/SpotifyOAuth.jsx';
 import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
 import TaggingForm from '../tagform/TaggingForm.jsx';
