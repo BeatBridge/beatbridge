@@ -43,6 +43,7 @@ async function calculateRecommendations() {
 
         // Assign numerical values to tags
         const tagCombination = {
+            //TODO: Make the tags required
             genre: tagValues.genre[genre], // Convert genre to number
             mood: mood ? tagValues.mood[mood] : 0, // Convert mood to number, if exists
             tempo: tempo ? tagValues.tempo[tempo] : 0 // Convert tempo to number, if exists
@@ -53,11 +54,12 @@ async function calculateRecommendations() {
 
     // Calculate vector similarity between users based on their tag histories
     const userSimilarities = {};
-    const threshold = 1.0; // Minimum threshold for recommending an artist
+    const threshold = 0.7; //Threshold for recommending an artist
 
     const users = Object.keys(userTagHistory); // Get list of all users
 
     // Compare every user with every other user
+    //TODO: make it more optimized
     for (let i = 0; i < users.length; i++) {
         for (let j = i + 1; j < users.length; j++) {
             const user1 = users[i];
@@ -85,7 +87,7 @@ async function calculateRecommendations() {
                         userSimilarities[user2] = [];
                     }
 
-                    //save all similiarity information
+                    // Save all similarity information
                     userSimilarities[user1].push({ userId: user2, similarityScore });
                     userSimilarities[user2].push({ userId: user1, similarityScore });
                 }
