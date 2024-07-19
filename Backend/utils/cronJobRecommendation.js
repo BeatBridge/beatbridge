@@ -102,14 +102,14 @@ async function calculateRecommendations() {
                     // If similarity score is high enough, remember it
                     if (similarityScore >= threshold) {
                         if (!userSimilarities[user1]) {
-                            userSimilarities[user1] = [];
+                            userSimilarities[user1] = {};
                         }
                         if (!userSimilarities[user2]) {
-                            userSimilarities[user2] = [];
+                            userSimilarities[user2] = {};
                         }
 
-                        userSimilarities[user1].push({ userId: user2, similarityScore });
-                        userSimilarities[user2].push({ userId: user1, similarityScore });
+                        userSimilarities[user1][user2] = (userSimilarities[user1][user2] || 0) + similarityScore;
+                        userSimilarities[user2][user1] = (userSimilarities[user2][user1] || 0) + similarityScore;
                     }
                 }
             }
@@ -120,7 +120,7 @@ async function calculateRecommendations() {
 
     // Recommend artists based on similar users
     for (const user in userSimilarities) {
-        const similarUsers = userSimilarities[user];
+        const similarUsers = Object.entries(userSimilarities[user]);
         const artistCount = {}; // Count how many times each artist appears
         const reasonDetails = []; // Collect detailed reasons for recommendation
 
@@ -131,13 +131,11 @@ async function calculateRecommendations() {
         });
         const previouslyRecommendedArtists = new Set(previousRecommendations.map(rec => rec.artistName));
 
-        for (const similarUser of similarUsers) {
-            const similarUserId = similarUser.userId;
-
+        for (const [similarUserId, similarityScore] of similarUsers) {
             // Find songs of similar users
             const similarUserSongs = await prisma.song.findMany({
                 where: {
-                    userId: similarUserId
+                    userId: parseInt(similarUserId)
                 }
             });
 

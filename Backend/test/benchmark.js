@@ -1,4 +1,3 @@
-//FOR TESTING PURPOSES. I WILL DELETE CONSOLE.LOGS AFTER THIS PR IS APPROVED
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const cron = require('node-cron');
@@ -132,14 +131,14 @@ async function calculateRecommendationsInitial() {
                     // If similarity score is high enough, remember it
                     if (similarityScore >= threshold) {
                         if (!userSimilarities[user1]) {
-                            userSimilarities[user1] = [];
+                            userSimilarities[user1] = {};
                         }
                         if (!userSimilarities[user2]) {
-                            userSimilarities[user2] = [];
+                            userSimilarities[user2] = {};
                         }
 
-                        userSimilarities[user1].push({ userId: user2, similarityScore });
-                        userSimilarities[user2].push({ userId: user1, similarityScore });
+                        userSimilarities[user1][user2] = (userSimilarities[user1][user2] || 0) + similarityScore;
+                        userSimilarities[user2][user1] = (userSimilarities[user2][user1] || 0) + similarityScore;
                     }
                 }
             }
@@ -152,7 +151,7 @@ async function calculateRecommendationsInitial() {
 
     // Recommend artists based on similar users
     for (const user in userSimilarities) {
-        const similarUsers = userSimilarities[user];
+        const similarUsers = Object.entries(userSimilarities[user]);
         const artistCount = {}; // Count how many times each artist appears
         const reasonDetails = []; // Collect detailed reasons for recommendation
 
@@ -160,11 +159,9 @@ async function calculateRecommendationsInitial() {
         const previousRecommendations = mockPreviousRecommendations.filter(rec => rec.userId === parseInt(user));
         const previouslyRecommendedArtists = new Set(previousRecommendations.map(rec => rec.artistName));
 
-        for (const similarUser of similarUsers) {
-            const similarUserId = similarUser.userId;
-
+        for (const [similarUserId, similarityScore] of similarUsers) {
             // Find songs of similar users
-            const similarUserSongs = songs.filter(song => song.userId === similarUserId);
+            const similarUserSongs = songs.filter(song => song.userId === parseInt(similarUserId));
 
             // Count the artists in these songs and collect reasons
             for (const song of similarUserSongs) {
@@ -265,7 +262,7 @@ async function calculateRecommendationsOptimized() {
     console.log('Tag indices:', tagIndices);
 
     const userSimilarities = {}; // Store how similar users are
-    const threshold = 0.5; // Lowered the similarity score threshold to recommend an artist
+    const threshold = 0.5; // The similarity score needed to recommend an artist
 
     // Compare users based on their tags
     for (const user1 in userTagHistory) {
@@ -297,14 +294,14 @@ async function calculateRecommendationsOptimized() {
                     // If similarity score is high enough, remember it
                     if (similarityScore >= threshold) {
                         if (!userSimilarities[user1]) {
-                            userSimilarities[user1] = [];
+                            userSimilarities[user1] = {};
                         }
                         if (!userSimilarities[user2]) {
-                            userSimilarities[user2] = [];
+                            userSimilarities[user2] = {};
                         }
 
-                        userSimilarities[user1].push({ userId: user2, similarityScore });
-                        userSimilarities[user2].push({ userId: user1, similarityScore });
+                        userSimilarities[user1][user2] = (userSimilarities[user1][user2] || 0) + similarityScore;
+                        userSimilarities[user2][user1] = (userSimilarities[user2][user1] || 0) + similarityScore;
                     }
                 }
             }
@@ -317,7 +314,7 @@ async function calculateRecommendationsOptimized() {
 
     // Recommend artists based on similar users
     for (const user in userSimilarities) {
-        const similarUsers = userSimilarities[user];
+        const similarUsers = Object.entries(userSimilarities[user]);
         const artistCount = {}; // Count how many times each artist appears
         const reasonDetails = []; // Collect detailed reasons for recommendation
 
@@ -325,11 +322,9 @@ async function calculateRecommendationsOptimized() {
         const previousRecommendations = mockPreviousRecommendations.filter(rec => rec.userId === parseInt(user));
         const previouslyRecommendedArtists = new Set(previousRecommendations.map(rec => rec.artistName));
 
-        for (const similarUser of similarUsers) {
-            const similarUserId = similarUser.userId;
-
+        for (const [similarUserId, similarityScore] of similarUsers) {
             // Find songs of similar users
-            const similarUserSongs = songs.filter(song => song.userId === similarUserId);
+            const similarUserSongs = songs.filter(song => song.userId === parseInt(similarUserId));
 
             // Count the artists in these songs and collect reasons
             for (const song of similarUserSongs) {
