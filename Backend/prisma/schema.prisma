@@ -26,7 +26,6 @@ model User {
   locationId            Int?
   location              Location? @relation(fields: [locationId], references: [id])
   recommendation        Recommendation[]
-  recommendedArtist     String?
 }
 
 model Recommendation {

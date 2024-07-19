@@ -47,8 +47,8 @@ async function calculateRecommendations() {
         // Turn the tags into numbers we can compare
         const tagCombination = {
             genre: tagValues.genre[genre],
-            mood: mood ? tagValues.mood[mood] : 0,
-            tempo: tempo ? tagValues.tempo[tempo] : 0
+            mood: tagValues.mood[mood],
+            tempo: tagValues.tempo[tempo]
         };
 
         userTagHistory[userId].push(tagCombination); // Add the tags to the user's list
@@ -71,10 +71,12 @@ async function calculateRecommendations() {
     }
 
     const userSimilarities = {}; // Store how similar users are
-    const threshold = 0.75; // The similarity score needed to recommend an artist
+    const threshold = 0.5; // The similarity score needed to recommend an artist
 
     // Compare users based on their tags
     for (const user1 in userTagHistory) {
+        const user1Tags = userTagHistory[user1];
+
         for (const tagType in tagIndices) {
             for (const tagValue in tagIndices[tagType]) {
                 const usersWithTag = tagIndices[tagType][tagValue];
@@ -84,29 +86,30 @@ async function calculateRecommendations() {
                 for (const user2 of usersWithTag) {
                     if (user1 === user2) continue; // Don't compare a user with themselves
 
-                    // Compare tags between the two users
-                    const tagPairs = userTagHistory[user1].flatMap(tag1 => userTagHistory[user2].map(tag2 => ({ tag1, tag2 })));
+                    const user2Tags = userTagHistory[user2];
+                    let similarityScore = 0;
 
-                    for (const { tag1, tag2 } of tagPairs) {
-                        let similarityScore = 0;
-
-                        // Add to similarity score if tags match
-                        if (tag1.genre === tag2.genre) similarityScore += tagWeights.genre;
-                        if (tag1.mood === tag2.mood) similarityScore += tagWeights.mood;
-                        if (tag1.tempo === tag2.tempo) similarityScore += tagWeights.tempo;
-
-                        // If similarity score is high enough, remember it
-                        if (similarityScore >= threshold) {
-                            if (!userSimilarities[user1]) {
-                                userSimilarities[user1] = [];
-                            }
-                            if (!userSimilarities[user2]) {
-                                userSimilarities[user2] = [];
-                            }
-
-                            userSimilarities[user1].push({ userId: user2, similarityScore });
-                            userSimilarities[user2].push({ userId: user1, similarityScore });
+                    // Calculate similarity score outside the innermost loop
+                    for (const tag1 of user1Tags) {
+                        for (const tag2 of user2Tags) {
+                            // Add to similarity score if tags match
+                            if (tag1.genre === tag2.genre) similarityScore += tagWeights.genre;
+                            if (tag1.mood === tag2.mood) similarityScore += tagWeights.mood;
+                            if (tag1.tempo === tag2.tempo) similarityScore += tagWeights.tempo;
                         }
+                    }
+
+                    // If similarity score is high enough, remember it
+                    if (similarityScore >= threshold) {
+                        if (!userSimilarities[user1]) {
+                            userSimilarities[user1] = [];
+                        }
+                        if (!userSimilarities[user2]) {
+                            userSimilarities[user2] = [];
+                        }
+
+                        userSimilarities[user1].push({ userId: user2, similarityScore });
+                        userSimilarities[user2].push({ userId: user1, similarityScore });
                     }
                 }
             }
@@ -120,6 +123,13 @@ async function calculateRecommendations() {
         const similarUsers = userSimilarities[user];
         const artistCount = {}; // Count how many times each artist appears
         const reasonDetails = []; // Collect detailed reasons for recommendation
+
+        // Fetch previous recommendations for the user
+        const previousRecommendations = await prisma.recommendation.findMany({
+            where: { userId: parseInt(user) },
+            select: { artistName: true }
+        });
+        const previouslyRecommendedArtists = new Set(previousRecommendations.map(rec => rec.artistName));
 
         for (const similarUser of similarUsers) {
             const similarUserId = similarUser.userId;
@@ -135,32 +145,34 @@ async function calculateRecommendations() {
             for (const song of similarUserSongs) {
                 const { artist, title } = song;
 
-                if (!artistCount[artist]) {
-                    artistCount[artist] = 0;
-                }
-                artistCount[artist]++;
+                if (!previouslyRecommendedArtists.has(artist)) {
+                    if (!artistCount[artist]) {
+                        artistCount[artist] = 0;
+                    }
+                    artistCount[artist]++;
 
-                reasonDetails.push(`you listened to "${title}" by ${artist}`);
+                    reasonDetails.push(`you listened to "${title}" by ${artist}`);
+                }
             }
         }
 
         // Find the most common artist
         const recommendedArtist = Object.keys(artistCount).reduce((a, b) => artistCount[a] > artistCount[b] ? a : b);
 
-        // Construct the detailed reason for recommendation
-        const reason = `Because ${reasonDetails.join(", ")}, here is an artist you might like: ${recommendedArtist}`;
+        if (recommendedArtist) {
+            // Construct the detailed reason for recommendation
+            const reason = `Because ${reasonDetails.join(", ")}, here is an artist you might like: ${recommendedArtist}`;
 
-        recommendations[user] = { artistName: recommendedArtist, reason }; // Save the recommendation with reason
+            recommendations[user] = { artistName: recommendedArtist, reason }; // Save the recommendation with reason
+        }
     }
 
     // Save the recommendations to the database and update the recommended artist for each user
     for (const user in recommendations) {
         const { artistName, reason } = recommendations[user];
 
-        await prisma.recommendation.upsert({
-            where: { userId: parseInt(user) },
-            update: { artistName, reason },
-            create: {
+        await prisma.recommendation.create({
+            data: {
                 userId: parseInt(user),
                 artistName,
                 reason
@@ -178,3 +190,5 @@ async function calculateRecommendations() {
 cron.schedule('0 */3 * * *', async () => {
     await calculateRecommendations();
 });
+
+module.exports = { calculateRecommendations };

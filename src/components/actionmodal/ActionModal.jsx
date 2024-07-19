@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import './actionmodal.css';
 
-const ActionModal = ({ song, onClose, onTag, onViewDetails, onAddToLibrary }) => {
+const ActionModal = ({ song, onClose, onTag }) => {
     const [genre, setGenre] = useState('');
     const [mood, setMood] = useState('');
     const [tempo, setTempo] = useState('');
