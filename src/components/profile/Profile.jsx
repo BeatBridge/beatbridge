@@ -2,11 +2,17 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaUser } from 'react-icons/fa';
 import { faPenToSquare, faShareNodes } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 import UserProfileViral from '../userprofileviral/UserProfileViral.jsx';
 import UserProfileTrending from '../userprofiletrending/UserProfileTrending.jsx';
 import './profile.css';
 
 function Profile({ userInfo }) {
+  const navigate = useNavigate();
+
+  const handleEditProfileClick = () => {
+    navigate('/settings');
+  };
   return (
     <div>
       <div className="profile-details">
@@ -25,7 +31,7 @@ function Profile({ userInfo }) {
           </div>
         </div>
         <div className="edit-profile-buttons">
-          <div className="edit-profile-icon-container">
+          <div className="edit-profile-icon-container" onClick={handleEditProfileClick}>
             <FontAwesomeIcon icon={faPenToSquare} className="edit-profile-icon" />
           </div>
           <div className="edit-profile-icon-container">

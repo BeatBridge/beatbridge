@@ -53,8 +53,9 @@ function RecommendedScreen() {
         <div className="container">
             <div className='row'>
                 <div className='col-md-12 sub-screen'>
-                    <h1>Hi {userInfo?.username}, we recommend you to check out this artist:</h1>
+                    <h1>Hi {userInfo.username}, we recommend you to check out this artist:</h1>
                     <h2>{recommendedArtist?.artistName}</h2>
+                    <p>{recommendedArtist?.reason}</p>
                 </div>
             </div>
         </div>

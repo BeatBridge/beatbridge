@@ -57,28 +57,37 @@ async function getSystemUserToken() {
 }
 
 async function fetchLocationFromSpotify(spotifyId) {
-    const accessToken = await getSystemUserToken();
-
-    const response = await fetchWithRetry(
-        `https://api.spotify.com/v1/artists/${spotifyId}`,
-        {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
+    try {
+        const accessToken = await getSystemUserToken();
+        const response = await fetchWithRetry(
+            `https://api.spotify.com/v1/artists/${spotifyId}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
             }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch location from Spotify for artist with ID ${spotifyId}`);
         }
-    );
 
-    if (!response.ok) {
-        throw new Error(`Failed to fetch location from Spotify for artist with ID ${spotifyId}`);
+        const data = await response.json();
+        return {
+            name: Unknown,
+            latitude: 0,
+            longitude: 0,
+            countryCode: 'Unknown'
+        };
+    } catch (error) {
+        console.error(`Error fetching location from Spotify for artist with ID ${spotifyId}:`, error);
+        return {
+            name: 'Unknown',
+            latitude: 0,
+            longitude: 0,
+            countryCode: 'Unknown'
+        };
     }
-
-    const data = await response.json();
-
-    return {
-        name: data.name,
-        latitude: 0,
-        longitude: 0
-    };
 }
 
 module.exports = { fetchLocationFromSpotify };

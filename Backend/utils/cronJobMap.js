@@ -247,7 +247,8 @@ async function fetchAndStoreTracksAndArtists() {
                             const updateData = {
                                 name: artist.name,
                                 popularity: artistData.popularity,
-                                genres: artistData.genres
+                                genres: artistData.genres,
+                                followerCount: artistData.followers.total
                             };
 
                             if (!existingArtist || existingArtist.genres.length === 0) {
@@ -262,10 +263,11 @@ async function fetchAndStoreTracksAndArtists() {
                                     name: artist.name,
                                     genres: artistData.genres || [],
                                     popularity: artistData.popularity,
+                                    followerCount: artistData.followers.total
                                 }
                             });
 
-                            // Critical: Ensure the artist is connected to the track
+                            // Ensure the artist is connected to the track
                             await prisma.track.update({
                                 where: { id: updatedTrack.id },
                                 data: {

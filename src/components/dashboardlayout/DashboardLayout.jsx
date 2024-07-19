@@ -10,7 +10,7 @@ import TaggingForm from '../tagform/TaggingForm.jsx';
 import MobileDashboard from '../dashboard/MobileDashboard';
 import '../dashboard/ldashboard.css';
 import './dashboardlayout.css';
-import Hamburger from 'hamburger-react';
+import API from '../../api.js';
 
 function DashboardLayout({
   userInfo,

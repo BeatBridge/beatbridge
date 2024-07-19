@@ -6,7 +6,6 @@ import { faHeadphonesSimple, faTag, faChartLine, faGauge, faUserGroup, faWandMag
 import Hamburger from 'hamburger-react';
 import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm.jsx';
-import SpotifyOAuth from '../spotifyoauth/SpotifyOAuth.jsx';
 import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
 import TaggingForm from '../tagform/TaggingForm.jsx';
 import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
@@ -22,7 +21,6 @@ function MobileDashboard({
   userInfo,
   handleLogout,
   isSpotifySignedIn,
-  globalTop50,
   handleTrackClick,
   searchResults,
   selectedTrack,

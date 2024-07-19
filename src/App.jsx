@@ -47,7 +47,7 @@ function App() {
             if (JWT) {
                 const data = await API.getUserInfo(JWT);
                 if (data.hasOwnProperty("error")) {
-                    setJWT(null);
+                    handleLogout();
                     navigate('/login');
                 } else {
                     setUserInfo(data);
@@ -86,6 +86,7 @@ function App() {
         localStorage.removeItem('jwt');
         localStorage.removeItem('spotifyAuth');
         setJWT(null);
+        setUserInfo({});  // Clear user info
         navigate('/login');
     };
 
@@ -154,6 +155,30 @@ function App() {
         }
     };
 
+    const handleUpdateProfile = async (updatedProfile) => {
+        try {
+            const data = await API.updateUserProfile(JWT, updatedProfile);
+            if (data.error) {
+                setError(data.error);
+            } else {
+                setUserInfo(data);
+            }
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleUpdatePassword = async (passwordData) => {
+        try {
+            const data = await API.updatePassword(JWT, passwordData);
+            if (data.error) {
+                setError(data.error);
+            }
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     return (
         <>
             <Routes>
@@ -193,7 +218,7 @@ function App() {
                     <Route path="/tags" element={<TaggingScreen userInfo={userInfo} />} />
                     <Route path="/recommended" element={<RecommendedScreen userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
-                    <Route path="/settings" element={<Settings userInfo={userInfo} />} />
+                    <Route path="/settings" element={<Settings userInfo={userInfo} handleUpdateProfile={handleUpdateProfile} handleUpdatePassword={handleUpdatePassword} handleLogout={handleLogout} />} />
                     <Route path="/a/dashboard" element={<ArtistDashboard userInfo={userInfo} />} />
                     <Route path="/a/trends" element={<ArtistTrendingScreen userInfo={userInfo} />} />
                 </Route>
