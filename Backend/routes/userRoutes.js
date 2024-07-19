@@ -590,16 +590,27 @@ router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const latestRecommendation = await prisma.recommendation.findFirst({
-            where: { userId: userId },
-            orderBy: { createdAt: 'desc' },
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                recommendedArtist: true,
+                recommendation: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 1,
+                }
+            }
         });
 
-        if (!latestRecommendation) {
+        if (!user || !user.recommendation.length) {
             return res.status(404).json({ error: 'No recommendations found' });
         }
 
-        res.json(latestRecommendation);
+        const latestRecommendation = user.recommendation[0];
+
+        res.json({
+            artistName: latestRecommendation.artistName,
+            reason: latestRecommendation.reason,
+        });
     } catch (error) {
         console.error('Error fetching latest recommendation:', error);
         res.status(500).json({ error: 'Failed to fetch latest recommendation.' });

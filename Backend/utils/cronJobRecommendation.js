@@ -17,7 +17,6 @@ const tagValues = {
     }
 };
 
-// Giving weights to each tag type to show how important they are
 const tagWeights = {
     genre: 0.5, // Genre is worth 50%
     mood: 0.3,  // Mood is worth 30%
@@ -31,121 +30,151 @@ async function calculateRecommendations() {
         }
     });
 
-    // Create a map to store users' tag histories
-    const userTagHistory = {};
+    const userTagHistory = {}; // Store users' music tags
+    const tagIndices = {
+        genre: {}, // Keep track of users by genre
+        mood: {}, // Keep track of users by mood
+        tempo: {} // Keep track of users by tempo
+    };
 
-    // Populate userTagHistory with song tags
+    // Go through each song
     for (const song of songs) {
         const { userId, genre, mood, tempo } = song;
         if (!userTagHistory[userId]) {
-            userTagHistory[userId] = []; // Initialize user's tag history if not already
+            userTagHistory[userId] = []; // Create a list for this user's tags if it doesn't exist
         }
 
-        // Assign numerical values to tags
+        // Turn the tags into numbers we can compare
         const tagCombination = {
-            //TODO: Make the tags required
-            genre: tagValues.genre[genre], // Convert genre to number
-            mood: mood ? tagValues.mood[mood] : 0, // Convert mood to number, if exists
-            tempo: tempo ? tagValues.tempo[tempo] : 0 // Convert tempo to number, if exists
+            genre: tagValues.genre[genre],
+            mood: mood ? tagValues.mood[mood] : 0,
+            tempo: tempo ? tagValues.tempo[tempo] : 0
         };
 
-        userTagHistory[userId].push(tagCombination); // Add tag combination to user's history
+        userTagHistory[userId].push(tagCombination); // Add the tags to the user's list
+
+        // Add user to genre index
+        if (!tagIndices.genre[tagCombination.genre]) tagIndices.genre[tagCombination.genre] = [];
+        tagIndices.genre[tagCombination.genre].push(userId);
+
+        // Add user to mood index, if mood is present
+        if (tagCombination.mood) {
+            if (!tagIndices.mood[tagCombination.mood]) tagIndices.mood[tagCombination.mood] = [];
+            tagIndices.mood[tagCombination.mood].push(userId);
+        }
+
+        // Add user to tempo index, if tempo is present
+        if (tagCombination.tempo) {
+            if (!tagIndices.tempo[tagCombination.tempo]) tagIndices.tempo[tagCombination.tempo] = [];
+            tagIndices.tempo[tagCombination.tempo].push(userId);
+        }
     }
 
-    // Calculate vector similarity between users based on their tag histories
-    const userSimilarities = {};
-    const threshold = 0.7; //Threshold for recommending an artist
+    const userSimilarities = {}; // Store how similar users are
+    const threshold = 0.75; // The similarity score needed to recommend an artist
 
-    const users = Object.keys(userTagHistory); // Get list of all users
+    // Compare users based on their tags
+    for (const user1 in userTagHistory) {
+        for (const tagType in tagIndices) {
+            for (const tagValue in tagIndices[tagType]) {
+                const usersWithTag = tagIndices[tagType][tagValue];
 
-    // Compare every user with every other user
-    //TODO: make it more optimized
-    for (let i = 0; i < users.length; i++) {
-        for (let j = i + 1; j < users.length; j++) {
-            const user1 = users[i];
-            const user2 = users[j];
+                if (!usersWithTag.includes(user1)) continue; // Skip if user1 doesn't have this tag
 
-            // Create pairs of tags from user1 and user2 to compare them
-            const tagPairs = userTagHistory[user1].flatMap(tag1 => userTagHistory[user2].map(tag2 => ({ tag1, tag2 })));
+                for (const user2 of usersWithTag) {
+                    if (user1 === user2) continue; // Don't compare a user with themselves
 
-            for (const { tag1, tag2 } of tagPairs) { //For each pair of tags
-                let similarityScore = 0; // Initialize similarity score
+                    // Compare tags between the two users
+                    const tagPairs = userTagHistory[user1].flatMap(tag1 => userTagHistory[user2].map(tag2 => ({ tag1, tag2 })));
 
-                // Compare the genre tags and add to the similarity score if they match
-                if (tag1.genre === tag2.genre) similarityScore += tagWeights.genre;
-                // Compare the mood tags and add to the similarity score if they match
-                if (tag1.mood === tag2.mood) similarityScore += tagWeights.mood;
-                // Compare the tempo tags and add to the similarity score if they match
-                if (tag1.tempo === tag2.tempo) similarityScore += tagWeights.tempo;
+                    for (const { tag1, tag2 } of tagPairs) {
+                        let similarityScore = 0;
 
-                // If similarity score is above or equal to the threshold, save the similarity
-                if (similarityScore >= threshold) {
-                    if (!userSimilarities[user1]) {
-                        userSimilarities[user1] = []; // Initialize if not already present
+                        // Add to similarity score if tags match
+                        if (tag1.genre === tag2.genre) similarityScore += tagWeights.genre;
+                        if (tag1.mood === tag2.mood) similarityScore += tagWeights.mood;
+                        if (tag1.tempo === tag2.tempo) similarityScore += tagWeights.tempo;
+
+                        // If similarity score is high enough, remember it
+                        if (similarityScore >= threshold) {
+                            if (!userSimilarities[user1]) {
+                                userSimilarities[user1] = [];
+                            }
+                            if (!userSimilarities[user2]) {
+                                userSimilarities[user2] = [];
+                            }
+
+                            userSimilarities[user1].push({ userId: user2, similarityScore });
+                            userSimilarities[user2].push({ userId: user1, similarityScore });
+                        }
                     }
-                    if (!userSimilarities[user2]) {
-                        userSimilarities[user2] = [];
-                    }
-
-                    // Save all similarity information
-                    userSimilarities[user1].push({ userId: user2, similarityScore });
-                    userSimilarities[user2].push({ userId: user1, similarityScore });
                 }
             }
         }
     }
 
-    // Recommend a single artist based on similar users' tags
-    const recommendations = {}; // This will store the recommended artist for each user
+    const recommendations = {}; // Store the recommendations
 
-    // Loop through each user who has similar users
+    // Recommend artists based on similar users
     for (const user in userSimilarities) {
-        const similarUsers = userSimilarities[user]; // Get the list of similar users for the current user
-        const artistCount = {}; // This will count how many times each artist appears
+        const similarUsers = userSimilarities[user];
+        const artistCount = {}; // Count how many times each artist appears
+        const reasonDetails = []; // Collect detailed reasons for recommendation
 
-        // Loop through each similar user
         for (const similarUser of similarUsers) {
             const similarUserId = similarUser.userId;
 
-            // Fetch songs of similar users
+            // Find songs of similar users
             const similarUserSongs = await prisma.song.findMany({
                 where: {
                     userId: similarUserId
                 }
             });
 
-            // Count artists from similar users' songs
+            // Count the artists in these songs and collect reasons
             for (const song of similarUserSongs) {
-                const { artist } = song;
+                const { artist, title } = song;
 
                 if (!artistCount[artist]) {
                     artistCount[artist] = 0;
                 }
                 artistCount[artist]++;
+
+                reasonDetails.push(`you listened to "${title}" by ${artist}`);
             }
         }
 
         // Find the most common artist
         const recommendedArtist = Object.keys(artistCount).reduce((a, b) => artistCount[a] > artistCount[b] ? a : b);
 
-        recommendations[user] = recommendedArtist; // Save the most common artist as the recommendation
+        // Construct the detailed reason for recommendation
+        const reason = `Because ${reasonDetails.join(", ")}, here is an artist you might like: ${recommendedArtist}`;
+
+        recommendations[user] = { artistName: recommendedArtist, reason }; // Save the recommendation with reason
     }
 
-    // Save recommendations to the database
+    // Save the recommendations to the database and update the recommended artist for each user
     for (const user in recommendations) {
-        const recommendedArtist = recommendations[user];
+        const { artistName, reason } = recommendations[user];
 
-        // Save new recommendation
-        await prisma.recommendation.create({
-            data: {
+        await prisma.recommendation.upsert({
+            where: { userId: parseInt(user) },
+            update: { artistName, reason },
+            create: {
                 userId: parseInt(user),
-                artistName: recommendedArtist
+                artistName,
+                reason
             }
+        });
+
+        await prisma.user.update({
+            where: { id: parseInt(user) },
+            data: { recommendedArtist: artistName }
         });
     }
 }
 
-// Schedule a cron job to calculate recommendations every 3 hours
+// Schedule the recommendations to run every 3 hours
 cron.schedule('0 */3 * * *', async () => {
-    await calculateRecommendations(); // Run the function to calculate recommendations
+    await calculateRecommendations();
 });
