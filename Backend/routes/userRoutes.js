@@ -92,6 +92,54 @@ router.get("/info", authenticateJWT, async (req, res) => {
     return res.json(userInfo);
 });
 
+router.put("/update-profile", authenticateJWT, async (req, res) => {
+    const { username, email } = req.body;
+    try {
+      const updatedUser = await prisma.user.update({
+        where: { id: req.user.id },
+        data: { username, email },
+      });
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      res.status(500).json({ error: 'Failed to update profile' });
+    }
+});
+
+router.post('/update-password', authenticateJWT, async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ error: 'New passwords do not match' });
+    }
+
+    try {
+        const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isMatch) {
+            return res.status(400).json({ error: 'Current password is incorrect' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.user.update({
+            where: { id: req.user.id },
+            data: { password: hashedPassword }
+        });
+
+        res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error) {
+        console.error('Error updating password:', error);
+        res.status(500).json({ error: 'Failed to update password' });
+    }
+});
+
 router.get('/spotify/login', authenticateJWT, (req, res) => {
     const state = jwt.sign({ id: req.user.id, username: req.user.username }, process.env.JWT_SECRET, { expiresIn: '10m' });
     const scopes = 'user-top-read user-read-private';
@@ -542,16 +590,26 @@ router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const latestRecommendation = await prisma.recommendation.findFirst({
-            where: { userId: userId },
-            orderBy: { createdAt: 'desc' },
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                recommendation: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 1,
+                }
+            }
         });
 
-        if (!latestRecommendation) {
+        if (!user || !user.recommendation.length) {
             return res.status(404).json({ error: 'No recommendations found' });
         }
 
-        res.json(latestRecommendation);
+        const latestRecommendation = user.recommendation[0];
+
+        res.json({
+            artistName: latestRecommendation.artistName,
+            reason: latestRecommendation.reason,
+        });
     } catch (error) {
         console.error('Error fetching latest recommendation:', error);
         res.status(500).json({ error: 'Failed to fetch latest recommendation.' });

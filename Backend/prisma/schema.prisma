@@ -33,6 +33,7 @@ model Recommendation {
   userId                Int
   user                  User      @relation(fields: [userId], references: [id])
   artistName            String
+  reason                String
   createdAt             DateTime  @default(now())
 }
 
@@ -42,8 +43,8 @@ model Song {
   artist                String
   album                 String
   genre                 String
-  mood                  String?
-  tempo                 String?
+  mood                  String
+  tempo                 String
   customTags            String?
   taggedAt              DateTime? @default(now())
   userId                Int
@@ -87,6 +88,7 @@ model Artist {
   name                  String
   genres                String[]
   popularity            Int?
+  followerCount         Int?
   tracks                Track[]   @relation("TrackToArtist")
   locations             Location[] @relation("ArtistToLocation")
   trending              TrendingArtist[]

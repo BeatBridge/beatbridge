@@ -29,6 +29,7 @@ async function calculateRecommendations() {
             user: true
         }
     });
+    console.log('Fetched songs:', songs);
 
     const userTagHistory = {}; // Store users' music tags
     const tagIndices = {
@@ -70,8 +71,11 @@ async function calculateRecommendations() {
         }
     }
 
+    console.log('User tag history:', userTagHistory);
+    console.log('Tag indices:', tagIndices);
+
     const userSimilarities = {}; // Store how similar users are
-    const threshold = 0.7; // The similarity score needed to recommend an artist
+    const threshold = 0.5; // The similarity score needed to recommend an artist
 
     // Compare users based on their tags
     for (const user1 in userTagHistory) {
@@ -107,6 +111,8 @@ async function calculateRecommendations() {
             }
         }
     }
+
+    console.log('User similarities:', userSimilarities);
 
     const recommendations = {}; // Store the recommendations
 
@@ -157,6 +163,8 @@ async function calculateRecommendations() {
         }
     }
 
+    console.log('Recommendations:', recommendations);
+
     // Save the recommendations to the database and update the recommended artist for each user
     for (const user in recommendations) {
         const { artistName, reason } = recommendations[user];
@@ -174,11 +182,46 @@ async function calculateRecommendations() {
             data: { recommendedArtist: artistName }
         });
     }
+
+    console.log('Recommendations saved to database');
 }
 
-// Schedule the recommendations to run every 3 hours
-cron.schedule('0 */3 * * *', async () => {
-    await calculateRecommendations();
-});
+// Benchmarking the provided implementation using mock data
+const mockSongs = [
+    { id: 1, title: 'Song1', artist: 'Artist1', genre: 'pop', mood: 'happy', tempo: 'fast', userId: 1 },
+    { id: 2, title: 'Song2', artist: 'Artist1', genre: 'pop', mood: 'happy', tempo: 'fast', userId: 2 },
+    { id: 3, title: 'Song3', artist: 'Artist2', genre: 'pop', mood: 'happy', tempo: 'fast', userId: 3 },
+    { id: 4, title: 'Song4', artist: 'Artist2', genre: 'rock', mood: 'sad', tempo: 'medium', userId: 4 },
+    { id: 5, title: 'Song5', artist: 'Artist3', genre: 'jazz', mood: 'energetic', tempo: 'slow', userId: 1 },
+    { id: 6, title: 'Song6', artist: 'Artist3', genre: 'jazz', mood: 'energetic', tempo: 'slow', userId: 2 },
+    { id: 7, title: 'Song7', artist: 'Artist4', genre: 'jazz', mood: 'energetic', tempo: 'slow', userId: 3 },
+    { id: 8, title: 'Song8', artist: 'Artist4', genre: 'classical', mood: 'relaxed', tempo: 'veryslow', userId: 4 },
+    { id: 9, title: 'Song9', artist: 'Artist5', genre: 'hiphop', mood: 'angry', tempo: 'fast', userId: 5 },
+    { id: 10, title: 'Song10', artist: 'Artist5', genre: 'hiphop', mood: 'angry', tempo: 'fast', userId: 6 },
+];
 
-module.exports = { calculateRecommendations }
+const mockPreviousRecommendations = [
+    { id: 1, userId: 1, artistName: 'Artist1', reason: 'Because you listened to "Song1" by Artist1, here is an artist you might like: Artist1' },
+    { id: 2, userId: 2, artistName: 'Artist2', reason: 'Because you listened to "Song2" by Artist2, here is an artist you might like: Artist2' },
+];
+
+// Overriding Prisma client methods for benchmarking
+prisma.song.findMany = async () => mockSongs;
+prisma.recommendation.findMany = async (args) => mockPreviousRecommendations.filter(rec => rec.userId === args.where.userId);
+prisma.recommendation.create = async (data) => data;
+prisma.user.update = async (data) => data;
+
+// Function to benchmark recommendation calculation
+async function benchmarkRecommendations(calculateRecommendations) {
+    console.time('calculateRecommendations');
+    await calculateRecommendations();
+    console.timeEnd('calculateRecommendations');
+}
+
+// Running the benchmark
+async function runBenchmark() {
+    console.log('Benchmarking the implementation:');
+    await benchmarkRecommendations(calculateRecommendations);
+}
+
+runBenchmark();

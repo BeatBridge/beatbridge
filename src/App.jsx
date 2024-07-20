@@ -12,7 +12,7 @@ import Error from './components/error/Error.jsx';
 import RequireAuth from './components/requireauth/RequireAuth.jsx';
 import TaggingScreen from './components/tagscreen/TaggingScreen.jsx';
 import ArtistDashboard from './components/dashboard/ArtistDashboard.jsx';
-import TrendingScreen from './components/trendscreen/TrendingScreen.jsx';
+import ArtistTrendingScreen from './components/artisttrendscreen/ArtistTrendingScreen.jsx';
 import Profile from './components/profile/Profile.jsx';
 import Friends from './components/friends/Friends.jsx';
 import Favourites from './components/favourites/Favourites.jsx';
@@ -21,6 +21,7 @@ import Chatbot from './components/chatbot/Chatbot.jsx';
 import Map from './components/map/Map.jsx';
 import TrendingArtists from './components/trendingartists/TrendingArtists.jsx';
 import DashboardLayout from './components/dashboardlayout/DashboardLayout.jsx';
+import RecommendedScreen from './components/recommendedscreen/RecommendedScreen.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);
@@ -46,7 +47,7 @@ function App() {
             if (JWT) {
                 const data = await API.getUserInfo(JWT);
                 if (data.hasOwnProperty("error")) {
-                    setJWT(null);
+                    handleLogout();
                     navigate('/login');
                 } else {
                     setUserInfo(data);
@@ -85,6 +86,7 @@ function App() {
         localStorage.removeItem('jwt');
         localStorage.removeItem('spotifyAuth');
         setJWT(null);
+        setUserInfo({});  // Clear user info
         navigate('/login');
     };
 
@@ -153,6 +155,30 @@ function App() {
         }
     };
 
+    const handleUpdateProfile = async (updatedProfile) => {
+        try {
+            const data = await API.updateUserProfile(JWT, updatedProfile);
+            if (data.error) {
+                setError(data.error);
+            } else {
+                setUserInfo(data);
+            }
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleUpdatePassword = async (passwordData) => {
+        try {
+            const data = await API.updatePassword(JWT, passwordData);
+            if (data.error) {
+                setError(data.error);
+            }
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     return (
         <>
             <Routes>
@@ -179,6 +205,8 @@ function App() {
                             handleTagButtonClick={handleTagButtonClick}
                             handleCloseTrack={handleCloseTrack}
                             handleTag={handleTag}
+                            handleSearchResults={handleSearchResults}
+                            handleSuggestionClick={handleSuggestionClick}
                         />
                     </RequireAuth>
                 }>
@@ -188,10 +216,11 @@ function App() {
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
                     <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} />} />
                     <Route path="/tags" element={<TaggingScreen userInfo={userInfo} />} />
+                    <Route path="/recommended" element={<RecommendedScreen userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
-                    <Route path="/settings" element={<Settings userInfo={userInfo} />} />
+                    <Route path="/settings" element={<Settings userInfo={userInfo} handleUpdateProfile={handleUpdateProfile} handleUpdatePassword={handleUpdatePassword} handleLogout={handleLogout} />} />
                     <Route path="/a/dashboard" element={<ArtistDashboard userInfo={userInfo} />} />
-                    <Route path="/a/trends" element={<TrendingScreen userInfo={userInfo} />} />
+                    <Route path="/a/trends" element={<ArtistTrendingScreen userInfo={userInfo} />} />
                 </Route>
             </Routes>
         </>

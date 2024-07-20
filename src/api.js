@@ -53,6 +53,52 @@ const API = {
             return { error: 'Failed to log in' };
         }
     },
+    updateUserProfile: async (jwt, profileData) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/update-profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt}`
+                },
+                body: JSON.stringify(profileData),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error response from server:', errorData);
+                throw new Error('Failed to update profile');
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            return { error: 'Failed to update profile' };
+        }
+    },
+    updatePassword: async (jwt, passwordData) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/update-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt}`
+                },
+                body: JSON.stringify(passwordData),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error response from server:', errorData); // Log error response from server
+                throw new Error('Failed to update password');
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error updating password:', error);
+            return { error: 'Failed to update password' };
+        }
+    },
     verifyEmail: async (token) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
@@ -377,6 +423,22 @@ const API = {
         } catch (error) {
             console.error('Error tracking artist search:', error);
             return { error: 'Failed to track artist search' };
+        }
+    },
+    getLatestRecommendation: async (jwt) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/latest-recommendation`, {
+                headers: {
+                    'Authorization': `Bearer ${jwt}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch latest recommendation');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching latest recommendation:', error);
+            return { error: 'Failed to fetch latest recommendation' };
         }
     },
 };

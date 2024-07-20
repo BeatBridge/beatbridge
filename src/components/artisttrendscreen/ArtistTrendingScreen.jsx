@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import logoImg from '/beatbridge_logo.png';
-import './trendingscreen.css';
+import './artisttrendingscreen.css';
 
-function TrendingScreen () {
+function ArtistTrendingScreen () {
     return (
         <div className="container">
             <div className='row'>
@@ -26,4 +26,4 @@ function TrendingScreen () {
     )
 }
 
-export default TrendingScreen;
+export default ArtistTrendingScreen;

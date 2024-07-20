@@ -1,0 +1,17 @@
+.desktop-dashboard {
+    display: block;
+}
+
+.mobile-dashboard {
+    display: none;
+}
+
+@media only screen and (max-width: 768px) {
+    .desktop-dashboard {
+        display: none;
+    }
+
+    .mobile-dashboard {
+        display: block;
+    }
+}
