@@ -623,8 +623,9 @@ const replicate = new Replicate({
     auth: process.env.REPLICATE_API_TOKEN,
 });
 
-router.post('/chat-with-ai', async (req, res) => {
+router.post('/chat-with-ai',authenticateJWT,  async (req, res) => {
     const { prompt } = req.body;
+    const {id} = req.user;
 
     const contextPath = path.join(__dirname, '../utils/context.txt');
     const context = fs.readFileSync(contextPath, 'utf8');
@@ -650,8 +651,15 @@ router.post('/chat-with-ai', async (req, res) => {
         )) {
             responseData += event.toString();
         }
+        await prisma.chatMessage.create({
+            data: {
+                text: prompt,
+                userId: id,
+                response: responseData
+            }
+        });
 
-        res.status(201).send(responseData);
+       return res.status(201).send(responseData);
     } catch (error) {
         console.error("Error in chat process:", error);
         res.status(500).send("Error in chat process.");
@@ -682,9 +690,12 @@ router.get('/chat-messages', authenticateJWT, async (req, res) => {
     try {
         const chatMessages = await prisma.chatMessage.findMany({
             where: { userId },
+            include: {
+                user: true
+            },
             orderBy: { createdAt: 'asc' }
         });
-        res.json(chatMessages);
+        return res.json(chatMessages);
     } catch (error) {
         console.error('Error fetching chat messages:', error);
         res.status(500).json({ error: 'Failed to fetch chat messages.' });

@@ -38,7 +38,20 @@
 }
 
 .chat-message.AI {
-    background-color: #e0e0e0;
+    border: none;
+}
+
+.chat-message-user {
+    font-style: italic;
+    font-size: 1.1em;
+}
+
+.chat-message-user.user {
+    color: #800080;
+}
+
+.chat-message-user.ai {
+    color: #00FF00;
 }
 
 .chat-input {
@@ -70,4 +83,12 @@
 .chat-input button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+.chat-divider {
+    border: 0;
+    height: 1px;
+    background: #800080;
+    border: 2px solid #800080;
+    margin-top: 8px;
 }

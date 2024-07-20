@@ -52,7 +52,7 @@ function ListenerDashboard({
           <h5>
             <FontAwesomeIcon icon={faHeadphonesSimple} className="l-top-music-icon-header" />
           </h5>
-          <h2>Top 50 Viral Songs</h2>
+          <h2>Top 10 Viral Songs</h2>
         </div>
 
         <div>

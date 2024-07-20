@@ -1,4 +1,4 @@
-Beats Bridge Application Context:
+BeatBridge Application Context:
 
 1. Components:
    - Landing: The homepage of the application.

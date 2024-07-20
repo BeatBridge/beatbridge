@@ -442,7 +442,8 @@ const API = {
         }
     },
     fetchChatHistory: async () => {
-        const response = await fetch('/api/chat-messages', {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/chat-messages`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -457,13 +458,21 @@ const API = {
         }
 
         const data = await response.json();
-        return data;
+        // Map the response to include both user and AI messages
+        const formattedData = data.flatMap(msg => [
+            { text: `${msg.user ? msg.user.username : 'Unknown User'}: ${msg.text}`, user: 'You', createdAt: msg.createdAt },
+            { text: `Beat Bot: ${msg.response}`, user: 'AI', createdAt: msg.createdAt }
+        ]);
+
+        return formattedData;
     },
     chatWithAI: async (prompt) => {
-        const response = await fetch('/user/chat-with-ai', {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/chat-with-ai`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             },
             body: JSON.stringify({ prompt })
         });

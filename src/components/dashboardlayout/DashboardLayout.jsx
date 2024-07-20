@@ -162,7 +162,7 @@ function DashboardLayout({
               </div>
 
               <div>
-                <h4 className="l-top-artist-column">Global Top 50</h4>
+                <h4 className="l-top-artist-column">Global Top 3</h4>
                 {isSpotifySignedIn ? (
                   globalTop50.length > 0 ? (
                     <div>

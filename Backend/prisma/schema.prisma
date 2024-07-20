@@ -108,16 +108,17 @@ model Location {
 }
 
 model ArtistSearch {
-  id         Int      @id @default(autoincrement())
-  artistId   Int
-  artist     Artist   @relation(fields: [artistId], references: [id])
-  createdAt  DateTime @default(now())
+  id                    Int      @id @default(autoincrement())
+  artistId              Int
+  artist                Artist   @relation(fields: [artistId], references: [id])
+  createdAt             DateTime @default(now())
 }
 
 model ChatMessage {
-  id        Int      @id @default(autoincrement())
-  text      String
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  id                    Int      @id @default(autoincrement())
+  text                  String
+  response              String
+  userId                Int
+  user                  User     @relation(fields: [userId], references: [id])
+  createdAt             DateTime @default(now())
 }
