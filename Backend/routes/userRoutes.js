@@ -593,7 +593,6 @@ router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
         const user = await prisma.user.findUnique({
             where: { id: userId },
             select: {
-                recommendedArtist: true,
                 recommendation: {
                     orderBy: { createdAt: 'desc' },
                     take: 1,

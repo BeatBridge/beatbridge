@@ -71,7 +71,7 @@ async function calculateRecommendations() {
     }
 
     const userSimilarities = {}; // Store how similar users are
-    const threshold = 0.5; // The similarity score needed to recommend an artist
+    const threshold = 0.7; // The similarity score needed to recommend an artist
 
     // Compare users based on their tags
     for (const user1 in userTagHistory) {
@@ -180,3 +180,5 @@ async function calculateRecommendations() {
 cron.schedule('0 */3 * * *', async () => {
     await calculateRecommendations();
 });
+
+module.exports = { calculateRecommendations }
