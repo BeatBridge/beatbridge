@@ -637,7 +637,7 @@ router.post('/chat-with-ai',authenticateJWT,  async (req, res) => {
         max_tokens: 512,
         min_tokens: 0,
         temperature: 0.6,
-        prompt_template: `system\n\nYou are an AI assistant specialized in helping users with the Beats Bridge application(context: ${context}) User\n\n{prompt}Assistant\n\n`,
+        prompt_template: `system\n\nYou are an AI assistant specialized in helping users with the BeatBridge application(context: ${context}) User\n\n{prompt}Assistant\n\n`,
         presence_penalty: 1.15,
         frequency_penalty: 0.2,
     };
