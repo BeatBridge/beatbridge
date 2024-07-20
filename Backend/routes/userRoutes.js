@@ -7,9 +7,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const querystring = require('querystring');
 const fetch = require('node-fetch');
-const authenticateJWT  = require("../middlewares/authenticateJWT");
+const authenticateJWT = require("../middlewares/authenticateJWT");
 const { sendMail } = require('../utils/mailer');
 const spotifyTokenRefresh = require('../middlewares/spotifyTokenRefresh');
+const Replicate = require("replicate");
+const fs = require('fs');
+const path = require('path');
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
@@ -95,14 +98,14 @@ router.get("/info", authenticateJWT, async (req, res) => {
 router.put("/update-profile", authenticateJWT, async (req, res) => {
     const { username, email } = req.body;
     try {
-      const updatedUser = await prisma.user.update({
-        where: { id: req.user.id },
-        data: { username, email },
-      });
-      res.json(updatedUser);
+        const updatedUser = await prisma.user.update({
+            where: { id: req.user.id },
+            data: { username, email },
+        });
+        res.json(updatedUser);
     } catch (error) {
-      console.error('Error updating profile:', error);
-      res.status(500).json({ error: 'Failed to update profile' });
+        console.error('Error updating profile:', error);
+        res.status(500).json({ error: 'Failed to update profile' });
     }
 });
 
@@ -499,7 +502,7 @@ router.post('/songs', authenticateJWT, async (req, res) => {
         res.json(song);
     } catch (error) {
         console.error('Error creating song:', error);
-        res.status(500).json({error: 'Failed to create song.'});
+        res.status(500).json({ error: 'Failed to create song.' });
     }
 });
 
@@ -520,7 +523,7 @@ router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
         res.json(updatedSong);
     } catch (error) {
         console.error('Error saving tags:', error);
-        res.status(500).json({ error: 'Failed to save tags.'});
+        res.status(500).json({ error: 'Failed to save tags.' });
     }
 });
 
@@ -528,15 +531,15 @@ router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, r
     const { songId } = req.params;
     try {
         const song = await prisma.song.findUnique({
-            where: { id: parseInt(songId)}
+            where: { id: parseInt(songId) }
         });
         if (!song) {
-            return res.status(404).json({error: 'Song not found'});
+            return res.status(404).json({ error: 'Song not found' });
         }
         res.json(song);
     } catch (error) {
         console.error('Error fetching song details:', error);
-        res.status(500).json({error: 'Failed to fetch song details.'});
+        res.status(500).json({ error: 'Failed to fetch song details.' });
     }
 });
 
@@ -613,6 +616,78 @@ router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
     } catch (error) {
         console.error('Error fetching latest recommendation:', error);
         res.status(500).json({ error: 'Failed to fetch latest recommendation.' });
+    }
+});
+
+const replicate = new Replicate({
+    auth: process.env.REPLICATE_API_TOKEN,
+});
+
+router.post('/chat-with-ai', async (req, res) => {
+    const { prompt } = req.body;
+
+    const contextPath = path.join(__dirname, '../utils/context.txt');
+    const context = fs.readFileSync(contextPath, 'utf8');
+
+    const input = {
+        top_k: 50,
+        top_p: 0.9,
+        prompt,
+        max_tokens: 512,
+        min_tokens: 0,
+        temperature: 0.6,
+        prompt_template: `system\n\nYou are an AI assistant specialized in helping users with the Beats Bridge application(context: ${context}) User\n\n{prompt}Assistant\n\n`,
+        presence_penalty: 1.15,
+        frequency_penalty: 0.2,
+    };
+
+    try {
+        let responseData = "";
+
+        for await (const event of replicate.stream(
+            "meta/meta-llama-3-70b-instruct",
+            { input }
+        )) {
+            responseData += event.toString();
+        }
+
+        res.status(201).send(responseData);
+    } catch (error) {
+        console.error("Error in chat process:", error);
+        res.status(500).send("Error in chat process.");
+    }
+});
+
+router.post('/chat-message', authenticateJWT, async (req, res) => {
+    const { text } = req.body;
+    const userId = req.user.id;
+
+    try {
+        const chatMessage = await prisma.chatMessage.create({
+            data: {
+                text,
+                userId
+            }
+        });
+        res.status(201).json(chatMessage);
+    } catch (error) {
+        console.error('Error saving chat message:', error);
+        res.status(500).json({ error: 'Failed to save chat message.' });
+    }
+});
+
+router.get('/chat-messages', authenticateJWT, async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const chatMessages = await prisma.chatMessage.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'asc' }
+        });
+        res.json(chatMessages);
+    } catch (error) {
+        console.error('Error fetching chat messages:', error);
+        res.status(500).json({ error: 'Failed to fetch chat messages.' });
     }
 });
 

@@ -441,6 +441,57 @@ const API = {
             return { error: 'Failed to fetch latest recommendation' };
         }
     },
+    fetchChatHistory: async () => {
+        const response = await fetch('/api/chat-messages', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error fetching chat history:', errorText);
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    },
+    chatWithAI: async (prompt) => {
+        const response = await fetch('/user/chat-with-ai', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    },
+    saveChatMessage: async (text) => {
+        const response = await fetch('/user/chat-message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            },
+            body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    }
 };
 
 export default API;

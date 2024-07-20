@@ -26,6 +26,7 @@ model User {
   locationId            Int?
   location              Location? @relation(fields: [locationId], references: [id])
   recommendation        Recommendation[]
+  chatMessages          ChatMessage[]
 }
 
 model Recommendation {
@@ -111,4 +112,12 @@ model ArtistSearch {
   artistId   Int
   artist     Artist   @relation(fields: [artistId], references: [id])
   createdAt  DateTime @default(now())
+}
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  text      String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
