@@ -99,6 +99,30 @@ const API = {
             return { error: 'Failed to update password' };
         }
     },
+    uploadProfilePicture: async (formData) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/upload-profile-picture`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            },
+            body: formData,
+        });
+        return response.json();
+    },
+    fetchProfilePicture: async (userId) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/profile-picture/${userId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            },
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch profile picture');
+        }
+        return response.blob();
+    },
     verifyEmail: async (token) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;

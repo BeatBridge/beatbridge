@@ -12,6 +12,8 @@ import '../dashboard/ldashboard.css';
 import './dashboardlayout.css';
 import API from '../../api.js';
 
+const DEFAULT_PROFILE_PICTURE_URL = '/src/assets/default_pfp.jpg';
+
 function DashboardLayout({
   userInfo,
   handleLogout,
@@ -31,6 +33,25 @@ function DashboardLayout({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
+  const [profilePictureUrl, setProfilePictureUrl] = useState(DEFAULT_PROFILE_PICTURE_URL);
+
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+      try {
+        const response = await API.fetchProfilePicture(userInfo.id);
+        if (response.type.includes('image')) {
+          setProfilePictureUrl(URL.createObjectURL(response));
+        }
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
+        setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
+      }
+    };
+
+    if (userInfo.id) {
+      fetchProfilePicture();
+    }
+  }, [userInfo]);
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -146,7 +167,7 @@ function DashboardLayout({
               <div className="l-right-sidebar-top">
                 <div className="l-right-sidebar-user-info">
                   <div className="l-dashboard-profile-container">
-                    <FaUser className="l-dash-user-icon" />
+                    <img src={profilePictureUrl} alt="Profile" className="profile-picture" />
                   </div>
 
                   <div className="l-dashboard-user-name">

@@ -27,6 +27,7 @@ model User {
   location              Location? @relation(fields: [locationId], references: [id])
   recommendation        Recommendation[]
   chatMessages          ChatMessage[]
+  profilePicture        Bytes?
 }
 
 model Recommendation {

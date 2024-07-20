@@ -13,6 +13,8 @@ const spotifyTokenRefresh = require('../middlewares/spotifyTokenRefresh');
 const Replicate = require("replicate");
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
@@ -77,6 +79,24 @@ router.post('/verify-email', async (req, res) => {
     }
 });
 
+router.post('/upload-profile-picture', authenticateJWT, upload.single('profilePicture'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        await prisma.user.update({
+            where: { id: req.user.id },
+            data: { profilePicture: req.file.buffer },
+        });
+
+        res.status(200).json({ message: 'Profile picture uploaded successfully' });
+    } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        res.status(500).json({ error: 'Failed to upload profile picture' });
+    }
+});
+
 router.get("/info", authenticateJWT, async (req, res) => {
     const userInfo = await prisma.user.findUnique({
         where: { username: req.user.username },
@@ -95,6 +115,29 @@ router.get("/info", authenticateJWT, async (req, res) => {
 
     return res.json(userInfo);
 });
+
+// Route to get profile picture
+router.get('/profile-picture/:userId', async (req, res) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(req.params.userId) },
+            select: { profilePicture: true },
+        });
+
+        if (!user || !user.profilePicture) {
+            // Send a default profile picture if not found
+            const defaultProfilePicturePath = path.join(__dirname, '/src/assets/default_pfp.jpg');
+            return res.sendFile(defaultProfilePicturePath);
+        }
+
+        res.set('Content-Type', 'image/jpeg'); // appropriate picture type
+        res.send(user.profilePicture);
+    } catch (error) {
+        console.error('Error fetching profile picture:', error);
+        res.status(500).json({ error: 'Failed to fetch profile picture' });
+    }
+});
+
 
 router.put("/update-profile", authenticateJWT, async (req, res) => {
     const { username, email } = req.body;
