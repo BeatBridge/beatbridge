@@ -77,41 +77,33 @@ async function calculateRecommendations() {
     for (const user1 in userTagHistory) {
         const user1Tags = userTagHistory[user1];
 
-        for (const tagType in tagIndices) {
-            for (const tagValue in tagIndices[tagType]) {
-                const usersWithTag = tagIndices[tagType][tagValue];
+        for (const user2 in userTagHistory) {
+            if (user1 === user2) continue; // Don't compare a user with themselves
 
-                if (!usersWithTag.includes(user1)) continue; // Skip if user1 doesn't have this tag
+            const user2Tags = userTagHistory[user2];
+            let similarityScore = 0;
 
-                for (const user2 of usersWithTag) {
-                    if (user1 === user2) continue; // Don't compare a user with themselves
-
-                    const user2Tags = userTagHistory[user2];
-                    let similarityScore = 0;
-
-                    // Calculate similarity score outside the innermost loop
-                    for (const tag1 of user1Tags) {
-                        for (const tag2 of user2Tags) {
-                            // Add to similarity score if tags match
-                            if (tag1.genre === tag2.genre) similarityScore += tagWeights.genre;
-                            if (tag1.mood === tag2.mood) similarityScore += tagWeights.mood;
-                            if (tag1.tempo === tag2.tempo) similarityScore += tagWeights.tempo;
-                        }
-                    }
-
-                    // If similarity score is high enough, remember it
-                    if (similarityScore >= threshold) {
-                        if (!userSimilarities[user1]) {
-                            userSimilarities[user1] = {};
-                        }
-                        if (!userSimilarities[user2]) {
-                            userSimilarities[user2] = {};
-                        }
-
-                        userSimilarities[user1][user2] = (userSimilarities[user1][user2] || 0) + similarityScore;
-                        userSimilarities[user2][user1] = (userSimilarities[user2][user1] || 0) + similarityScore;
-                    }
+            // Calculate similarity score outside the innermost loop
+            for (const tag1 of user1Tags) {
+                for (const tag2 of user2Tags) {
+                    // Add to similarity score if tags match
+                    if (tag1.genre === tag2.genre) similarityScore += tagWeights.genre;
+                    if (tag1.mood === tag2.mood) similarityScore += tagWeights.mood;
+                    if (tag1.tempo === tag2.tempo) similarityScore += tagWeights.tempo;
                 }
+            }
+
+            // If similarity score is high enough, remember it
+            if (similarityScore >= threshold) {
+                if (!userSimilarities[user1]) {
+                    userSimilarities[user1] = {};
+                }
+                if (!userSimilarities[user2]) {
+                    userSimilarities[user2] = {};
+                }
+
+                userSimilarities[user1][user2] = (userSimilarities[user1][user2] || 0) + similarityScore;
+                userSimilarities[user2][user1] = (userSimilarities[user2][user1] || 0) + similarityScore;
             }
         }
     }
@@ -188,5 +180,3 @@ async function calculateRecommendations() {
 cron.schedule('0 */3 * * *', async () => {
     await calculateRecommendations();
 });
-
-module.exports = { calculateRecommendations };
