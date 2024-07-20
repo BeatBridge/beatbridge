@@ -81,6 +81,7 @@ router.get("/info", authenticateJWT, async (req, res) => {
     const userInfo = await prisma.user.findUnique({
         where: { username: req.user.username },
         select: {
+            id:  true,
             username: true,
             email: true,
             isPremium: true,
@@ -527,6 +528,19 @@ router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
     }
 });
 
+router.get('/songs', authenticateJWT, async (req, res) => {
+    try {
+        const songs = await prisma.song.findMany({
+            where: { userId: req.user.id },
+            orderBy: { taggedAt: 'desc' }
+        });
+        res.json(songs);
+    } catch (error) {
+        console.error('Error fetching tagged songs:', error);
+        res.status(500).json({ error: 'Failed to fetch tagged songs.' });
+    }
+});
+
 router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
     const { songId } = req.params;
     try {
@@ -699,6 +713,33 @@ router.get('/chat-messages', authenticateJWT, async (req, res) => {
     } catch (error) {
         console.error('Error fetching chat messages:', error);
         res.status(500).json({ error: 'Failed to fetch chat messages.' });
+    }
+});
+
+router.get('/trending-artists-momentum', authenticateJWT, async (req, res) => {
+    try {
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+        const momentumData = await prisma.trendingArtist.findMany({
+            where: {
+                date: {
+                    gte: twoWeeksAgo
+                }
+            },
+            include: {
+                artist: true
+            },
+            orderBy: {
+                momentum: 'desc' // Sort by momentum descending
+            },
+            take: 5 // Limit to the top 5 artists
+        });
+
+        res.json(momentumData);
+    } catch (error) {
+        console.error('Error fetching trending artists momentum:', error);
+        res.status(500).json({ error: 'Failed to fetch trending artists momentum.' });
     }
 });
 

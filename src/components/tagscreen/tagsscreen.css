@@ -1,0 +1,45 @@
+.tags-page-container {
+    padding: 20px;
+    background-color: #151E3F;
+    color: #F2F3D9;
+}
+.sub-screen {
+    padding: 20px;
+    background-color: #0E152B;
+    border: 3px solid #800080;
+    border-radius: 8px;
+}
+
+.tagged-songs-list {
+    list-style: none;
+    padding: 2vh 0 0 0;
+    display: flex;
+    gap: 1rem;
+}
+
+.tagged-song-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #800080;
+    border-radius: 8px;
+    background-color: #1F2A44;
+}
+
+.song-details h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.song-details p {
+    margin: 5px 0;
+}
+
+.album-cover {
+    width: 200px;
+}
+
+.album-cover img {
+    width: 100%;
+    object-fit: cover;
+    margin-right: 15px;
+}

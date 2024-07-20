@@ -407,6 +407,22 @@ const API = {
             return { error: 'Failed to fetch trending artists' };
         }
     },
+    getTrendingArtistsMomentum: async (jwt) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/trending-artists-momentum`, {
+                headers: {
+                    'Authorization': `Bearer ${jwt}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch trending artists momentum');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching trending artists momentum:', error);
+            return { error: 'Failed to fetch trending artists momentum' };
+        }
+    },
     trackArtistSearch: async (artistSpotifyId) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
@@ -484,17 +500,19 @@ const API = {
         const data = await response.json();
         return data;
     },
-    saveChatMessage: async (text) => {
-        const response = await fetch('/user/chat-message', {
-            method: 'POST',
+    fetchTaggedSongs: async () => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/songs`, {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-            },
-            body: JSON.stringify({ text })
+            }
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error fetching tagged songs:', errorText);
             throw new Error('Network response was not ok');
         }
 
