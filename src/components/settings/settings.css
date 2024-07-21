@@ -50,3 +50,7 @@
     width: 100%;
     object-fit: contain;
 }
+
+.upload-button {
+    cursor: pointer;
+}
