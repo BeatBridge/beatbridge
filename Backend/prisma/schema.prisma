@@ -49,6 +49,7 @@ model Song {
   tempo                 String
   customTags            String?
   taggedAt              DateTime? @default(now())
+  artistId              String?
   userId                Int
   user                  User      @relation(fields: [userId], references: [id])
 }

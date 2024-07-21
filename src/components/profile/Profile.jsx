@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
@@ -6,11 +6,12 @@ import UserProfileViral from '../userprofileviral/UserProfileViral.jsx';
 import UserProfileTrending from '../userprofiletrending/UserProfileTrending.jsx';
 import './profile.css';
 import API from '../../api.js';
+
 const DEFAULT_PROFILE_PICTURE_URL = '/src/assets/default_pfp.jpg';
 
 function Profile({ userInfo }) {
   const [profilePictureUrl, setProfilePictureUrl] = useState(DEFAULT_PROFILE_PICTURE_URL);
-
+  const [followedArtists, setFollowedArtists] = useState([]);
   const navigate = useNavigate();
 
   const handleEditProfileClick = () => {
@@ -18,22 +19,42 @@ function Profile({ userInfo }) {
   };
 
   useEffect(() => {
-    const fetchProfilePicture = async () => {
-        try {
-            const response = await API.fetchProfilePicture(userInfo.id);
-            if (response.type.includes('image')) {
-                setProfilePictureUrl(URL.createObjectURL(response));
-            }
-        } catch (error) {
-            console.error('Error fetching profile picture:', error);
-            setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
+    const fetchData = async () => {
+      if (!userInfo.id) return;
+
+      try {
+        // Fetch Profile Picture
+        const response = await API.fetchProfilePicture(userInfo.id);
+        if (response.type.includes('image')) {
+          setProfilePictureUrl(URL.createObjectURL(response));
         }
+
+        // Fetch Tagged Songs and Artist Images
+        const songs = await API.fetchTaggedSongs();
+        console.log("Fetched Tagged Songs: ", songs);
+
+        // Ensure artistId is part of the song object
+        const artistIds = [...new Set(songs.map(song => song.artistId))].filter(id => id);
+
+        console.log("Artist IDs: ", artistIds);
+
+        if (artistIds.length > 0) {
+          const artistData = await API.fetchArtistImages(artistIds);
+          console.log("Fetched Artist Data: ", artistData);
+          if (artistData && artistData.artists) {
+            setFollowedArtists(artistData.artists);
+          } else {
+            console.error('Invalid artist data format', artistData);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile picture, tagged songs, or artist images:', error);
+        setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
+      }
     };
 
-    if (userInfo.id) {
-        fetchProfilePicture();
-    }
-}, [userInfo]);
+    fetchData();
+  }, [userInfo]);
 
   return (
     <div>
@@ -65,7 +86,7 @@ function Profile({ userInfo }) {
         <div className="user-profile-details-top">
           <div className="user-profile-details-buttons">
             <h2>
-              <strong>Public Playlist</strong>
+              <strong>Global Playlist</strong>
             </h2>
             <h5>Show All</h5>
           </div>
@@ -81,17 +102,14 @@ function Profile({ userInfo }) {
         <div className="user-profile-details-bottom">
           <div className="user-profile-details-buttons">
             <h2>
-              <strong>Artists You Follow</strong>
+              <strong>Artists You Tagged</strong>
             </h2>
             <h5>Show All</h5>
           </div>
           <div className="user-profile-trending-container">
-            <UserProfileTrending name="Asake" />
-            <UserProfileTrending name="Billie Eilish" />
-            <UserProfileTrending name="Central Cee" />
-            <UserProfileTrending name="Metro Boomin" />
-            <UserProfileTrending name="PARTYNEXTDOOR" />
-            <UserProfileTrending name="Rema" />
+            {followedArtists.map(artist => (
+              <UserProfileTrending key={artist.id} name={artist.name} image={artist.images[0]?.url} />
+            ))}
           </div>
         </div>
       </div>

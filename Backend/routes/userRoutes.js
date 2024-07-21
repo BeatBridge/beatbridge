@@ -425,9 +425,9 @@ router.get('/spotify/tracks', authenticateJWT, spotifyTokenRefresh, async (req, 
 });
 
 router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
-    const { artistIds } = req.query;
+    const artistIds = req.query.artistIds;
     const user = await prisma.user.findUnique({
-        where: { username: req.user.username },
+        where: { id: req.user.id },
     });
 
     if (!artistIds) {
@@ -529,7 +529,7 @@ router.get('/genres-by-location', async (req, res) => {
 });
 
 router.post('/songs', authenticateJWT, async (req, res) => {
-    const { title, artist, album, genre, mood, tempo, customTags } = req.body;
+    const { title, artist, album, genre, mood, tempo, customTags, artistId } = req.body;
     try {
         const song = await prisma.song.create({
             data: {
@@ -540,6 +540,7 @@ router.post('/songs', authenticateJWT, async (req, res) => {
                 mood,
                 tempo,
                 customTags,
+                artistId,
                 userId: req.user.id
             }
         });
@@ -553,7 +554,27 @@ router.post('/songs', authenticateJWT, async (req, res) => {
 router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
     const { songId } = req.params;
     const { genre, mood, tempo, customTags } = req.body;
+    const userId = req.user.id;
+
+    const fetchSpotifyArtistId = async (artistName, accessToken) => {
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        const data = await response.json();
+        return data.artists.items[0]?.id || null;
+    };
+
     try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        const song = await prisma.song.findUnique({ where: { id: parseInt(songId) } });
+        const artistName = song.artist;
+
+        // Fetch artist ID from Spotify
+        const artistId = await fetchSpotifyArtistId(artistName, user.spotifyAccessToken);
+
+        // Update song with tags and artist ID
         const updatedSong = await prisma.song.update({
             where: { id: parseInt(songId) },
             data: {
@@ -561,9 +582,11 @@ router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
                 mood,
                 tempo,
                 customTags: JSON.stringify(customTags),
+                artistId,
                 taggedAt: new Date()
             }
         });
+
         res.json(updatedSong);
     } catch (error) {
         console.error('Error saving tags:', error);

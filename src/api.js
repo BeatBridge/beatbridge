@@ -235,7 +235,7 @@ const API = {
     createSong: async (songData) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch (`${backendUrlAccess}/user/songs`, {
+            const response = await fetch(`${backendUrlAccess}/user/songs`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -268,22 +268,6 @@ const API = {
         } catch (error) {
             console.error('Error saving tags:', error);
             return { error: 'Failed to save tags'};
-        }
-    },
-    getTaggedSongs: async () => {
-        try {
-            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/songs`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch tagged songs');
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error fetching tagged songs:', error);
-            return { error: 'Failed to fetch tagged songs' };
         }
     },
     getSongDetails: async (songId) => {
@@ -549,7 +533,21 @@ const API = {
 
         const data = await response.json();
         return data;
-    }
+    },
+    fetchArtistImages: async (artistIds) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch artist images');
+        }
+        const data = await response.json();
+        return data;
+    },
 };
 
 export default API;
