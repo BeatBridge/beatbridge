@@ -49,8 +49,18 @@ function Map() {
         };
     }, []);
 
+    // To prevent infinite horizontal scrolling
+    const bounds = [[-90, -180], [90, 180]];
+
     return (
-        <MapContainer center={[37.8, -96.9]} zoom={5} style={{ height: "100vh", width: "100%" }}>
+        <MapContainer
+            center={[37.8, -96.9]}
+            zoom={5}
+            style={{ height: "100vh", width: "100%" }}
+            worldCopyJump={false}
+            maxBounds={bounds}
+            maxBoundsViscosity={1.0}
+        >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
