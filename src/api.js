@@ -548,6 +548,22 @@ const API = {
         const data = await response.json();
         return data;
     },
+    fetchPlaylists: async () => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/playlists`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch playlists');
+        }
+
+        const data = await response.json();
+        return data;
+    },
 };
 
 export default API;
