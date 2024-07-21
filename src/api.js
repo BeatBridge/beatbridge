@@ -537,14 +537,23 @@ const API = {
     fetchArtistImages: async (artistIds) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
         const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
-          },
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            },
         });
-        if (!response.ok) {
-          throw new Error('Failed to fetch artist images');
+
+        if (response.status === 429) {
+            console.warn('Frontend: Rate limited by Spotify API');
+            return { error: 'Frontend: Rate limited by Spotify API' };
         }
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error fetching artist images:', errorText);
+            throw new Error('Failed to fetch artist images');
+        }
+
         const data = await response.json();
         return data;
     },

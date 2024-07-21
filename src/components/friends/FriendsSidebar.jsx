@@ -41,9 +41,11 @@ function FriendsSidebar({ onChatClick }) {
           <div key={user.id} className="user-card" onClick={() => onChatClick(user)}>
             <img src={user.profilePicture || DEFAULT_PROFILE_PICTURE_URL} alt="Profile" />
             <div className="user-info">
-              <h2>{user.username}</h2>
-              <p>{user.email}</p>
-              <button>Chat</button>
+                <div>
+                    <h2>{user.username}</h2>
+                    <p>{user.email}</p>
+                </div>
+                <button>Chat</button>
             </div>
           </div>
         ))}

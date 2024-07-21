@@ -427,7 +427,7 @@ router.get('/spotify/tracks', authenticateJWT, spotifyTokenRefresh, async (req, 
 router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
     const artistIds = req.query.artistIds;
     const user = await prisma.user.findUnique({
-        where: { id: req.user.id },
+        where: { id: req.user.id }
     });
 
     if (!artistIds) {
@@ -440,7 +440,19 @@ router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req,
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }
         });
+
+        if (response.status === 429) {
+            console.warn('Backend: Rate limited by Spotify API');
+            return res.status(429).json({ error: 'Backend: Rate limited by Spotify API' });
+        }
+
         const data = await response.json();
+
+        if (!response.ok) {
+            console.error('Error fetching artist details:', data);
+            return res.status(response.status).json({ error: data.error || "Failed to fetch artist details." });
+        }
+
         res.json(data);
     } catch (error) {
         console.error('Error fetching artist details:', error);

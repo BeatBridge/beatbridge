@@ -122,7 +122,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem;
+    padding: 1rem 0;
     border: 1px solid #dee2e6;
     border-radius: 5px;
     background-color: #2E3B55;
@@ -134,6 +134,12 @@
     height: 50px;
     border-radius: 50%;
     object-fit: cover;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 
   .user-info h2 {
