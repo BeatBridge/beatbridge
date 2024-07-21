@@ -60,42 +60,34 @@ function Profile({ userInfo }) {
   }, [userInfo]);
 
   useEffect(() => {
-    const fetchArtistImages = async () => {
-      if (artistIds.length === 0) {
-        setLoadingArtists(false);
-        return;
-      }
+    const fetchArtistImagesAndPlaylists = async () => {
+      setLoadingArtists(true);
+      setLoadingPlaylists(true);
 
       try {
-        const data = await API.fetchArtistImages(artistIds.join(','));
-        if (data.error) {
-          console.warn('Rate limited, using default artist images');
-          const defaultArtists = artistIds.map(id => ({ id, images: [{ url: DEFAULT_ARTIST_PICTURE_URL }] }));
-          setFollowedArtists(defaultArtists);
-          setDisplayedArtists(defaultArtists.slice(0, ARTIST_BATCH_SIZE));
-          setHasMoreArtists(defaultArtists.length > ARTIST_BATCH_SIZE);
+        // Fetch Artist Images
+        if (artistIds.length > 0) {
+          const data = await API.fetchArtistImages(artistIds.join(','));
+          if (data.error) {
+            console.warn('Rate limited, using default artist images');
+            const defaultArtists = artistIds.map(id => ({ id, images: [{ url: DEFAULT_ARTIST_PICTURE_URL }] }));
+            setFollowedArtists(defaultArtists);
+            setDisplayedArtists(defaultArtists.slice(0, ARTIST_BATCH_SIZE));
+            setHasMoreArtists(defaultArtists.length > ARTIST_BATCH_SIZE);
+          } else {
+            const artists = data.artists.map(artist => ({
+              ...artist,
+              images: artist.images.length > 0 ? artist.images : [{ url: DEFAULT_ARTIST_PICTURE_URL }]
+            }));
+            setFollowedArtists(artists);
+            setDisplayedArtists(artists.slice(0, ARTIST_BATCH_SIZE));
+            setHasMoreArtists(artists.length > ARTIST_BATCH_SIZE);
+          }
         } else {
-          const artists = data.artists.map(artist => ({
-            ...artist,
-            images: artist.images.length > 0 ? artist.images : [{ url: DEFAULT_ARTIST_PICTURE_URL }]
-          }));
-          setFollowedArtists(artists);
-          setDisplayedArtists(artists.slice(0, ARTIST_BATCH_SIZE));
-          setHasMoreArtists(artists.length > ARTIST_BATCH_SIZE);
+          setLoadingArtists(false);
         }
-      } catch (error) {
-        console.error('Error fetching artist images:', error);
-      } finally {
-        setLoadingArtists(false);
-      }
-    };
 
-    fetchArtistImages();
-  }, [artistIds]);
-
-  useEffect(() => {
-    const fetchPlaylists = async () => {
-      try {
+        // Fetch Playlists
         const playlistsData = await API.fetchPlaylists();
         const playlistsWithFollowers = await Promise.all(
           playlistsData.map(async (playlist) => {
@@ -113,14 +105,17 @@ function Profile({ userInfo }) {
         setDisplayedPlaylists(playlistsWithFollowers.slice(0, PLAYLIST_BATCH_SIZE));
         setHasMorePlaylists(playlistsWithFollowers.length > PLAYLIST_BATCH_SIZE);
       } catch (error) {
-        console.error('Error fetching playlists:', error);
+        console.error('Error fetching artist images or playlists:', error);
       } finally {
+        setLoadingArtists(false);
         setLoadingPlaylists(false);
       }
     };
 
-    fetchPlaylists();
-  }, []);
+    if (artistIds.length > 0) {
+      fetchArtistImagesAndPlaylists();
+    }
+  }, [artistIds]);
 
   const handleShowMorePlaylistsClick = () => {
     setLoadMoreLoading(true);
