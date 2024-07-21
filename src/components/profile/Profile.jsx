@@ -11,6 +11,10 @@ const DEFAULT_PROFILE_PICTURE_URL = '/src/assets/default_pfp.jpg';
 const PLAYLIST_BATCH_SIZE = 7;
 const ARTIST_BATCH_SIZE = 6;
 
+const formatNumberWithCommas = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 function Profile({ userInfo }) {
   const [profilePictureUrl, setProfilePictureUrl] = useState(DEFAULT_PROFILE_PICTURE_URL);
   const [followedArtists, setFollowedArtists] = useState([]);
@@ -57,9 +61,21 @@ function Profile({ userInfo }) {
 
         // Fetch Playlists
         const playlistsData = await API.fetchPlaylists();
-        setPlaylists(playlistsData);
-        setDisplayedPlaylists(playlistsData.slice(0, PLAYLIST_BATCH_SIZE));
-        setHasMorePlaylists(playlistsData.length > PLAYLIST_BATCH_SIZE);
+        const playlistsWithFollowers = await Promise.all(
+          playlistsData.map(async (playlist) => {
+            try {
+              const followersData = await API.fetchPlaylistFollowers(playlist.spotifyId);
+              return { ...playlist, followerCount: followersData.followerCount };
+            } catch (error) {
+              console.error(`Error fetching followers for playlist ${playlist.spotifyId}:`, error);
+              return { ...playlist, followerCount: 0 };
+            }
+          })
+        );
+
+        setPlaylists(playlistsWithFollowers);
+        setDisplayedPlaylists(playlistsWithFollowers.slice(0, PLAYLIST_BATCH_SIZE));
+        setHasMorePlaylists(playlistsWithFollowers.length > PLAYLIST_BATCH_SIZE);
       } catch (error) {
         console.error('Error fetching profile picture, tagged songs, or artist images:', error);
         setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
@@ -134,7 +150,7 @@ function Profile({ userInfo }) {
                   <UserProfilePlaylist
                     key={playlist.id}
                     desc={playlist.name}
-                    followerCount={playlist.followerCount || 0}
+                    followerCount={formatNumberWithCommas(playlist.followerCount || 0)}
                     image={playlist.images[0] ? playlist.images[0].url : null}
                   />
                 ))}

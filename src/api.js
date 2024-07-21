@@ -564,6 +564,22 @@ const API = {
         const data = await response.json();
         return data;
     },
+    fetchPlaylistFollowers: async (playlistId) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/playlist-followers/${playlistId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch playlist followers');
+        }
+
+        const data = await response.json();
+        return data;
+    }
 };
 
 export default API;

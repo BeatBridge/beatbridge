@@ -809,6 +809,35 @@ router.get('/chat-messages', authenticateJWT, async (req, res) => {
     }
 });
 
+router.get('/playlist-followers/:playlistId', authenticateJWT, async (req, res) => {
+    const { playlistId } = req.params;
+    const user = await prisma.user.findUnique({
+      where: { username: req.user.username },
+    });
+
+    if (!user || !user.spotifyAccessToken) {
+      return res.status(401).json({ error: 'Spotify access token is missing' });
+    }
+
+    try {
+      const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.spotifyAccessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        return res.status(response.status).json({ error: 'Failed to fetch playlist data' });
+      }
+
+      const data = await response.json();
+      res.json({ followerCount: data.followers.total });
+    } catch (error) {
+      console.error('Error fetching playlist followers count:', error);
+      res.status(500).json({ error: 'Failed to fetch playlist followers count' });
+    }
+});
+
 router.get('/protected-route', authenticateJWT, (req, res) => {
     res.json({ message: 'This is a protected route' });
 });
