@@ -838,6 +838,28 @@ router.get('/playlist-followers/:playlistId', authenticateJWT, async (req, res) 
     }
 });
 
+router.get('/users', authenticateJWT, async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                username: {
+                    not: 'system'
+                }
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                profilePicture: true,
+            },
+        });
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
 router.get('/protected-route', authenticateJWT, (req, res) => {
     res.json({ message: 'This is a protected route' });
 });

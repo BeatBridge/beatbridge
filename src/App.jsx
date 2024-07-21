@@ -86,7 +86,7 @@ function App() {
         localStorage.removeItem('jwt');
         localStorage.removeItem('spotifyAuth');
         setJWT(null);
-        setUserInfo({});  // Clear user info
+        setUserInfo({});
         navigate('/login');
     };
 
@@ -211,7 +211,7 @@ function App() {
                     </RequireAuth>
                 }>
                     <Route path="/profile" element={<Profile userInfo={userInfo} />} />
-                    <Route path="/friends" element={<Friends userInfo={userInfo} />} />
+                    <Route path="/friends" element={<Friends />} />
                     <Route path="/trending" element={<TrendingArtists userInfo={userInfo} />} />
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
                     <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} />} />
