@@ -33,6 +33,8 @@
 .viral-50-global-info-2 {
     padding: 0 1rem;
     display: block;
+    flex: 1;
+    min-width: 0;
 }
 
 .l-viral-50-global-img-cont {
@@ -89,4 +91,10 @@
 .viral-50-global-container:hover .tm-pause {
     opacity: 1;
     visibility: visible;
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

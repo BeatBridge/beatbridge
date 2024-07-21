@@ -126,7 +126,7 @@ router.get('/profile-picture/:userId', async (req, res) => {
 
         if (!user || !user.profilePicture) {
             // Send a default profile picture if not found
-            const defaultProfilePicturePath = path.join(__dirname, '/src/assets/default_pfp.jpg');
+            const defaultProfilePicturePath = path.join(__dirname, '..', '..', 'src', 'assets', 'upsidedownpfp.jpg');
             return res.sendFile(defaultProfilePicturePath);
         }
 
@@ -646,6 +646,33 @@ router.get('/trending-artists', authenticateJWT, async (req, res) => {
     }
 });
 
+router.get('/trending-artists-momentum', authenticateJWT, async (req, res) => {
+    try {
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+        const momentumData = await prisma.trendingArtist.findMany({
+            where: {
+                date: {
+                    gte: twoWeeksAgo
+                }
+            },
+            include: {
+                artist: true
+            },
+            orderBy: {
+                momentum: 'desc' // Sort by momentum descending
+            },
+            take: 5 // Limit to the top 5 artists
+        });
+
+        res.json(momentumData);
+    } catch (error) {
+        console.error('Error fetching trending artists momentum:', error);
+        res.status(500).json({ error: 'Failed to fetch trending artists momentum.' });
+    }
+});
+
 router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -756,33 +783,6 @@ router.get('/chat-messages', authenticateJWT, async (req, res) => {
     } catch (error) {
         console.error('Error fetching chat messages:', error);
         res.status(500).json({ error: 'Failed to fetch chat messages.' });
-    }
-});
-
-router.get('/trending-artists-momentum', authenticateJWT, async (req, res) => {
-    try {
-        const twoWeeksAgo = new Date();
-        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-
-        const momentumData = await prisma.trendingArtist.findMany({
-            where: {
-                date: {
-                    gte: twoWeeksAgo
-                }
-            },
-            include: {
-                artist: true
-            },
-            orderBy: {
-                momentum: 'desc' // Sort by momentum descending
-            },
-            take: 5 // Limit to the top 5 artists
-        });
-
-        res.json(momentumData);
-    } catch (error) {
-        console.error('Error fetching trending artists momentum:', error);
-        res.status(500).json({ error: 'Failed to fetch trending artists momentum.' });
     }
 });
 

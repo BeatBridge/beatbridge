@@ -101,24 +101,31 @@ const API = {
     },
     uploadProfilePicture: async (formData) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/upload-profile-picture`, {
+        const response = await fetch(`${backendUrlAccess}/user/upload-profile-picture`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
             },
             body: formData,
         });
+        if (!response.ok) {
+            throw new Error('Failed to upload profile picture');
+        }
         return response.json();
     },
     fetchProfilePicture: async (userId) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/profile-picture/${userId}`, {
+        const response = await fetch(`${backendUrlAccess}/user/profile-picture/${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
             },
         });
         if (!response.ok) {
+            if (response.status === 404) {
+                // Fallback to default profile picture
+                return fetch('/src/assets/upsidedownpfp.jpg');
+            }
             throw new Error('Failed to fetch profile picture');
         }
         return response.blob();

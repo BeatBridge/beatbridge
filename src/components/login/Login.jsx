@@ -97,14 +97,14 @@ const Login = ({ setJWT }) => {
                             </span>
                             {capsLockWarning && <h5 id="capslocktext" className="text-danger mt-1">WARNING! Caps lock is ON</h5>}
                         </div>
-                        <h5 className="text-right"><a href="#">Forgot Password!</a></h5>
+                        <h5 className="text-right"><a href="#">Forgot Password?</a></h5>
                         <div className="btn-body">
                             <input className="btn btn-primary w-100" type="submit" value="Sign In" />
                         </div>
                     </form>
                 </div>
                 <div className="col-md-6 col-lg-8 d-none d-md-block">
-                    <img src="../../../src/auth_graphics_young people looking at gadgets.svg" alt="join us at beatbridge" className="img-fluid" />
+                    <img src="../../../src/assets/auth_graphics/young people looking at gadgets.svg" alt="join us at beatbridge" className="img-fluid" />
                 </div>
             </div>
         </div>

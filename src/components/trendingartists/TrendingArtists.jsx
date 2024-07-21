@@ -102,13 +102,6 @@ function TrendingArtists() {
                 <div className='col-md-12 sub-screen sub-screen-trending'>
                     <h1>Hi {userInfo?.username}, here are some artists who have been gaining momentum recently and may be worth checking out:</h1>
                     {momentumData && <MomentumChart data={momentumData} />}
-                    <ul>
-                        {artistsTrending.map((trending) => (
-                            <li key={trending.artist.id}>
-                                {trending.artist.name} - Momentum: {trending.momentum.toFixed(2)}
-                            </li>
-                        ))}
-                    </ul>
                 </div>
             </div>
         </div>

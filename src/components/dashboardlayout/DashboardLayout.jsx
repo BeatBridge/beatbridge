@@ -37,21 +37,21 @@ function DashboardLayout({
 
   useEffect(() => {
     const fetchProfilePicture = async () => {
-      try {
-        const response = await API.fetchProfilePicture(userInfo.id);
-        if (response.type.includes('image')) {
-          setProfilePictureUrl(URL.createObjectURL(response));
+        try {
+            const response = await API.fetchProfilePicture(userInfo.id);
+            if (response.type.includes('image')) {
+                setProfilePictureUrl(URL.createObjectURL(response));
+            }
+        } catch (error) {
+            console.error('Error fetching profile picture:', error);
+            setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
         }
-      } catch (error) {
-        console.error('Error fetching profile picture:', error);
-        setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
-      }
     };
 
     if (userInfo.id) {
-      fetchProfilePicture();
+        fetchProfilePicture();
     }
-  }, [userInfo]);
+}, [userInfo]);
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -166,9 +166,11 @@ function DashboardLayout({
             <div className="l-right-sidebar col-md-3">
               <div className="l-right-sidebar-top">
                 <div className="l-right-sidebar-user-info">
-                  <div className="l-dashboard-profile-container">
-                    <img src={profilePictureUrl} alt="Profile" className="profile-picture" />
-                  </div>
+                  <NavLink to="/settings">
+                    <div className="l-dashboard-profile-container">
+                      <img src={profilePictureUrl} alt="Profile" className="profile-picture" />
+                    </div>
+                  </NavLink>
 
                   <div className="l-dashboard-user-name">
                     <h4>Welcome, {userInfo.username}</h4>
@@ -190,7 +192,7 @@ function DashboardLayout({
                       <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
                     </div>
                   ) : (
-                    <p>No top 50 artists found.</p>
+                    <p>No top 3 artists found.</p>
                   )
                 ) : (
                   <p>Please sign in to Spotify to view this data.</p>

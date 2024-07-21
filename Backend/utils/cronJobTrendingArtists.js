@@ -159,3 +159,9 @@ cron.schedule('0 11 * * *', async () => {
         }
     });
 });
+
+(async () => {
+    console.log("Started")
+    await calculateTrendingArtists()
+    console.log("Finished")
+})();

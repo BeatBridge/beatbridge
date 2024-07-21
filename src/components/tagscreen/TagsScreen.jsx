@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api.js';
 import './tagsscreen.css';
+import defaultAlbumCover from '../../../src/assets/defaultAlbumCover.png'; // Correct path to default image
 
 const TagsScreen = ({ userInfo }) => {
     const [taggedSongs, setTaggedSongs] = useState([]);
+    const [loading, setLoading] = useState(true); // Add loading state
 
     useEffect(() => {
         const fetchTaggedSongs = async () => {
@@ -23,6 +25,8 @@ const TagsScreen = ({ userInfo }) => {
                 setTaggedSongs(songsWithImages);
             } catch (error) {
                 console.error('Error fetching tagged songs:', error);
+            } finally {
+                setLoading(false); // Set loading to false when done
             }
         };
 
@@ -34,30 +38,32 @@ const TagsScreen = ({ userInfo }) => {
     return (
         <div className="container tags-page-container">
             <div className='row'>
-                <div className='col-md-12 sub-screen'>
+                <div className='col-md-12 sub-screen tags-page-sub-screen'>
                     <h1>Your Tagged Songs</h1>
-                    {taggedSongs.length > 0 ? (
-                        <ul className="tagged-songs-list">
-                            {taggedSongs.map((song) => (
-                                <li key={song.id} className="tagged-song-item">
-                                    <div className="song-details">
-                                        {song.albumImageUrl && (
-                                            <div className="album-cover">
-                                                <img src={song.albumImageUrl} alt={`${song.title} album cover`} />
-                                            </div>
-                                        )}
-                                        <h3>{song.title}</h3>
-                                        <p><strong>Artist:</strong> {song.artist}</p>
-                                        <p><strong>Album:</strong> {song.album}</p>
-                                        <p><strong>Genre:</strong> {song.genre}</p>
-                                        <p><strong>Mood:</strong> {song.mood}</p>
-                                        <p><strong>Tempo:</strong> {song.tempo}</p>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                    {loading ? ( // Render spinner if loading
+                        <div className="spinner"></div>
                     ) : (
-                        <p>No tagged songs available.</p>
+                        taggedSongs.length > 0 ? (
+                            <ul className="tagged-songs-list">
+                                {taggedSongs.map((song) => (
+                                    <li key={song.id} className="tagged-song-item">
+                                        <div className="song-details">
+                                            <div className="album-cover">
+                                                <img src={song.albumImageUrl || defaultAlbumCover} alt={`${song.title} album cover`} />
+                                            </div>
+                                            <h3>{song.title}</h3>
+                                            <p><strong>Artist:</strong> {song.artist}</p>
+                                            <p><strong>Album:</strong> {song.album}</p>
+                                            <p><strong>Genre:</strong> {song.genre}</p>
+                                            <p><strong>Mood:</strong> {song.mood}</p>
+                                            <p><strong>Tempo:</strong> {song.tempo}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>No tagged songs available.</p>
+                        )
                     )}
                 </div>
             </div>

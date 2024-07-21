@@ -1,24 +1,46 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FaUser } from 'react-icons/fa';
 import { faPenToSquare, faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import UserProfileViral from '../userprofileviral/UserProfileViral.jsx';
 import UserProfileTrending from '../userprofiletrending/UserProfileTrending.jsx';
 import './profile.css';
+import API from '../../api.js';
+const DEFAULT_PROFILE_PICTURE_URL = '/src/assets/default_pfp.jpg';
 
 function Profile({ userInfo }) {
+  const [profilePictureUrl, setProfilePictureUrl] = useState(DEFAULT_PROFILE_PICTURE_URL);
+
   const navigate = useNavigate();
 
   const handleEditProfileClick = () => {
     navigate('/settings');
   };
+
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+        try {
+            const response = await API.fetchProfilePicture(userInfo.id);
+            if (response.type.includes('image')) {
+                setProfilePictureUrl(URL.createObjectURL(response));
+            }
+        } catch (error) {
+            console.error('Error fetching profile picture:', error);
+            setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
+        }
+    };
+
+    if (userInfo.id) {
+        fetchProfilePicture();
+    }
+}, [userInfo]);
+
   return (
     <div>
       <div className="profile-details">
         <div className="profile-sub-details">
           <div className="profile-pic">
-            <FaUser className="l-dash-user-icon" />
+            <img src={profilePictureUrl} alt="Profile" className="profile-picture" />
           </div>
           <div>
             <h1>{userInfo.username}</h1>

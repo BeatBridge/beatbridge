@@ -14,6 +14,8 @@
 
 .top-artist-info {
     padding-left: 1rem;
+    flex: 1;
+    min-width: 0;
 }
 
 .top-artist-img {

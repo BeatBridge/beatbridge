@@ -43,8 +43,8 @@ const TrackCard = ({ track, onClick }) => {
                     </div>
                 </div>
                 <div className="viral-50-global-info-2">
-                    <h3>{track.name}</h3>
-                    <h5>{track.artist}</h5>
+                    <h3 className='truncate'>{track.name}</h3>
+                    <h5 className='truncate'>{track.artist}</h5>
                 </div>
             </div>
 

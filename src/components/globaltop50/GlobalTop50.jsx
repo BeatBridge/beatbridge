@@ -30,8 +30,8 @@ const TrackCard = ({ track }) => {
             )}
           </div>
           <div className='top-artist-info'>
-              <h4>{track.artist}</h4>
-              <h6>{track.name}</h6>
+              <h4 className='truncate'>{track.artist}</h4>
+              <h6 className='truncate'>{track.name}</h6>
           </div>
       </div>
       <div className='ta-ellipsis-container'>

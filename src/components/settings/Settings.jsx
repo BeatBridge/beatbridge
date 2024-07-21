@@ -89,8 +89,8 @@ function Settings({ userInfo, handleUpdateProfile, handleUpdatePassword, handleL
                         Profile Picture:
                         <input type="file" onChange={handleFileChange} />
                     </label>
-                    <div>
-                        <img src={profilePictureUrl} alt="Profile" className="profile-picture-preview" />
+                    <div className="profile-picture-preview-container">
+                        <img src={profilePictureUrl} alt="Profile" />
                     </div>
                     <button type="submit">Update Profile</button>
                 </form>
