@@ -4,13 +4,13 @@ import './friends.css';
 
 const DEFAULT_PROFILE_PICTURE_URL = '/src/assets/default_pfp.jpg';
 
-function FriendsSidebar({ onChatClick }) {
+function FriendsSidebar({ onChatClick, userInfo }) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await API.fetchUsers();
+        const response = await API.fetchUsers(userInfo.id);
         const usersWithProfilePictures = await Promise.all(response.map(async (user) => {
           try {
             const pictureResponse = await API.fetchProfilePicture(user.id);
@@ -31,7 +31,7 @@ function FriendsSidebar({ onChatClick }) {
       }
     };
     fetchUsers();
-  }, []);
+  }, [userInfo.id]);
 
   return (
     <div className="friends-sidebar">

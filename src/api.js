@@ -536,26 +536,31 @@ const API = {
     },
     fetchArtistImages: async (artistIds) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds}`, {
+
+        try {
+          const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds}`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+              'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
             },
-        });
+          });
 
-        if (response.status === 429) {
+          if (response.status === 429) {
             console.warn('Frontend: Rate limited by Spotify API');
             return { error: 'Frontend: Rate limited by Spotify API' };
-        }
+          }
 
-        if (!response.ok) {
+          if (!response.ok) {
             const errorText = await response.text();
             console.error('Error fetching artist images:', errorText);
             throw new Error('Failed to fetch artist images');
-        }
+          }
 
-        const data = await response.json();
-        return data;
+          return await response.json();
+        } catch (error) {
+          console.error('Error fetching artist images:', error);
+          throw error;
+        }
     },
     fetchPlaylists: async () => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
@@ -589,19 +594,50 @@ const API = {
         const data = await response.json();
         return data;
     },
-    fetchUsers: async () => {
+    fetchUsers: async (userId) => {
+        if (!userId) {
+            console.error('userId is required to fetch users.');
+            return;
+        }
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/users`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
-            },
+        const response = await fetch(`${backendUrlAccess}/user/users?userId=${userId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+          },
         });
         if (!response.ok) {
-            throw new Error('Failed to fetch users');
+          throw new Error('Failed to fetch users');
         }
-        const data = await response.json();
-        return data;
+        return await response.json();
+    },
+    fetchDirectMessageHistory: async (userId, otherUserId) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/messages/${userId}/${otherUserId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch direct message history');
+        }
+        return await response.json();
+    },
+    sendDirectMessage: async (message) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+          },
+          body: JSON.stringify(message),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to send direct message');
+        }
+        return await response.json();
     },
 };
 

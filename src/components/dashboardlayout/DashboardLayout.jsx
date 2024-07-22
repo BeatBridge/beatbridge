@@ -189,7 +189,7 @@ function DashboardLayout({
 
             {/* MIDDLE COLUMN */}
             <div className="col-md-7 scrollable-column">
-              <Outlet context={{ selectedUser, messages, newMessage, setNewMessage, sendMessage, closeChat, chatHistory }} />
+              <Outlet context={{ selectedUser, setSelectedUser, messages, setMessages, newMessage, setNewMessage, sendMessage, closeChat, chatHistory, userInfo }} />
             </div>
 
             {/* RIGHT COLUMN */}
@@ -215,7 +215,7 @@ function DashboardLayout({
               </div>
 
               {location.pathname === '/friends' ? (
-                <FriendsSidebar onChatClick={handleChatClick} />
+                <FriendsSidebar onChatClick={handleChatClick} userInfo={userInfo} />
               ) : (
                 <>
                   <h4 className="l-top-artist-column">Global Top 3</h4>

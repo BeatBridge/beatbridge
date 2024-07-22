@@ -15,10 +15,12 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
+const WebSocket = require('ws');
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
+const WSPORT = process.env.WSPORT
 
 router.post("/signup", async (req, res) => {
     const { username, email, password } = req.body;
@@ -851,24 +853,87 @@ router.get('/playlist-followers/:playlistId', authenticateJWT, async (req, res) 
 });
 
 router.get('/users', authenticateJWT, async (req, res) => {
+    const userId = parseInt(req.query.userId, 10);
+
+    console.log('Parsed userId from query parameters:', userId);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid userId' });
+    }
+
     try {
         const users = await prisma.user.findMany({
             where: {
+                id: {
+                    not: userId
+                },
                 username: {
-                    not: 'system'
+                    not: "system"
                 }
             },
             select: {
                 id: true,
                 username: true,
                 email: true,
-                profilePicture: true,
-            },
+                profilePicture: true
+            }
         });
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+router.get('/messages/:userId/:otherUserId', async (req, res) => {
+    const { userId, otherUserId } = req.params;
+    try {
+        const messages = await prisma.directMessage.findMany({
+            where: {
+                OR: [
+                    { senderId: parseInt(userId), receiverId: parseInt(otherUserId) },
+                    { senderId: parseInt(otherUserId), receiverId: parseInt(userId) },
+                ],
+            },
+            orderBy: {
+                createdAt: 'asc',
+            },
+            include: {
+                sender: {
+                    select: {
+                        username: true,
+                    },
+                },
+            },
+        });
+        res.json(messages);
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+        res.status(500).json({ error: 'Failed to fetch messages' });
+    }
+});
+
+router.post('/messages', async (req, res) => {
+    const { senderId, receiverId, content } = req.body;
+    try {
+        const message = await prisma.directMessage.create({
+            data: {
+                senderId,
+                receiverId,
+                content,
+            },
+        });
+
+        const ws = new WebSocket(`ws://localhost:${WSPORT}`);
+        ws.on('open', () => {
+            ws.send(JSON.stringify(message));
+            ws.close();
+        });
+
+        res.json(message);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        res.status(500).json({ error: 'Failed to send message' });
     }
 });
 

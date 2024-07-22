@@ -11,25 +11,10 @@ function configureSocket(server) {
     });
 
     io.on('connection', (socket) => {
-        console.log('A user connected', socket.id);
-
-        // Join the user to a room named by their user ID
-        socket.on('join', (userId) => {
-            socket.join(userId);
-            console.log(`User ${userId} joined room ${userId}`);
-        });
-
-        // Handle private messages
-        socket.on('private_message', (data) => {
-            const { to, message } = data;
-            socket.to(to).emit('private_message', {
-                message,
-                from: socket.id,
-            });
-        });
+        console.log('A user connected');
 
         socket.on('disconnect', () => {
-            console.log('User disconnected', socket.id);
+            console.log('User disconnected');
         });
     });
 
