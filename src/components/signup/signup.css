@@ -2,3 +2,22 @@
     display: block;
     box-sizing: border-box;
 }
+
+.privacypolicy {
+    display: flex;
+}
+
+.privacypolicy h6 {
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+
+.termsofservice a {
+    color: #800080;
+}
+
+.termsofservice a:hover {
+    color: #151E3F;
+    text-decoration: none;
+}

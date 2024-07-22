@@ -22,6 +22,7 @@ import Map from './components/map/Map.jsx';
 import TrendingArtists from './components/trendingartists/TrendingArtists.jsx';
 import DashboardLayout from './components/dashboardlayout/DashboardLayout.jsx';
 import RecommendedScreen from './components/recommendedscreen/RecommendedScreen.jsx';
+import ForgotPassword from './components/ForgotPassword/ForgotPassword.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);
@@ -184,8 +185,9 @@ function App() {
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path='/login' element={<Login setJWT={setJWT} />} />
-                <Route path='/map' element={<Map />} />
                 <Route path='/signup' element={<SignUp setJWT={setJWT} />} />
+                <Route path='/forgot-password' element={<ForgotPassword />} />
+                <Route path='/map' element={<Map />} />
                 <Route path='/verify/:token' element={<EmailVerification />} />
                 <Route path='/callback' element={<SpotifyCallBack />} />
                 <Route path='/error' element={<Error />} />

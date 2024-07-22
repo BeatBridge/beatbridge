@@ -639,6 +639,21 @@ const API = {
         }
         return await response.json();
     },
+    forgotPassword: async (data) => {
+        try {
+            const response = await fetch('/user/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        } catch (error) {
+            console.error('Error during forgot password request:', error);
+            throw error;
+        }
+    },
 };
 
 export default API;
