@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaBell, FaUser, FaTag } from 'react-icons/fa';
@@ -30,6 +30,20 @@ function DashboardLayout({
   viral50Global,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const chatHistory = await API.fetchChatHistory();
+        setChatHistory(chatHistory);
+      } catch (error) {
+        console.error('Failed to fetch chat history:', error);
+      }
+    };
+
+    fetchChatHistory();
+  }, []);
 
   const getNavLinkClass = ({ isActive }) => (isActive ? 'menu active' : 'menu');
 
@@ -124,7 +138,7 @@ function DashboardLayout({
 
             {/* MIDDLE COLUMN */}
             <div className="col-md-7 scrollable-column">
-              <Outlet />
+              <Outlet context={{ chatHistory }} />
             </div>
 
             {/* RIGHT COLUMN */}
@@ -148,7 +162,7 @@ function DashboardLayout({
               </div>
 
               <div>
-                <h4 className="l-top-artist-column">Global Top 50</h4>
+                <h4 className="l-top-artist-column">Global Top 3</h4>
                 {isSpotifySignedIn ? (
                   globalTop50.length > 0 ? (
                     <div>

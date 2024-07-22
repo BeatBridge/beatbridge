@@ -441,6 +441,66 @@ const API = {
             return { error: 'Failed to fetch latest recommendation' };
         }
     },
+    fetchChatHistory: async () => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/chat-messages`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error fetching chat history:', errorText);
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        // Map the response to include both user and AI messages
+        const formattedData = data.flatMap(msg => [
+            { text: `${msg.user ? msg.user.username : 'Unknown User'}: ${msg.text}`, user: 'You', createdAt: msg.createdAt },
+            { text: `Beat Bot: ${msg.response}`, user: 'AI', createdAt: msg.createdAt }
+        ]);
+
+        return formattedData;
+    },
+    chatWithAI: async (prompt) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/chat-with-ai`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            },
+            body: JSON.stringify({ prompt })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    },
+    saveChatMessage: async (text) => {
+        const response = await fetch('/user/chat-message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            },
+            body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    }
 };
 
 export default API;

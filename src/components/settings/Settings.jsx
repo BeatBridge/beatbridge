@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import './settings.css';
 
 function Settings({ userInfo, handleUpdateProfile, handleUpdatePassword, handleLogout }) {
