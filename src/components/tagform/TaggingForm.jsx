@@ -31,33 +31,34 @@ const TaggingForm = ({ song, onTag, onClose }) => {
                         onChange={e => setGenre(e.target.value)}
                     >
                         <option value="">Select Genre</option>
-                        <option value="pop">Pop</option>
-                        <option value="rock">Rock</option>
-                        <option value="jazz">Jazz</option>
-                        <option value="classical">Classical</option>
                         <option value="afrobeats">Afrobeats</option>
-                        <option value="hiphop">Hip-Hop</option>
-                        <option value="electronic">Electronic</option>
-                        <option value="reggae">Reggae</option>
-                        <option value="blues">Blues</option>
-                        <option value="country">Country</option>
-                        <option value="folk">Folk</option>
-                        <option value="metal">Metal</option>
-                        <option value="rnb">R&B</option>
-                        <option value="soul">Soul</option>
-                        <option value="funk">Funk</option>
-                        <option value="disco">Disco</option>
-                        <option value="techno">Techno</option>
-                        <option value="house">House</option>
-                        <option value="dubstep">Dubstep</option>
-                        <option value="trance">Trance</option>
-                        <option value="dance">Dance</option>
-                        <option value="indie">Indie</option>
                         <option value="alternative">Alternative</option>
-                        <option value="punk">Punk</option>
-                        <option value="grunge">Grunge</option>
-                        <option value="opera">Opera</option>
+                        <option value="blues">Blues</option>
+                        <option value="classical">Classical</option>
+                        <option value="country">Country</option>
+                        <option value="dance">Dance</option>
+                        <option value="disco">Disco</option>
+                        <option value="dubstep">Dubstep</option>
+                        <option value="electronic">Electronic</option>
+                        <option value="folk">Folk</option>
+                        <option value="funk">Funk</option>
                         <option value="gospel">Gospel</option>
+                        <option value="grunge">Grunge</option>
+                        <option value="hiphop">Hip-Hop</option>
+                        <option value="house">House</option>
+                        <option value="indie">Indie</option>
+                        <option value="jazz">Jazz</option>
+                        <option value="metal">Metal</option>
+                        <option value="opera">Opera</option>
+                        <option value="pop">Pop</option>
+                        <option value="punk">Punk</option>
+                        <option value="rap">Rap</option>
+                        <option value="reggae">Reggae</option>
+                        <option value="rnb">R&B</option>
+                        <option value="rock">Rock</option>
+                        <option value="soul">Soul</option>
+                        <option value="techno">Techno</option>
+                        <option value="trance">Trance</option>
                     </select>
                 </div>
                 <div className="mb-3">
@@ -90,10 +91,10 @@ const TaggingForm = ({ song, onTag, onClose }) => {
                         onChange={e => setTempo(e.target.value)}
                     >
                         <option value="">Select Tempo</option>
+                        <option value="veryslow">Very Slow</option>
                         <option value="slow">Slow</option>
                         <option value="medium">Medium</option>
                         <option value="fast">Fast</option>
-                        <option value="veryslow">Very Slow</option>
                         <option value="veryfast">Very Fast</option>
                     </select>
                 </div>

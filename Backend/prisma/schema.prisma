@@ -27,6 +27,7 @@ model User {
   location              Location? @relation(fields: [locationId], references: [id])
   recommendation        Recommendation[]
   chatMessages          ChatMessage[]
+  profilePicture        Bytes?
 }
 
 model Recommendation {
@@ -48,6 +49,7 @@ model Song {
   tempo                 String
   customTags            String?
   taggedAt              DateTime? @default(now())
+  artistId              String?
   userId                Int
   user                  User      @relation(fields: [userId], references: [id])
 }

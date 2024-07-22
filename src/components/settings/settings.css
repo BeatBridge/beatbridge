@@ -40,3 +40,13 @@
 .settings-section button:hover {
     background-color: #5a005a;
 }
+
+.profile-picture-preview-container {
+    width: 300px;
+    margin-bottom: 1rem;
+}
+
+.profile-picture-preview-container img {
+    width: 100%;
+    object-fit: contain;
+}

@@ -286,7 +286,7 @@ function ArtistDashboard() {
                                         <Viral50Global tracks={viral50Global.slice(0, 10)} onTrackClick={handleTrackClick} />
                                     </div>
                                 ) : (
-                                    <p>No top 50 global songs found.</p>
+                                    <p>No top 10 global songs found.</p>
                                 )
                             ) : (
                                 <p>Please sign in to Spotify to view this data.</p>

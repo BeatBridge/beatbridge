@@ -40,17 +40,12 @@ function Chatbot({ userInfo }) {
             setPendingAiMessage(aiMessagePlaceholder);
 
             try {
-                console.log('Calling AI API...');
                 const response = await API.chatWithAI(input);
                 const aiMessage = { text: `Beat Bot: ${response}`, user: 'AI' };
 
                 // Update the AI message placeholder with the actual response
                 setMessages((prevMessages) => prevMessages.map((msg) => (msg === pendingAiMessage ? aiMessage : msg)));
                 setPendingAiMessage(null);
-
-                // Save user and AI messages to the database
-                await API.saveChatMessage(input);
-                await API.saveChatMessage(response);
             } catch (error) {
                 const errorMessage = { text: 'Beat Bot: Error: Unable to get response.', user: 'AI' };
                 setMessages((prevMessages) => prevMessages.map((msg) => (msg === pendingAiMessage ? errorMessage : msg)));
@@ -64,7 +59,7 @@ function Chatbot({ userInfo }) {
     return (
         <div className="chat-container">
             <div className="chat-header">
-                <h1>Hi, {userInfo.username}, Ask anything to BeatBridge's AI chatbot built with Llama.</h1>
+                <h1>Hi {userInfo.username}, Ask anything to BeatBridge's AI chatbot built with Llama.</h1>
             </div>
             <div className="chat-window">
                 {messages.length > 0 ? (

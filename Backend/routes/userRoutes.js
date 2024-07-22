@@ -13,6 +13,8 @@ const spotifyTokenRefresh = require('../middlewares/spotifyTokenRefresh');
 const Replicate = require("replicate");
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
@@ -77,10 +79,29 @@ router.post('/verify-email', async (req, res) => {
     }
 });
 
+router.post('/upload-profile-picture', authenticateJWT, upload.single('profilePicture'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        await prisma.user.update({
+            where: { id: req.user.id },
+            data: { profilePicture: req.file.buffer },
+        });
+
+        res.status(200).json({ message: 'Profile picture uploaded successfully' });
+    } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        res.status(500).json({ error: 'Failed to upload profile picture' });
+    }
+});
+
 router.get("/info", authenticateJWT, async (req, res) => {
     const userInfo = await prisma.user.findUnique({
         where: { username: req.user.username },
         select: {
+            id:  true,
             username: true,
             email: true,
             isPremium: true,
@@ -94,6 +115,29 @@ router.get("/info", authenticateJWT, async (req, res) => {
 
     return res.json(userInfo);
 });
+
+// Route to get profile picture
+router.get('/profile-picture/:userId', async (req, res) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(req.params.userId) },
+            select: { profilePicture: true },
+        });
+
+        if (!user || !user.profilePicture) {
+            // Send a default profile picture if not found
+            const defaultProfilePicturePath = path.join(__dirname, '..', '..', 'src', 'assets', 'upsidedownpfp.jpg');
+            return res.sendFile(defaultProfilePicturePath);
+        }
+
+        res.set('Content-Type', 'image/jpeg'); // appropriate picture type
+        res.send(user.profilePicture);
+    } catch (error) {
+        console.error('Error fetching profile picture:', error);
+        res.status(500).json({ error: 'Failed to fetch profile picture' });
+    }
+});
+
 
 router.put("/update-profile", authenticateJWT, async (req, res) => {
     const { username, email } = req.body;
@@ -381,9 +425,9 @@ router.get('/spotify/tracks', authenticateJWT, spotifyTokenRefresh, async (req, 
 });
 
 router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
-    const { artistIds } = req.query;
+    const artistIds = req.query.artistIds;
     const user = await prisma.user.findUnique({
-        where: { username: req.user.username },
+        where: { id: req.user.id },
     });
 
     if (!artistIds) {
@@ -485,7 +529,7 @@ router.get('/genres-by-location', async (req, res) => {
 });
 
 router.post('/songs', authenticateJWT, async (req, res) => {
-    const { title, artist, album, genre, mood, tempo, customTags } = req.body;
+    const { title, artist, album, genre, mood, tempo, customTags, artistId } = req.body;
     try {
         const song = await prisma.song.create({
             data: {
@@ -496,6 +540,7 @@ router.post('/songs', authenticateJWT, async (req, res) => {
                 mood,
                 tempo,
                 customTags,
+                artistId,
                 userId: req.user.id
             }
         });
@@ -509,7 +554,27 @@ router.post('/songs', authenticateJWT, async (req, res) => {
 router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
     const { songId } = req.params;
     const { genre, mood, tempo, customTags } = req.body;
+    const userId = req.user.id;
+
+    const fetchSpotifyArtistId = async (artistName, accessToken) => {
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        const data = await response.json();
+        return data.artists.items[0]?.id || null;
+    };
+
     try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        const song = await prisma.song.findUnique({ where: { id: parseInt(songId) } });
+        const artistName = song.artist;
+
+        // Fetch artist ID from Spotify
+        const artistId = await fetchSpotifyArtistId(artistName, user.spotifyAccessToken);
+
+        // Update song with tags and artist ID
         const updatedSong = await prisma.song.update({
             where: { id: parseInt(songId) },
             data: {
@@ -517,13 +582,28 @@ router.post('/songs/:songId/tags', authenticateJWT, async (req, res) => {
                 mood,
                 tempo,
                 customTags: JSON.stringify(customTags),
+                artistId,
                 taggedAt: new Date()
             }
         });
+
         res.json(updatedSong);
     } catch (error) {
         console.error('Error saving tags:', error);
         res.status(500).json({ error: 'Failed to save tags.' });
+    }
+});
+
+router.get('/songs', authenticateJWT, async (req, res) => {
+    try {
+        const songs = await prisma.song.findMany({
+            where: { userId: req.user.id },
+            orderBy: { taggedAt: 'desc' }
+        });
+        res.json(songs);
+    } catch (error) {
+        console.error('Error fetching tagged songs:', error);
+        res.status(500).json({ error: 'Failed to fetch tagged songs.' });
     }
 });
 
@@ -586,6 +666,33 @@ router.get('/trending-artists', authenticateJWT, async (req, res) => {
     } catch (error) {
         console.error('Error fetching trending artists:', error);
         res.status(500).json({ error: 'Failed to fetch trending artists.' });
+    }
+});
+
+router.get('/trending-artists-momentum', authenticateJWT, async (req, res) => {
+    try {
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+        const momentumData = await prisma.trendingArtist.findMany({
+            where: {
+                date: {
+                    gte: twoWeeksAgo
+                }
+            },
+            include: {
+                artist: true
+            },
+            orderBy: {
+                momentum: 'desc' // Sort by momentum descending
+            },
+            take: 5 // Limit to the top 5 artists
+        });
+
+        res.json(momentumData);
+    } catch (error) {
+        console.error('Error fetching trending artists momentum:', error);
+        res.status(500).json({ error: 'Failed to fetch trending artists momentum.' });
     }
 });
 
@@ -699,6 +806,35 @@ router.get('/chat-messages', authenticateJWT, async (req, res) => {
     } catch (error) {
         console.error('Error fetching chat messages:', error);
         res.status(500).json({ error: 'Failed to fetch chat messages.' });
+    }
+});
+
+router.get('/playlist-followers/:playlistId', authenticateJWT, async (req, res) => {
+    const { playlistId } = req.params;
+    const user = await prisma.user.findUnique({
+      where: { username: req.user.username },
+    });
+
+    if (!user || !user.spotifyAccessToken) {
+      return res.status(401).json({ error: 'Spotify access token is missing' });
+    }
+
+    try {
+      const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.spotifyAccessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        return res.status(response.status).json({ error: 'Failed to fetch playlist data' });
+      }
+
+      const data = await response.json();
+      res.json({ followerCount: data.followers.total });
+    } catch (error) {
+      console.error('Error fetching playlist followers count:', error);
+      res.status(500).json({ error: 'Failed to fetch playlist followers count' });
     }
 });
 

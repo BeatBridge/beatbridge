@@ -22,6 +22,10 @@
     overflow-y: auto;
 }
 
+.l-center-bar {
+    padding-top: 1vh;
+}
+
 /* Styling for the logo */
 .l-logo {
     font-size: 2rem;
@@ -63,6 +67,7 @@
     border: 1px solid #F2F3D9;
     border-radius: 50%;
     overflow: hidden;
+    cursor: pointer;
 }
 
 /* User info display */
@@ -71,12 +76,12 @@
     justify-content: space-between;
 }
 
-.l-dash-user-icon {
+.profile-picture {
     font-size: 3rem;
-    padding-top: 5px;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    cursor: pointer;
 }
 
 .l-right-sidebar-user-info {
@@ -259,6 +264,7 @@
     max-height: 200px;
     overflow-y: auto;
     z-index: 1000;
+    background-color: #151E3F;
 }
 
 .suggestions-list li {
@@ -270,6 +276,7 @@
 
 .suggestions-list li:hover {
     background: #f0f0f0;
+    color: #151E3F;
 }
 
 .suggestions-list img {

@@ -99,6 +99,37 @@ const API = {
             return { error: 'Failed to update password' };
         }
     },
+    uploadProfilePicture: async (formData) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/upload-profile-picture`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            },
+            body: formData,
+        });
+        if (!response.ok) {
+            throw new Error('Failed to upload profile picture');
+        }
+        return response.json();
+    },
+    fetchProfilePicture: async (userId) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/profile-picture/${userId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            },
+        });
+        if (!response.ok) {
+            if (response.status === 404) {
+                // Fallback to default profile picture
+                return fetch('/src/assets/upsidedownpfp.jpg');
+            }
+            throw new Error('Failed to fetch profile picture');
+        }
+        return response.blob();
+    },
     verifyEmail: async (token) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
@@ -204,7 +235,7 @@ const API = {
     createSong: async (songData) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch (`${backendUrlAccess}/user/songs`, {
+            const response = await fetch(`${backendUrlAccess}/user/songs`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -237,22 +268,6 @@ const API = {
         } catch (error) {
             console.error('Error saving tags:', error);
             return { error: 'Failed to save tags'};
-        }
-    },
-    getTaggedSongs: async () => {
-        try {
-            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/songs`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch tagged songs');
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error fetching tagged songs:', error);
-            return { error: 'Failed to fetch tagged songs' };
         }
     },
     getSongDetails: async (songId) => {
@@ -407,6 +422,22 @@ const API = {
             return { error: 'Failed to fetch trending artists' };
         }
     },
+    getTrendingArtistsMomentum: async (jwt) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/trending-artists-momentum`, {
+                headers: {
+                    'Authorization': `Bearer ${jwt}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch trending artists momentum');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching trending artists momentum:', error);
+            return { error: 'Failed to fetch trending artists momentum' };
+        }
+    },
     trackArtistSearch: async (artistSpotifyId) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
@@ -484,18 +515,66 @@ const API = {
         const data = await response.json();
         return data;
     },
-    saveChatMessage: async (text) => {
-        const response = await fetch('/user/chat-message', {
-            method: 'POST',
+    fetchTaggedSongs: async () => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/songs`, {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-            },
-            body: JSON.stringify({ text })
+            }
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error fetching tagged songs:', errorText);
             throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    },
+    fetchArtistImages: async (artistIds) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch artist images');
+        }
+        const data = await response.json();
+        return data;
+    },
+    fetchPlaylists: async () => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/playlists`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch playlists');
+        }
+
+        const data = await response.json();
+        return data;
+    },
+    fetchPlaylistFollowers: async (playlistId) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/playlist-followers/${playlistId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch playlist followers');
         }
 
         const data = await response.json();

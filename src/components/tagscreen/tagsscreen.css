@@ -1,0 +1,70 @@
+.tags-page-container {
+    padding: 20px;
+    background-color: #151E3F;
+    color: #F2F3D9;
+}
+
+.tags-page-sub-screen {
+    min-height: 93vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tagged-songs-list {
+    list-style: none;
+    padding: 2vh 0 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2rem;
+    width: 100%;
+}
+
+.tagged-song-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #800080;
+    border-radius: 8px;
+    background-color: #1F2A44;
+}
+
+.song-details h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.song-details p {
+    margin: 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.album-cover {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.album-cover img {
+    width: 100%;
+    object-fit: cover;
+}
+
+.spinner {
+    margin: 50px auto;
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(0, 0, 0, 0.1);
+    border-top: 5px solid #800080;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

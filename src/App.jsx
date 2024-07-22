@@ -10,7 +10,7 @@ import API from './api.js';
 import SpotifyCallBack from './components/spotifycallback/SpotifyCallBack.jsx';
 import Error from './components/error/Error.jsx';
 import RequireAuth from './components/requireauth/RequireAuth.jsx';
-import TaggingScreen from './components/tagscreen/TaggingScreen.jsx';
+import TagsScreen from './components/tagscreen/TagsScreen.jsx';
 import ArtistDashboard from './components/dashboard/ArtistDashboard.jsx';
 import ArtistTrendingScreen from './components/artisttrendscreen/ArtistTrendingScreen.jsx';
 import Profile from './components/profile/Profile.jsx';
@@ -215,7 +215,7 @@ function App() {
                     <Route path="/trending" element={<TrendingArtists userInfo={userInfo} />} />
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
                     <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} />} />
-                    <Route path="/tags" element={<TaggingScreen userInfo={userInfo} />} />
+                    <Route path="/tags" element={<TagsScreen userInfo={userInfo} />} />
                     <Route path="/recommended" element={<RecommendedScreen userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
                     <Route path="/settings" element={<Settings userInfo={userInfo} handleUpdateProfile={handleUpdateProfile} handleUpdatePassword={handleUpdatePassword} handleLogout={handleLogout} />} />
