@@ -11,7 +11,6 @@ import SpotifyCallBack from './components/spotifycallback/SpotifyCallBack.jsx';
 import Error from './components/error/Error.jsx';
 import RequireAuth from './components/requireauth/RequireAuth.jsx';
 import TagsScreen from './components/tagscreen/TagsScreen.jsx';
-import ArtistDashboard from './components/dashboard/ArtistDashboard.jsx';
 import ArtistTrendingScreen from './components/artisttrendscreen/ArtistTrendingScreen.jsx';
 import Profile from './components/profile/Profile.jsx';
 import Friends from './components/friends/Friends.jsx';
@@ -221,7 +220,6 @@ function App() {
                     <Route path="/recommended" element={<RecommendedScreen userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
                     <Route path="/settings" element={<Settings userInfo={userInfo} handleUpdateProfile={handleUpdateProfile} handleUpdatePassword={handleUpdatePassword} handleLogout={handleLogout} />} />
-                    <Route path="/a/dashboard" element={<ArtistDashboard userInfo={userInfo} />} />
                     <Route path="/a/trends" element={<ArtistTrendingScreen userInfo={userInfo} />} />
                 </Route>
             </Routes>

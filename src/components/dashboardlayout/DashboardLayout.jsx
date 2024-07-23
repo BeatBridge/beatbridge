@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaBell, FaUser, FaTag } from 'react-icons/fa';
-import { faEarthAmericas, faChartLine, faGauge, faGear, faMicrochip, faUserGroup, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmericas, faChartLine, faGauge, faGear, faMicrochip, faUserGroup, faWandMagicSparkles, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import logoImg from '/beatbridge_logo.png';
 import SpotifyOAuth from '../spotifyoauth/SpotifyOAuth.jsx';
 import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
@@ -33,6 +33,7 @@ function DashboardLayout({
   viral50Global,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [profilePictureUrl, setProfilePictureUrl] = useState(DEFAULT_PROFILE_PICTURE_URL);
   const [selectedUser, setSelectedUser] = useState(null); // State to store selected user
@@ -58,6 +59,19 @@ function DashboardLayout({
       fetchProfilePicture();
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest('.l-right-sidebar-user-info')) {
+        setIsDropdownOpen(false)
+      }
+    };
+
+    window.addEventListener('click', handleClickOutside);
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, [isDropdownOpen])
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -195,24 +209,30 @@ function DashboardLayout({
             {/* RIGHT COLUMN */}
             <div className="l-right-sidebar col-md-3">
               <div className="l-right-sidebar-top">
-                <div className="l-right-sidebar-user-info">
-                  <NavLink to="/settings">
-                    <div className="l-dashboard-profile-container">
-                      <img src={profilePictureUrl} alt="Profile" className="profile-picture" />
-                    </div>
-                  </NavLink>
-
+                <div className="l-right-sidebar-user-info" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                  <div className="l-dashboard-profile-container">
+                    <img src={profilePictureUrl} alt="Profile" className="profile-picture" />
+                  </div>
                   <div className="l-dashboard-user-name">
                     <h4>Welcome, {userInfo.username}</h4>
                     <p>{userInfo.isPremium ? 'Premium' : 'Free'} Subscriber</p>
                     <SpotifyOAuth isSpotifySignedIn={isSpotifySignedIn} />
-                    <button onClick={handleLogout}>Logout</button>
+                  </div>
+                  <div>
+                    <FontAwesomeIcon icon={faAngleDown} className='menu-icon dropdown-icon' />
                   </div>
                 </div>
                 <div className="l-bell-icon-container">
                   <FaBell className="l-dash-bell-icon" />
                 </div>
               </div>
+              {isDropdownOpen && (
+                <div className="dropdown-menu">
+                  <button onClick={() => navigate('/profile')}>Profile</button>
+                  <button onClick={() => navigate('/settings')}>Settings</button>
+                  <button onClick={handleLogout}>Logout</button>
+                </div>
+              )}
 
               {location.pathname === '/friends' ? (
                 <FriendsSidebar onChatClick={handleChatClick} userInfo={userInfo} />

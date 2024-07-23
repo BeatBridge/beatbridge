@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import io from 'socket.io-client';
@@ -67,10 +67,10 @@ function Map() {
             />
             {locations.map(location => (
                 <Marker key={location.id} position={[location.latitude, location.longitude]}>
-                    <Popup>
+                    <Tooltip>
                         <strong>{location.name}</strong><br />
                         Genres: {location.genres.join(', ')}
-                    </Popup>
+                    </Tooltip>
                 </Marker>
             ))}
         </MapContainer>
