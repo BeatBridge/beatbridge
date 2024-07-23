@@ -63,7 +63,31 @@ const tagWeights = {
 };
 
 async function calculateRecommendations() {
-    const songs = await prisma.song.findMany({
+    const MILLISECONDS_PER_SECOND = 1000;
+    const SECONDS_PER_MINUTE = 60;
+    const MINUTES_PER_HOUR = 60;
+    const HOURS_AGO = 3;
+    const threeHoursAgo = new Date(Date.now() - HOURS_AGO * MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND);
+
+    // Get songs with tags updated in the last 3 hours
+    const recentSongs = await prisma.song.findMany({
+        where: {
+            updatedAt: {
+                gte: threeHoursAgo
+            }
+        },
+        include: {
+            user: true
+        }
+    });
+
+    const uniqueUserIds = recentSongs.reduce((acc, song) => {
+        acc.add(song.userId);
+        return acc;
+    }, new Set());
+
+    // Get all songs to initialize the complete tag history and indices
+    const allSongs = await prisma.song.findMany({
         include: {
             user: true
         }
@@ -76,8 +100,8 @@ async function calculateRecommendations() {
         tempo: {} // Keep track of users by tempo
     };
 
-    // Go through each song
-    for (const song of songs) {
+    // Initialize user tag history and indices with all songs
+    for (const song of allSongs) {
         const { userId, genre, mood, tempo } = song;
         if (!userTagHistory[userId]) {
             userTagHistory[userId] = []; // Create a list for this user's tags if it doesn't exist
@@ -112,12 +136,17 @@ async function calculateRecommendations() {
     const userSimilarities = {}; // Store how similar users are
     const threshold = 0.7; // The similarity score needed to recommend an artist
 
+    const comparedPairs = new Set(); // Initialize the set of compared pairs
+
     // Compare users based on their tags
-    for (const user1 in userTagHistory) {
+    for (const user1 of uniqueUserIds) {
         const user1Tags = userTagHistory[user1];
 
         for (const user2 in userTagHistory) {
             if (user1 === user2) continue; // Don't compare a user with themselves
+
+            const pair = [user1, user2].sort().join(',');
+            if (comparedPairs.has(pair)) continue; // Skip if the pair has already been compared
 
             const user2Tags = userTagHistory[user2];
             let similarityScore = 0;
@@ -144,6 +173,8 @@ async function calculateRecommendations() {
                 userSimilarities[user1][user2] = (userSimilarities[user1][user2] || 0) + similarityScore;
                 userSimilarities[user2][user1] = (userSimilarities[user2][user1] || 0) + similarityScore;
             }
+
+            comparedPairs.add(pair); // Add the pair to the set of compared pairs
         }
     }
 
