@@ -641,7 +641,8 @@ const API = {
     },
     forgotPassword: async (data) => {
         try {
-            const response = await fetch('/user/forgot-password', {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/forgot-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -654,6 +655,22 @@ const API = {
             throw error;
         }
     },
+    resetPassword: async (data) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/reset-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        } catch (error) {
+            console.error('Error during reset password request:', error);
+            throw error;
+        }
+    }
 };
 
 export default API;

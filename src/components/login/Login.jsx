@@ -76,13 +76,13 @@ const Login = ({ setJWT }) => {
                         <div className="textfield mb-3">
                             <label htmlFor="username">Username</label>
                             <span><i className="fa-solid fa-user user-icon"></i></span>
-                            <input className="form-control user-field" type="text" name="username" value={formData.username} onChange={handleChange} required />
+                            <input className="form-control form-format user-field" type="text" name="username" value={formData.username} onChange={handleChange} required />
                         </div>
                         <div className="textfield mb-3">
                             <label htmlFor="password">Password</label>
                             <span><i className="fa-solid fa-lock lock-icon"></i></span>
                             <input
-                                className="form-control pwd-field"
+                                className="form-control form-format pwd-field"
                                 type={passwordType}
                                 name="password"
                                 id="psw"
@@ -98,7 +98,7 @@ const Login = ({ setJWT }) => {
                             </span>
                             {capsLockWarning && <h5 id="capslocktext" className="text-danger mt-1">WARNING! Caps lock is ON</h5>}
                         </div>
-                        <h5 className="text-right"><Link to="/forgot-password">Forgot Password?</Link></h5>
+                        <h5><Link to="/forgot-password" className='forgot-pwd-link'>Forgot Password?</Link></h5>
                         <div className="btn-body">
                             <input className="btn btn-primary w-100" type="submit" value="Sign In" />
                         </div>

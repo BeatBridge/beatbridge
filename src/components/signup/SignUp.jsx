@@ -91,7 +91,7 @@ function SignUp({ setJWT }) {
                             <label htmlFor="username">Username</label>
                             <span><i className="fa-solid fa-user user-icon"></i></span>
                             <input
-                                className="form-control user-field"
+                                className="form-control form-format user-field"
                                 type="text"
                                 name="username"
                                 value={formData.username}
@@ -103,7 +103,7 @@ function SignUp({ setJWT }) {
                             <label htmlFor="email">Email</label>
                             <span><i className='fa-solid fa-envelope email-icon'></i></span>
                             <input
-                                className="form-control email-field"
+                                className="form-control  form-format email-field"
                                 type="email"
                                 name="email"
                                 value={formData.email}
@@ -115,7 +115,7 @@ function SignUp({ setJWT }) {
                             <label htmlFor="password">Password</label>
                             <span><i className="fa-solid fa-lock lock-icon"></i></span>
                             <input
-                                className="form-control pwd-field"
+                                className="form-control form-format pwd-field"
                                 type={passwordType}
                                 name="password"
                                 id="psw"
@@ -135,7 +135,7 @@ function SignUp({ setJWT }) {
                             <label htmlFor="confirmPassword">Confirm Password</label>
                             <span><i className="fa-solid fa-lock lock-icon"></i></span>
                             <input
-                                className="form-control pwd-field"
+                                className="form-control form-format pwd-field"
                                 type={confirmPasswordType}
                                 name="confirmPassword"
                                 id="confirmPsw"
