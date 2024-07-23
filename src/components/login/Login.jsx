@@ -6,7 +6,7 @@ import logoImg from '/beatbridge_logo.png';
 const Login = ({ setJWT }) => {
     const [passwordType, setPasswordType] = useState('password');
     const [capsLockWarning, setCapsLockWarning] = useState(false);
-    const [formData, setFormData] = useState({ username: '', password: ''});
+    const [formData, setFormData] = useState({ username: '', password: '' });
     const navigate = useNavigate();
 
     const togglePasswordVisibility = () => {
@@ -33,18 +33,19 @@ const Login = ({ setJWT }) => {
                 body: JSON.stringify({
                     username: formData.username,
                     email: formData.email,
-                    password: formData.password })
+                    password: formData.password
+                })
             }).then(response => response.json());
             if (response.token) {
                 localStorage.setItem('jwt', response.token);
                 setJWT(response.token);
                 navigate('/l/dashboard');
             } else {
-                alert('Invalid username or password')
+                alert('Invalid username or password');
             }
         } catch (error) {
             console.error('Error logging in:', error);
-            alert('An error occured. Please try again.');
+            alert('An error occurred. Please try again.');
         }
     };
 
@@ -75,13 +76,13 @@ const Login = ({ setJWT }) => {
                         <div className="textfield mb-3">
                             <label htmlFor="username">Username</label>
                             <span><i className="fa-solid fa-user user-icon"></i></span>
-                            <input className="form-control user-field" type="text" name="username" value={formData.username} onChange={handleChange} required />
+                            <input className="form-control form-format user-field" type="text" name="username" value={formData.username} onChange={handleChange} required />
                         </div>
                         <div className="textfield mb-3">
                             <label htmlFor="password">Password</label>
                             <span><i className="fa-solid fa-lock lock-icon"></i></span>
                             <input
-                                className="form-control pwd-field"
+                                className="form-control form-format pwd-field"
                                 type={passwordType}
                                 name="password"
                                 id="psw"
@@ -97,7 +98,7 @@ const Login = ({ setJWT }) => {
                             </span>
                             {capsLockWarning && <h5 id="capslocktext" className="text-danger mt-1">WARNING! Caps lock is ON</h5>}
                         </div>
-                        <h5 className="text-right"><a href="#">Forgot Password?</a></h5>
+                        <h5><Link to="/forgot-password" className='forgot-pwd-link'>Forgot Password?</Link></h5>
                         <div className="btn-body">
                             <input className="btn btn-primary w-100" type="submit" value="Sign In" />
                         </div>

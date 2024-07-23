@@ -103,7 +103,7 @@ const TaggingForm = ({ song, onTag, onClose }) => {
                     <FaTag className='menu-icon custom-tag-icon' />
                     <input
                         type="text"
-                        className="form-control"
+                        className="form-control form-format"
                         value={customTags}
                         onChange={e => setCustomTags(e.target.value)}
                         placeholder="Enter custom tags separated by commas"

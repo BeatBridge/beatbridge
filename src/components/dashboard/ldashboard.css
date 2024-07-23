@@ -68,6 +68,7 @@
     border-radius: 50%;
     overflow: hidden;
     cursor: pointer;
+    position: relative;
 }
 
 /* User info display */
@@ -84,8 +85,39 @@
     cursor: pointer;
 }
 
+.dropdown-menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #151E3F;
+    border: 1px solid #800080;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.dropdown-menu button {
+    background: none;
+    border: none;
+    padding: 10px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    color: #F2F3D9;
+}
+
+.dropdown-menu button:hover {
+    background-color: #0E152B;
+}
+
 .l-right-sidebar-user-info {
     display: flex;
+    position: relative;
+    cursor: pointer;
+    align-items: center;
 }
 
 .l-dashboard-user-name {
@@ -101,6 +133,10 @@
 
 .l-dashboard-user-name p {
     font-size: small;
+}
+
+.dropdown-icon {
+    padding-left: 0.5rem;
 }
 
 /* Notification icon */

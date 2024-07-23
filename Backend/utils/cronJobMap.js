@@ -49,12 +49,7 @@ async function getLocationForArtist(artist) {
                 try {
                     fetchedLocation = await fetchLocationFromMusicBrainz(artist.name);
                 } catch (error) {
-                    if (error.message.includes('No artist found with name')) {
-                        console.warn(`Artist ${artist.name} not found on MusicBrainz. Falling back to Spotify.`);
-                    } else {
-                        console.error(`Failed to fetch location from MusicBrainz for artist ${artist.name}:`, error);
-                    }
-                    console.warn(`Falling back to fetching location from Spotify for artist ${artist.name}.`);
+                    console.error(`Failed to fetch location from MusicBrainz for artist ${artist.name}:`, error);
                     fetchedLocation = {
                         name: 'Unknown',
                         latitude: 0,
@@ -85,7 +80,6 @@ async function getLocationForArtist(artist) {
             fetchedLocation = await fetchLocationFromMusicBrainz(artist.name);
         } catch (error) {
             console.error(`Failed to fetch location from MusicBrainz for artist ${artist.name}:`, error);
-            console.warn(`Falling back to fetching location from Spotify for artist ${artist.name}.`);
             fetchedLocation = {
                 name: 'Unknown',
                 latitude: 0,

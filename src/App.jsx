@@ -11,7 +11,6 @@ import SpotifyCallBack from './components/spotifycallback/SpotifyCallBack.jsx';
 import Error from './components/error/Error.jsx';
 import RequireAuth from './components/requireauth/RequireAuth.jsx';
 import TagsScreen from './components/tagscreen/TagsScreen.jsx';
-import ArtistDashboard from './components/dashboard/ArtistDashboard.jsx';
 import ArtistTrendingScreen from './components/artisttrendscreen/ArtistTrendingScreen.jsx';
 import Profile from './components/profile/Profile.jsx';
 import Friends from './components/friends/Friends.jsx';
@@ -22,6 +21,7 @@ import Map from './components/map/Map.jsx';
 import TrendingArtists from './components/trendingartists/TrendingArtists.jsx';
 import DashboardLayout from './components/dashboardlayout/DashboardLayout.jsx';
 import RecommendedScreen from './components/recommendedscreen/RecommendedScreen.jsx';
+import ForgotPassword from './components/ForgotPassword/ForgotPassword.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(null);
@@ -86,7 +86,7 @@ function App() {
         localStorage.removeItem('jwt');
         localStorage.removeItem('spotifyAuth');
         setJWT(null);
-        setUserInfo({});  // Clear user info
+        setUserInfo({});
         navigate('/login');
     };
 
@@ -184,8 +184,9 @@ function App() {
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path='/login' element={<Login setJWT={setJWT} />} />
-                <Route path='/map' element={<Map />} />
                 <Route path='/signup' element={<SignUp setJWT={setJWT} />} />
+                <Route path='/forgot-password' element={<ForgotPassword />} />
+                <Route path='/map' element={<Map />} />
                 <Route path='/verify/:token' element={<EmailVerification />} />
                 <Route path='/callback' element={<SpotifyCallBack />} />
                 <Route path='/error' element={<Error />} />
@@ -211,7 +212,7 @@ function App() {
                     </RequireAuth>
                 }>
                     <Route path="/profile" element={<Profile userInfo={userInfo} />} />
-                    <Route path="/friends" element={<Friends userInfo={userInfo} />} />
+                    <Route path="/friends" element={<Friends />} />
                     <Route path="/trending" element={<TrendingArtists userInfo={userInfo} />} />
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
                     <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} />} />
@@ -219,7 +220,6 @@ function App() {
                     <Route path="/recommended" element={<RecommendedScreen userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
                     <Route path="/settings" element={<Settings userInfo={userInfo} handleUpdateProfile={handleUpdateProfile} handleUpdatePassword={handleUpdatePassword} handleLogout={handleLogout} />} />
-                    <Route path="/a/dashboard" element={<ArtistDashboard userInfo={userInfo} />} />
                     <Route path="/a/trends" element={<ArtistTrendingScreen userInfo={userInfo} />} />
                 </Route>
             </Routes>

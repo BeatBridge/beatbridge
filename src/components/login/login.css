@@ -63,9 +63,10 @@
     bottom: 30px;
     right: 10px;
     color: #151E3F;
+    cursor: pointer;
 }
 
-.form-control {
+.form-format {
     border: 1px solid #151E3F;
     border-radius: 5px;
     padding-left: 40px;
@@ -85,8 +86,28 @@
     margin: 2.5vh 0;
 }
 
+.btn-primary {
+    background-color: #800080;
+    border: 1px solid #800080;
+}
+
+.btn-primary:hover {
+    background-color: #0E152B;
+}
+
+.forgot-pwd-link {
+    color: #800080;
+}
+
+.forgot-pwd-link:hover {
+    color: #0E152B;
+}
+
 @media only screen and (max-width: 768px) {
     .btn-body {
         margin: 2.5vh auto;
+    }
+    .auth-logo-container {
+        width: 50px;
     }
 }

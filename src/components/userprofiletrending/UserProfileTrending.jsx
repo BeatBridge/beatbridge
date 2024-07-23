@@ -1,5 +1,6 @@
+import React from 'react';
 import './userprofiletrending.css';
-import placeholderImg from '../../assets/placeholder.png';
+import placeholderImg from '/src/assets/default_artist.jpg';
 
 function UserProfileTrending({ name, image }) {
     return (

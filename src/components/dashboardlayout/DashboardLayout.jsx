@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaBell, FaUser, FaTag } from 'react-icons/fa';
-import { faEarthAmericas, faChartLine, faGauge, faGear, faMicrochip, faUserGroup, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmericas, faChartLine, faGauge, faGear, faMicrochip, faUserGroup, faWandMagicSparkles, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import logoImg from '/beatbridge_logo.png';
 import SpotifyOAuth from '../spotifyoauth/SpotifyOAuth.jsx';
 import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
 import TaggingForm from '../tagform/TaggingForm.jsx';
 import MobileDashboard from '../dashboard/MobileDashboard';
+import FriendsSidebar from '../friends/FriendsSidebar';
 import '../dashboard/ldashboard.css';
 import './dashboardlayout.css';
 import API from '../../api.js';
@@ -32,26 +33,45 @@ function DashboardLayout({
   viral50Global,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [profilePictureUrl, setProfilePictureUrl] = useState(DEFAULT_PROFILE_PICTURE_URL);
+  const [selectedUser, setSelectedUser] = useState(null); // State to store selected user
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfilePicture = async () => {
-        try {
-            const response = await API.fetchProfilePicture(userInfo.id);
-            if (response.type.includes('image')) {
-                setProfilePictureUrl(URL.createObjectURL(response));
-            }
-        } catch (error) {
-            console.error('Error fetching profile picture:', error);
-            setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
+      try {
+        const response = await API.fetchProfilePicture(userInfo.id);
+        if (response.type.includes('image')) {
+          setProfilePictureUrl(URL.createObjectURL(response));
         }
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
+        setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL); // Fallback to default picture if there's an error
+      }
     };
 
     if (userInfo.id) {
-        fetchProfilePicture();
+      fetchProfilePicture();
     }
-}, [userInfo]);
+  }, [userInfo]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest('.l-right-sidebar-user-info')) {
+        setIsDropdownOpen(false)
+      }
+    };
+
+    window.addEventListener('click', handleClickOutside);
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, [isDropdownOpen])
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -67,6 +87,30 @@ function DashboardLayout({
   }, []);
 
   const getNavLinkClass = ({ isActive }) => (isActive ? 'menu active' : 'menu');
+
+  const handleChatClick = (user) => {
+    setSelectedUser(user);
+    setMessages([]);
+    navigate('/friends');
+  };
+
+  const closeChat = () => {
+    setSelectedUser(null);
+    setMessages([]);
+  };
+
+  const sendMessage = () => {
+    if (newMessage.trim() !== '') {
+      const message = {
+        userId: selectedUser.id,
+        text: newMessage,
+        sender: 'me',
+        timestamp: new Date(),
+      };
+      setMessages((prevMessages) => [...prevMessages, message]);
+      setNewMessage('');
+    }
+  };
 
   return (
     <>
@@ -159,45 +203,55 @@ function DashboardLayout({
 
             {/* MIDDLE COLUMN */}
             <div className="col-md-7 scrollable-column">
-              <Outlet context={{ chatHistory }} />
+              <Outlet context={{ selectedUser, setSelectedUser, messages, setMessages, newMessage, setNewMessage, sendMessage, closeChat, chatHistory, userInfo }} />
             </div>
 
             {/* RIGHT COLUMN */}
             <div className="l-right-sidebar col-md-3">
               <div className="l-right-sidebar-top">
-                <div className="l-right-sidebar-user-info">
-                  <NavLink to="/settings">
-                    <div className="l-dashboard-profile-container">
-                      <img src={profilePictureUrl} alt="Profile" className="profile-picture" />
-                    </div>
-                  </NavLink>
-
+                <div className="l-right-sidebar-user-info" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                  <div className="l-dashboard-profile-container">
+                    <img src={profilePictureUrl} alt="Profile" className="profile-picture" />
+                  </div>
                   <div className="l-dashboard-user-name">
                     <h4>Welcome, {userInfo.username}</h4>
                     <p>{userInfo.isPremium ? 'Premium' : 'Free'} Subscriber</p>
                     <SpotifyOAuth isSpotifySignedIn={isSpotifySignedIn} />
-                    <button onClick={handleLogout}>Logout</button>
+                  </div>
+                  <div>
+                    <FontAwesomeIcon icon={faAngleDown} className='menu-icon dropdown-icon' />
                   </div>
                 </div>
                 <div className="l-bell-icon-container">
                   <FaBell className="l-dash-bell-icon" />
                 </div>
               </div>
+              {isDropdownOpen && (
+                <div className="dropdown-menu">
+                  <button onClick={() => navigate('/profile')}>Profile</button>
+                  <button onClick={() => navigate('/settings')}>Settings</button>
+                  <button onClick={handleLogout}>Logout</button>
+                </div>
+              )}
 
-              <div>
-                <h4 className="l-top-artist-column">Global Top 3</h4>
-                {isSpotifySignedIn ? (
-                  globalTop50.length > 0 ? (
-                    <div>
-                      <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
-                    </div>
+              {location.pathname === '/friends' ? (
+                <FriendsSidebar onChatClick={handleChatClick} userInfo={userInfo} />
+              ) : (
+                <>
+                  <h4 className="l-top-artist-column">Global Top 3</h4>
+                  {isSpotifySignedIn ? (
+                    globalTop50.length > 0 ? (
+                      <div>
+                        <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
+                      </div>
+                    ) : (
+                      <p>No top 3 artists found.</p>
+                    )
                   ) : (
-                    <p>No top 3 artists found.</p>
-                  )
-                ) : (
-                  <p>Please sign in to Spotify to view this data.</p>
-                )}
-              </div>
+                    <p>Please sign in to Spotify to view this data.</p>
+                  )}
+                </>
+              )}
 
               <div>
                 {selectedTrack && (

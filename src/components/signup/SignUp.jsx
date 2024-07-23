@@ -6,6 +6,7 @@ import API from '../../api.js';
 
 function SignUp({ setJWT }) {
     const [passwordType, setPasswordType] = useState('password');
+    const [confirmPasswordType, setConfirmPasswordType] = useState('password');
     const [capsLockWarning, setCapsLockWarning] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
@@ -17,6 +18,10 @@ function SignUp({ setJWT }) {
 
     const togglePasswordVisibility = () => {
         setPasswordType(passwordType === 'password' ? 'text' : 'password');
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setConfirmPasswordType(confirmPasswordType === 'password' ? 'text' : 'password');
     };
 
     const handleCapsLock = (event) => {
@@ -35,28 +40,28 @@ function SignUp({ setJWT }) {
         }
         try {
             const response = await API.signup({
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password
-                });
+                username: formData.username,
+                email: formData.email,
+                password: formData.password
+            });
 
-                if (response.error) {
-                    if (response.error.message === 'Email already exists') {
-                        alert('This email is already registered. Please login instead.')
-                    } else if (response.error.message === 'Username already exists') {
-                        alert('This username is already taken. Please choose another one.')
-                    } else{
-                        alert('An error occured. Please try again.')
-                    }
+            if (response.error) {
+                if (response.error.message === 'Email already exists') {
+                    alert('This email is already registered. Please login instead.')
+                } else if (response.error.message === 'Username already exists') {
+                    alert('This username is already taken. Please choose another one.')
                 } else {
-                    alert("Account created successfully. Now, check your email and verify by clicking the link...")
-                    navigate('/login');
+                    alert('An error occured. Please try again.')
                 }
-            } catch (error) {
-                console.error('Error signing up:', error);
-                alert('An error occured. Please try again.');
+            } else {
+                alert("Account created successfully. Now, check your email and verify by clicking the link...")
+                navigate('/login');
             }
-        };
+        } catch (error) {
+            console.error('Error signing up:', error);
+            alert('An error occured. Please try again.');
+        }
+    };
 
     return (
         <div className='container'>
@@ -86,7 +91,7 @@ function SignUp({ setJWT }) {
                             <label htmlFor="username">Username</label>
                             <span><i className="fa-solid fa-user user-icon"></i></span>
                             <input
-                                className="form-control user-field"
+                                className="form-control form-format user-field"
                                 type="text"
                                 name="username"
                                 value={formData.username}
@@ -98,7 +103,7 @@ function SignUp({ setJWT }) {
                             <label htmlFor="email">Email</label>
                             <span><i className='fa-solid fa-envelope email-icon'></i></span>
                             <input
-                                className="form-control email-field"
+                                className="form-control  form-format email-field"
                                 type="email"
                                 name="email"
                                 value={formData.email}
@@ -110,7 +115,7 @@ function SignUp({ setJWT }) {
                             <label htmlFor="password">Password</label>
                             <span><i className="fa-solid fa-lock lock-icon"></i></span>
                             <input
-                                className="form-control pwd-field"
+                                className="form-control form-format pwd-field"
                                 type={passwordType}
                                 name="password"
                                 id="psw"
@@ -130,8 +135,8 @@ function SignUp({ setJWT }) {
                             <label htmlFor="confirmPassword">Confirm Password</label>
                             <span><i className="fa-solid fa-lock lock-icon"></i></span>
                             <input
-                                className="form-control pwd-field"
-                                type={passwordType}
+                                className="form-control form-format pwd-field"
+                                type={confirmPasswordType}
                                 name="confirmPassword"
                                 id="confirmPsw"
                                 pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
@@ -141,10 +146,16 @@ function SignUp({ setJWT }) {
                                 required
                                 onKeyUp={handleCapsLock}
                             />
-                            <span className="eye-icon" onClick={togglePasswordVisibility}>
-                                <i className={`far ${passwordType === 'password' ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                            <span className="eye-icon" onClick={toggleConfirmPasswordVisibility}>
+                                <i className={`far ${confirmPasswordType === 'password' ? 'fa-eye' : 'fa-eye-slash'}`}></i>
                             </span>
                             {capsLockWarning && <h5 id="capslocktext" className="text-danger mt-1">WARNING! Caps lock is ON</h5>}
+                        </div>
+                        <div className="textfield mb-3 privacypolicy">
+                            <input type="checkbox" required />
+                            <label htmlFor="text">
+                                <h6 className='termsofservice'>I agree to the <Link to="#">terms of service</Link> and <Link to="#">privacy policy</Link> </h6>
+                            </label>
                         </div>
                         <div className="btn-body">
                             <input className="btn btn-primary w-100" type="submit" value="Sign Up" />

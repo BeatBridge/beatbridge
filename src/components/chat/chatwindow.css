@@ -1,0 +1,50 @@
+.friends-chat-window {
+    width: 100%;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .friends-chat-header {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .friends-chat-body {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+  }
+
+  .friends-chat-message {
+    margin-bottom: 10px;
+  }
+
+  .my-message {
+    text-align: right;
+    color: #007bff;
+  }
+
+  .their-message {
+    text-align: left;
+    color: #000;
+  }
+
+  .friends-chat-footer {
+    padding: 10px;
+    display: flex;
+  }
+
+  .friends-chat-footer input {
+    flex: 1;
+    padding: 5px;
+  }
+
+  .friends-chat-footer button {
+    margin-left: 5px;
+  }

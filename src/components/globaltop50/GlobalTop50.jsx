@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { FaEllipsisV, FaUser } from 'react-icons/fa';
 import './globaltop50.css';
 import API from '../../api.js';
@@ -47,15 +47,17 @@ const GlobalTop50 = ({ tracks }) => {
   const [songs, setSongs] = useState([]);
   const [artistImages, setArtistImages] = useState({});
 
-  useEffect(() => {
+  const artistIds = useMemo(() => {
     const allSongs = getAllSongs(tracks);
     setSongs(allSongs);
+    return allSongs.map(song => song.artistId).filter(id => id).join(',');
+  }, [tracks]);
 
-    const artistIds = allSongs.map(song => song.artistId).filter(id => id).join(',');
+  useEffect(() => {
     if (artistIds) {
       fetchArtistImages(artistIds);
     }
-  }, [tracks]);
+  }, [artistIds]);
 
   const fetchArtistImages = async (artistIds) => {
     try {

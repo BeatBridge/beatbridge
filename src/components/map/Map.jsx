@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import io from 'socket.io-client';
@@ -49,18 +49,28 @@ function Map() {
         };
     }, []);
 
+    // To prevent infinite horizontal scrolling
+    const bounds = [[-90, -180], [90, 180]];
+
     return (
-        <MapContainer center={[37.8, -96.9]} zoom={5} style={{ height: "100vh", width: "100%" }}>
+        <MapContainer
+            center={[37.8, -96.9]}
+            zoom={5}
+            style={{ height: "100vh", width: "100%" }}
+            worldCopyJump={false}
+            maxBounds={bounds}
+            maxBoundsViscosity={1.0}
+        >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
             />
             {locations.map(location => (
                 <Marker key={location.id} position={[location.latitude, location.longitude]}>
-                    <Popup>
+                    <Tooltip>
                         <strong>{location.name}</strong><br />
                         Genres: {location.genres.join(', ')}
-                    </Popup>
+                    </Tooltip>
                 </Marker>
             ))}
         </MapContainer>

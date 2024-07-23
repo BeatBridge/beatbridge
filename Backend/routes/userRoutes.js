@@ -15,10 +15,12 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
+const WebSocket = require('ws');
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
+const WSPORT = process.env.WSPORT
 
 router.post("/signup", async (req, res) => {
     const { username, email, password } = req.body;
@@ -61,6 +63,45 @@ router.post("/login", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const resetToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+        const emailText = `Hello, please reset your password by clicking on the link: ${resetUrl}`;
+
+        await sendMail(user.email, 'Password Reset', emailText);
+
+        res.status(200).json({ message: 'Password reset email sent.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+router.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.user.update({
+            where: { id: decoded.id },
+            data: { password: hashedPassword },
+        });
+
+        res.status(200).json({ message: 'Password reset successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ error: 'Invalid or expired token.' });
     }
 });
 
@@ -427,7 +468,7 @@ router.get('/spotify/tracks', authenticateJWT, spotifyTokenRefresh, async (req, 
 router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
     const artistIds = req.query.artistIds;
     const user = await prisma.user.findUnique({
-        where: { id: req.user.id },
+        where: { id: req.user.id }
     });
 
     if (!artistIds) {
@@ -440,7 +481,19 @@ router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req,
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }
         });
+
+        if (response.status === 429) {
+            console.warn('Backend: Rate limited by Spotify API');
+            return res.status(429).json({ error: 'Backend: Rate limited by Spotify API' });
+        }
+
         const data = await response.json();
+
+        if (!response.ok) {
+            console.error('Error fetching artist details:', data);
+            return res.status(response.status).json({ error: data.error || "Failed to fetch artist details." });
+        }
+
         res.json(data);
     } catch (error) {
         console.error('Error fetching artist details:', error);
@@ -835,6 +888,91 @@ router.get('/playlist-followers/:playlistId', authenticateJWT, async (req, res) 
     } catch (error) {
       console.error('Error fetching playlist followers count:', error);
       res.status(500).json({ error: 'Failed to fetch playlist followers count' });
+    }
+});
+
+router.get('/users', authenticateJWT, async (req, res) => {
+    const userId = parseInt(req.query.userId, 10);
+
+    console.log('Parsed userId from query parameters:', userId);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid userId' });
+    }
+
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                id: {
+                    not: userId
+                },
+                username: {
+                    not: "system"
+                }
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                profilePicture: true
+            }
+        });
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+router.get('/messages/:userId/:otherUserId', async (req, res) => {
+    const { userId, otherUserId } = req.params;
+    try {
+        const messages = await prisma.directMessage.findMany({
+            where: {
+                OR: [
+                    { senderId: parseInt(userId), receiverId: parseInt(otherUserId) },
+                    { senderId: parseInt(otherUserId), receiverId: parseInt(userId) },
+                ],
+            },
+            orderBy: {
+                createdAt: 'asc',
+            },
+            include: {
+                sender: {
+                    select: {
+                        username: true,
+                    },
+                },
+            },
+        });
+        res.json(messages);
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+        res.status(500).json({ error: 'Failed to fetch messages' });
+    }
+});
+
+router.post('/messages', async (req, res) => {
+    const { senderId, receiverId, content } = req.body;
+    try {
+        const message = await prisma.directMessage.create({
+            data: {
+                senderId,
+                receiverId,
+                content,
+            },
+        });
+
+        const ws = new WebSocket(`ws://localhost:${WSPORT}`);
+        ws.on('open', () => {
+            ws.send(JSON.stringify(message));
+            ws.close();
+        });
+
+        res.json(message);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        res.status(500).json({ error: 'Failed to send message' });
     }
 });
 
