@@ -4,6 +4,7 @@ import { faPenToSquare, faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import UserProfilePlaylist from '../userprofileplaylist/UserProfilePlaylist.jsx';
 import UserProfileTrending from '../userprofiletrending/UserProfileTrending.jsx';
+import SkeletonLoader from '../skeletonloader/SkeletonLoader.jsx';
 import './profile.css';
 import API from '../../api.js';
 import placeholderImg from '/src/assets/default_artist.jpg';
@@ -173,7 +174,7 @@ function Profile({ userInfo }) {
           </div>
           <div className="user-profile-viral-container">
             {loadingPlaylists ? (
-              <div className="spinner"></div>
+              <SkeletonLoader type="playlist" />
             ) : (
               <>
                 {displayedPlaylists.map(playlist => (
@@ -202,7 +203,7 @@ function Profile({ userInfo }) {
           </div>
           <div className="user-profile-trending-container">
             {loadingArtists ? (
-              <div className="spinner"></div>
+              <SkeletonLoader type="artist" />
             ) : (
               <>
                 {displayedArtists.map(artist => (
