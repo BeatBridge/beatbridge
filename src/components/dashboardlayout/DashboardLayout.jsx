@@ -371,7 +371,7 @@ function DashboardLayout({
                     viral50Global={viral50Global}
                 />
             </div>
-            <div id="music-player"></div>
+            <div id="hidden-player" style={{ display: 'none' }}></div>
         </>
     );
 }
