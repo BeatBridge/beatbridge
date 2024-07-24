@@ -96,7 +96,6 @@ function DashboardLayout({
                 width: '0',
                 events: {
                     onReady: () => {
-                        console.log('YouTube Player is ready');
                         setPlayerReady(true);
                     },
                     onStateChange: (event) => {
