@@ -102,7 +102,7 @@ function DashboardLayout({
                     onStateChange: (event) => {
                         if (event.data === window.YT.PlayerState.ENDED) {
                             console.log('Music has ended');
-                            setIsPlaying(false); // Set playing to false when the video ends
+                            setIsPlaying(false); // Set playing to false when music ends
                         }
                     },
                 },
