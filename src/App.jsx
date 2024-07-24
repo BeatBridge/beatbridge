@@ -20,7 +20,7 @@ import Chatbot from './components/chatbot/Chatbot.jsx';
 import Map from './components/map/Map.jsx';
 import TrendingArtists from './components/trendingartists/TrendingArtists.jsx';
 import DashboardLayout from './components/dashboardlayout/DashboardLayout.jsx';
-import RecommendedScreen from './components/recommendedscreen/RecommendedScreen.jsx';
+import Recommendation from './components/recommendation/Recommendation.jsx';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword.jsx';
 
 function App() {
@@ -217,7 +217,7 @@ function App() {
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
                     <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} />} />
                     <Route path="/tags" element={<TagsScreen userInfo={userInfo} />} />
-                    <Route path="/recommended" element={<RecommendedScreen userInfo={userInfo} />} />
+                    <Route path="/recommended" element={<Recommendation userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
                     <Route path="/settings" element={<Settings userInfo={userInfo} handleUpdateProfile={handleUpdateProfile} handleUpdatePassword={handleUpdatePassword} handleLogout={handleLogout} />} />
                     <Route path="/a/trends" element={<ArtistTrendingScreen userInfo={userInfo} />} />
