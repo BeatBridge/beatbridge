@@ -97,12 +97,11 @@ function DashboardLayout({
                 events: {
                     onReady: () => {
                         console.log('YouTube Player is ready');
-                        setPlayerReady(true); // Set the player as ready
+                        setPlayerReady(true);
                     },
                     onStateChange: (event) => {
                         if (event.data === window.YT.PlayerState.ENDED) {
-                            console.log('Music has ended');
-                            setIsPlaying(false); // Set playing to false when music ends
+                            setIsPlaying(false);
                         }
                     },
                 },
