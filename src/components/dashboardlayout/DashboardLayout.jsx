@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaBell, FaUser, FaTag } from 'react-icons/fa';
@@ -39,6 +39,9 @@ function DashboardLayout({
     const [selectedUser, setSelectedUser] = useState(null); // State to store selected user
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
+    const [playerReady, setPlayerReady] = useState(false); // Track if the player is ready
+    const [isPlaying, setIsPlaying] = useState(false); // Track if the player is playing
+    const playerRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -63,7 +66,7 @@ function DashboardLayout({
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (isDropdownOpen && !event.target.closest('.l-right-sidebar-user-info')) {
-                setIsDropdownOpen(false)
+                setIsDropdownOpen(false);
             }
         };
 
@@ -71,7 +74,7 @@ function DashboardLayout({
         return () => {
             window.removeEventListener('click', handleClickOutside);
         };
-    }, [isDropdownOpen])
+    }, [isDropdownOpen]);
 
     useEffect(() => {
         const fetchChatHistory = async () => {
@@ -84,6 +87,31 @@ function DashboardLayout({
         };
 
         fetchChatHistory();
+    }, []);
+
+    useEffect(() => {
+        const onYouTubeIframeAPIReady = () => {
+            playerRef.current = new window.YT.Player('hidden-player', {
+                height: '0',
+                width: '0',
+                events: {
+                    onReady: () => {
+                        setPlayerReady(true);
+                    },
+                    onStateChange: (event) => {
+                        if (event.data === window.YT.PlayerState.ENDED) {
+                            setIsPlaying(false);
+                        }
+                    },
+                },
+            });
+        };
+
+        if (window.YT && window.YT.Player) {
+            onYouTubeIframeAPIReady();
+        } else {
+            window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+        }
     }, []);
 
     const getNavLinkClass = ({ isActive }) => (isActive ? 'menu active' : 'menu');
@@ -109,6 +137,31 @@ function DashboardLayout({
             };
             setMessages((prevMessages) => [...prevMessages, message]);
             setNewMessage('');
+        }
+    };
+
+    const handlePlayTrack = async () => {
+        if (!selectedTrack) return;
+        if (!playerReady) {
+            console.error('Player is not ready');
+            return;
+        }
+
+        if (isPlaying) {
+            playerRef.current.stopVideo();
+            setIsPlaying(false);
+        } else {
+            try {
+                const videoId = await API.searchYouTubeMusic(selectedTrack.name, selectedTrack.artists[0].name);
+                if (videoId) {
+                    playerRef.current.loadVideoById(videoId);
+                    setIsPlaying(true);
+                } else {
+                    console.error('Track not found on YouTube Music');
+                }
+            } catch (error) {
+                console.error('Error playing track:', error);
+            }
         }
     };
 
@@ -267,6 +320,9 @@ function DashboardLayout({
                                         ) : (
                                             <div>No image available</div>
                                         )}
+                                        <button className={`btn mt-2 ${isPlaying ? 'btn-danger' : 'btn-success'}`} onClick={handlePlayTrack}>
+                                            {isPlaying ? 'Stop' : 'Play'}
+                                        </button>
                                         <button className="btn btn-primary mt-2" onClick={handleTagButtonClick}>
                                             Tag
                                         </button>
@@ -313,6 +369,7 @@ function DashboardLayout({
                     viral50Global={viral50Global}
                 />
             </div>
+            <div id="hidden-player" style={{ display: 'none' }}></div>
         </>
     );
 }

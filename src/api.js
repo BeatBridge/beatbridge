@@ -670,6 +670,23 @@ const API = {
             console.error('Error during reset password request:', error);
             throw error;
         }
+    },
+    searchYouTubeMusic: async (trackName, artistName) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/youtube-music/search?trackName=${encodeURIComponent(trackName)}&artistName=${encodeURIComponent(artistName)}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+                }
+            });
+            if (!response.ok) throw new Error('Failed to search YouTube Music');
+            const data = await response.json();
+            return data.videoId;
+        } catch (error) {
+            console.error('Error searching YouTube Music:', error);
+            return null;
+        }
     }
 };
 

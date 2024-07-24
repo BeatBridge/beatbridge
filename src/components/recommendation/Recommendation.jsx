@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import './recommendedscreen.css';
+import './recommendation.css';
 import API from '../../api.js';
 
-function RecommendedScreen() {
+function Recommendation() {
     const [userInfo, setUserInfo] = useState(null);
     const [recommendedArtist, setRecommendedArtist] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -62,4 +62,4 @@ function RecommendedScreen() {
     );
 }
 
-export default RecommendedScreen;
+export default Recommendation;
