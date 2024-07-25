@@ -56,7 +56,7 @@ const tagValues = {
     }
 };
 
-async function calculateRecommendations(userPreferences = { genre: 0.5, mood: 0.3, tempo: 0.2 }) {
+async function calculateRecommendations(userPreferences = { genre: 0.5, mood: 0.3, tempo: 0.2, threshold: 0.7 }) {
     const MILLISECONDS_PER_SECOND = 1000;
     const SECONDS_PER_MINUTE = 60;
     const MINUTES_PER_HOUR = 60;
@@ -128,7 +128,7 @@ async function calculateRecommendations(userPreferences = { genre: 0.5, mood: 0.
     }
 
     const userSimilarities = {}; // Store how similar users are
-    const threshold = 0.7; // The similarity score needed to recommend an artist
+    const threshold = userPreferences.threshold || 0.7; // The similarity score needed to recommend an artist
 
     const comparedPairs = new Set(); // Initialize the set of compared pairs
 

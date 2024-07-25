@@ -842,9 +842,9 @@ router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
 router.post('/generate-recommendation', authenticateJWT, async (req, res) => {
     try {
         const userId = req.user.id;
-        const userPreferences = req.body; // Get dynamic weights from request body
+        const { preferences, threshold } = req.body; // Get dynamic weights and threshold from request body
 
-        await calculateRecommendations(userPreferences);
+        await calculateRecommendations({ ...preferences, threshold });
 
         const latestRecommendation = await prisma.recommendation.findFirst({
             where: { userId },

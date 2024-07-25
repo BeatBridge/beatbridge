@@ -8,6 +8,7 @@ function Recommendation() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [preferences, setPreferences] = useState({ genre: true, mood: true, tempo: true });
+    const [threshold, setThreshold] = useState(0.7); // Default threshold
     const [isDbRecommendation, setIsDbRecommendation] = useState(false);
 
     useEffect(() => {
@@ -54,6 +55,10 @@ function Recommendation() {
         setPreferences(prev => ({ ...prev, [tag]: value }));
     };
 
+    const handleThresholdChange = (e) => {
+        setThreshold(parseFloat(e.target.value));
+    };
+
     const calculateDynamicWeights = () => {
         const selectedTags = Object.keys(preferences).filter(tag => preferences[tag]);
         const selectedCount = selectedTags.length;
@@ -82,7 +87,7 @@ function Recommendation() {
         try {
             const jwt = localStorage.getItem('jwt');
             const dynamicWeights = calculateDynamicWeights();
-            const data = await API.generateRecommendation(jwt, dynamicWeights);
+            const data = await API.generateRecommendation(jwt, { ...dynamicWeights, threshold });
             if (data.error) {
                 setError(data.error);
             } else {
@@ -126,6 +131,19 @@ function Recommendation() {
                                 <label>
                                     Tempo:
                                     <input type="checkbox" checked={preferences.tempo} onChange={(e) => handlePreferenceChange('tempo', e.target.checked)} />
+                                </label>
+                            </div>
+                            <div className="slider-container">
+                                <label>
+                                    Similarity Threshold: {threshold}
+                                    <input
+                                        type="range"
+                                        min="0.1"
+                                        max="1.0"
+                                        step="0.1"
+                                        value={threshold}
+                                        onChange={handleThresholdChange}
+                                    />
                                 </label>
                             </div>
                             <button onClick={generateNewRecommendation}>Generate New Recommendation</button>
