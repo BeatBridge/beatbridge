@@ -12,6 +12,21 @@
     justify-content: center;
 }
 
+.tagged-songs-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.tagged-songs-header h1 {
+    padding-left: 1.5rem;
+}
+
+.sort-filter-buttons {
+    padding-right: 1.5rem;
+}
+
 .tagged-songs-list {
     list-style: none;
     padding: 2vh 0 0 0;
@@ -27,6 +42,7 @@
     border: 1px solid #800080;
     border-radius: 8px;
     background-color: #1F2A44;
+    position: relative; /* Add this line for positioning the trash icon */
 }
 
 .song-details h3 {
@@ -67,4 +83,27 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.edit-icon {
+    cursor: pointer;
+    color: whitesmoke;
+}
+
+.edit-icon:hover {
+    color: #007bff;
+}
+
+.trash-icon {
+    cursor: pointer;
+    color: #800080;
+}
+
+.trash-icon:hover {
+    color: #ff0000;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
 }
