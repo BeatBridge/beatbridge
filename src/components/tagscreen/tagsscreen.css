@@ -12,6 +12,21 @@
     justify-content: center;
 }
 
+.tagged-songs-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.tagged-songs-header h1 {
+    padding-left: 1.5rem;
+}
+
+.sort-filter-buttons {
+    padding-right: 1.5rem;
+}
+
 .tagged-songs-list {
     list-style: none;
     padding: 2vh 0 0 0;

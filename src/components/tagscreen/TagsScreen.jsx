@@ -13,6 +13,7 @@ const TagsScreen = ({ userInfo }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedSong, setSelectedSong] = useState(null);
+    const [sortOption, setSortOption] = useState('date-desc'); // Default sort by date descending
 
     useEffect(() => {
         const fetchTaggedSongs = async () => {
@@ -23,8 +24,6 @@ const TagsScreen = ({ userInfo }) => {
                 const songsWithImages = await Promise.all(songs.map(async (song) => {
                     const searchQuery = `${song.title} ${song.artist}`;
                     const searchResult = await API.searchSongs(searchQuery);
-
-                    // Assume the first result is the correct one
                     const albumImageUrl = searchResult?.tracks?.items?.[0]?.album?.images?.[0]?.url || null;
                     return { ...song, albumImageUrl };
                 }));
@@ -83,17 +82,45 @@ const TagsScreen = ({ userInfo }) => {
         }
     };
 
+    const handleSortChange = (e) => {
+        setSortOption(e.target.value);
+    };
+
+    const sortedSongs = () => {
+        let sorted = [...taggedSongs];
+        if (sortOption === 'title-asc') {
+            sorted.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (sortOption === 'title-desc') {
+            sorted.sort((a, b) => b.title.localeCompare(a.title));
+        } else if (sortOption === 'date-asc') {
+            sorted.sort((a, b) => new Date(a.taggedAt) - new Date(b.taggedAt));
+        } else if (sortOption === 'date-desc') {
+            sorted.sort((a, b) => new Date(b.taggedAt) - new Date(a.taggedAt));
+        }
+        return sorted;
+    };
+
     return (
         <div className="container tags-page-container">
             <div className='row'>
                 <div className='col-md-12 sub-screen tags-page-sub-screen'>
-                    <h1>Your Tagged Songs</h1>
+                    <div className='tagged-songs-header'>
+                        <h1>Your Tagged Songs</h1>
+                        <div className="sort-filter-buttons">
+                            <select value={sortOption} onChange={handleSortChange}>
+                                <option value="date-desc">Date Descending</option>
+                                <option value="date-asc">Date Ascending</option>
+                                <option value="title-asc">Title Ascending</option>
+                                <option value="title-desc">Title Descending</option>
+                            </select>
+                        </div>
+                    </div>
                     {loading ? (
                         <div className="spinner"></div>
                     ) : (
-                        taggedSongs.length > 0 ? (
+                        sortedSongs().length > 0 ? (
                             <ul className="tagged-songs-list">
-                                {taggedSongs.map((song) => (
+                                {sortedSongs().map((song) => (
                                     <li key={song.id} className="tagged-song-item">
                                         <div className="song-details">
                                             <div className="album-cover">
@@ -107,14 +134,14 @@ const TagsScreen = ({ userInfo }) => {
                                             <p><strong>Tempo:</strong> {song.tempo}</p>
                                             <div className='action-buttons'>
                                                 <FontAwesomeIcon
-                                                    icon={faEdit}
-                                                    className="edit-icon"
-                                                    onClick={() => openEditModal(song)}
-                                                />
-                                                <FontAwesomeIcon
                                                     icon={faTrash}
                                                     className="trash-icon"
                                                     onClick={() => openModal(song)}
+                                                />
+                                                <FontAwesomeIcon
+                                                    icon={faEdit}
+                                                    className="edit-icon"
+                                                    onClick={() => openEditModal(song)}
                                                 />
                                             </div>
                                         </div>
