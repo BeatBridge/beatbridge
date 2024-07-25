@@ -466,7 +466,6 @@ const API = {
             });
             if (!response.ok) throw new Error('Failed to fetch latest recommendation');
             const data = await response.json();
-            console.log("Fetched latest recommendation:", data); // Add logging here
             return data;
         } catch (error) {
             console.error('Error fetching latest recommendation:', error);

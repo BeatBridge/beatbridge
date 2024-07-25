@@ -32,8 +32,8 @@ function App() {
     const [selectedTrack, setSelectedTrack] = useState(null);
     const [showTaggingForm, setShowTaggingForm] = useState(false);
     const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [loadingGlobalTop50, setLoadingGlobalTop50] = useState(false);
+    const [loadingViral50Global, setLoadingViral50Global] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -53,54 +53,42 @@ function App() {
     }, [JWT, navigate]);
 
     useEffect(() => {
-        let isMounted = true;
-        const fetchGlobalTop50 = async () => {
-            if (!JWT) return;
-            setLoading(true);
-            try {
-                const data = await API.getGlobalTop50(userInfo.spotifyAccessToken);
-                if (isMounted) {
-                    setGlobalTop50(data.tracks.items || []);
-                }
-            } catch (err) {
-                if (isMounted) {
-                    setError(err.message || 'Failed to fetch global top 50.');
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        const fetchViral50Global = async () => {
-            if (!JWT) return;
-            setLoading(true);
-            try {
-                const data = await API.getViral50Global(userInfo.spotifyAccessToken);
-                if (isMounted) {
-                    setViral50Global(data.tracks.items || []);
-                }
-            } catch (err) {
-                if (isMounted) {
-                    setError(err.message || 'Failed to fetch viral 50 global.');
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        if (isSpotifySignedIn) {
+        if (isSpotifySignedIn && globalTop50.length === 0 && !loadingGlobalTop50) {
             fetchGlobalTop50();
+        }
+    }, [isSpotifySignedIn, globalTop50.length]);
+
+    useEffect(() => {
+        if (isSpotifySignedIn && viral50Global.length === 0 && !loadingViral50Global) {
             fetchViral50Global();
         }
+    }, [isSpotifySignedIn, viral50Global.length]);
 
-        return () => {
-            isMounted = false;
-        };
-    }, [userInfo, isSpotifySignedIn, JWT]);
+    const fetchGlobalTop50 = async () => {
+        if (!JWT) return;
+        setLoadingGlobalTop50(true);
+        try {
+            const data = await API.getGlobalTop50(userInfo.spotifyAccessToken);
+            setGlobalTop50(data.tracks.items || []);
+        } catch (err) {
+            console.error(err.message || 'Failed to fetch global top 50.');
+        } finally {
+            setLoadingGlobalTop50(false);
+        }
+    };
+
+    const fetchViral50Global = async () => {
+        if (!JWT) return;
+        setLoadingViral50Global(true);
+        try {
+            const data = await API.getViral50Global(userInfo.spotifyAccessToken);
+            setViral50Global(data.tracks.items || []);
+        } catch (err) {
+            console.error(err.message || 'Failed to fetch viral 50 global.');
+        } finally {
+            setLoadingViral50Global(false);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('jwt');
@@ -182,12 +170,12 @@ function App() {
         try {
             const data = await API.updateUserProfile(JWT, updatedProfile);
             if (data.error) {
-                setError(data.error);
+                console.error(data.error);
             } else {
                 setUserInfo(data);
             }
         } catch (error) {
-            setError(error.message);
+            console.error(error.message);
         }
     };
 
@@ -195,10 +183,10 @@ function App() {
         try {
             const data = await API.updatePassword(JWT, passwordData);
             if (data.error) {
-                setError(data.error);
+                console.error(data.error);
             }
         } catch (error) {
-            setError(error.message);
+            console.error(error.message);
         }
     };
 
@@ -231,7 +219,8 @@ function App() {
                             handleTag={handleTag}
                             handleSearchResults={handleSearchResults}
                             handleSuggestionClick={handleSuggestionClick}
-                            loading={loading}
+                            loadingGlobalTop50={loadingGlobalTop50}
+                            loadingViral50Global={loadingViral50Global}
                         />
                     </RequireAuth>
                 }>
@@ -239,7 +228,7 @@ function App() {
                     <Route path="/friends" element={<Friends />} />
                     <Route path="/trending" element={<TrendingArtists userInfo={userInfo} />} />
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
-                    <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} loading={loading} />} />
+                    <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} loading={loadingViral50Global} />} />
                     <Route path="/tags" element={<TagsScreen userInfo={userInfo} />} />
                     <Route path="/recommended" element={<Recommendation userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />

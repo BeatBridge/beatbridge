@@ -32,6 +32,8 @@ function DashboardLayout({
     handleSearchResults,
     handleSuggestionClick,
     viral50Global,
+    loadingGlobalTop50,
+    loadingViral50Global
 }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -314,14 +316,14 @@ function DashboardLayout({
                                 <>
                                     <h4 className="l-top-artist-column">Global Top 3</h4>
                                     {isSpotifySignedIn ? (
-                                        globalTop50.length > 0 ? (
-                                            <div>
-                                                <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} loading={loading} />
-                                            </div>
-                                        ) : loading ? (
+                                        loadingGlobalTop50 ? (
                                             <ShimmerLoader type="track" count={3} />
                                         ) : (
-                                            <p>No top 3 artists found.</p>
+                                            globalTop50.length > 0 ? (
+                                                <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
+                                            ) : (
+                                                <p>No top 3 artists found.</p>
+                                            )
                                         )
                                     ) : (
                                         <p>Please sign in to Spotify to view this data.</p>
@@ -388,7 +390,7 @@ function DashboardLayout({
                     handleSearchResults={handleSearchResults}
                     handleSuggestionClick={handleSuggestionClick}
                     viral50Global={viral50Global}
-                    loading={loading} // Pass loading prop to MobileDashboard
+                    loading={loading}
                 />
             </div>
             <div id="hidden-player" style={{ display: 'none' }}></div>
