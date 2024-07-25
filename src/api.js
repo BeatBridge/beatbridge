@@ -588,6 +588,25 @@ const API = {
         const data = await response.json();
         return data;
     },
+    deleteTaggedSong: async (id) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+        const response = await fetch(`${backendUrlAccess}/user/songs/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error deleting tagged song:', errorText);
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    },
     fetchArtistImages: async (artistIds) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
 

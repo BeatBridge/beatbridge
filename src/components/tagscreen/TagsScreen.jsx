@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import API from '../../api.js';
+import CustomModal from '../custommodal/CustomModal';
 import './tagsscreen.css';
-import defaultAlbumCover from '../../../src/assets/defaultAlbumCover.png'; // Correct path to default image
+import defaultAlbumCover from '../../../src/assets/defaultAlbumCover.png';
 
 const TagsScreen = ({ userInfo }) => {
     const [taggedSongs, setTaggedSongs] = useState([]);
-    const [loading, setLoading] = useState(true); // Add loading state
+    const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedSong, setSelectedSong] = useState(null);
 
     useEffect(() => {
         const fetchTaggedSongs = async () => {
@@ -26,7 +31,7 @@ const TagsScreen = ({ userInfo }) => {
             } catch (error) {
                 console.error('Error fetching tagged songs:', error);
             } finally {
-                setLoading(false); // Set loading to false when done
+                setLoading(false);
             }
         };
 
@@ -35,12 +40,32 @@ const TagsScreen = ({ userInfo }) => {
         }
     }, [userInfo]);
 
+    const openModal = (song) => {
+        setSelectedSong(song);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedSong(null);
+    };
+
+    const deleteSong = async () => {
+        try {
+            await API.deleteTaggedSong(selectedSong.id);
+            setTaggedSongs(taggedSongs.filter(song => song.id !== selectedSong.id));
+            closeModal();
+        } catch (error) {
+            console.error('Error deleting song:', error);
+        }
+    };
+
     return (
         <div className="container tags-page-container">
             <div className='row'>
                 <div className='col-md-12 sub-screen tags-page-sub-screen'>
                     <h1>Your Tagged Songs</h1>
-                    {loading ? ( // Render spinner if loading
+                    {loading ? (
                         <div className="spinner"></div>
                     ) : (
                         taggedSongs.length > 0 ? (
@@ -57,6 +82,11 @@ const TagsScreen = ({ userInfo }) => {
                                             <p><strong>Genre:</strong> {song.genre}</p>
                                             <p><strong>Mood:</strong> {song.mood}</p>
                                             <p><strong>Tempo:</strong> {song.tempo}</p>
+                                            <FontAwesomeIcon
+                                                icon={faTrash}
+                                                className="trash-icon"
+                                                onClick={() => openModal(song)}
+                                            />
                                         </div>
                                     </li>
                                 ))}
@@ -67,6 +97,14 @@ const TagsScreen = ({ userInfo }) => {
                     )}
                 </div>
             </div>
+
+            <CustomModal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal}
+                onConfirm={deleteSong}
+                title="Confirm Delete"
+                message={`Are you sure you want to delete the tagged song "${selectedSong?.title}" by ${selectedSong?.artist}?`}
+            />
         </div>
     );
 };

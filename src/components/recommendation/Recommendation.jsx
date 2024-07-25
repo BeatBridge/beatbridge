@@ -112,15 +112,6 @@ function Recommendation() {
                 <button className="view-history-button" onClick={() => setShowHistory(true)}>View Recommendation History</button>
             </div>
             {showHistory && <RecommendationHistory onClose={() => setShowHistory(false)} />}
-            {recommendedArtist && (
-                <div className="recommended-artist">
-                    <img src={recommendedArtist.imageUrl} alt={recommendedArtist.artistName} className="artist-image" />
-                    <div className="artist-details">
-                        <h2>{recommendedArtist.artistName}</h2>
-                        <p>{recommendedArtist.reason}</p>
-                    </div>
-                </div>
-            )}
             {isDbRecommendation && (
                 <div>
                     <div className="preferences">
@@ -151,6 +142,15 @@ function Recommendation() {
                         </label>
                     </div>
                     <button onClick={generateNewRecommendation}>Generate New Recommendation</button>
+                </div>
+            )}
+            {recommendedArtist && (
+                <div className="recommended-artist">
+                    <img src={recommendedArtist.imageUrl} alt={recommendedArtist.artistName} className="artist-image" />
+                    <div className="artist-details">
+                        <h2>{recommendedArtist.artistName}</h2>
+                        <p>{recommendedArtist.reason}</p>
+                    </div>
                 </div>
             )}
         </div>

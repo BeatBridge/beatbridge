@@ -679,6 +679,19 @@ router.get('/songs/:songId', authenticateJWT, spotifyTokenRefresh, async (req, r
     }
 });
 
+router.delete('/songs/:id', authenticateJWT, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.song.delete({
+            where: { id: parseInt(id) }
+        });
+        res.status(200).json({ message: 'Song deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting song:', error);
+        res.status(500).json({ error: 'Failed to delete song' });
+    }
+});
+
 router.post('/track-artist-search', authenticateJWT, async (req, res) => {
     const { artistSpotifyId } = req.body;
 
