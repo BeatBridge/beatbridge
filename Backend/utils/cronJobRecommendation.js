@@ -56,13 +56,7 @@ const tagValues = {
     }
 };
 
-const tagWeights = {
-    genre: 0.5, // Genre is worth 50%
-    mood: 0.3,  // Mood is worth 30%
-    tempo: 0.2  // Tempo is worth 20%
-};
-
-async function calculateRecommendations() {
+async function calculateRecommendations(userPreferences = { genre: 0.5, mood: 0.3, tempo: 0.2, threshold: 0.7 }) {
     const MILLISECONDS_PER_SECOND = 1000;
     const SECONDS_PER_MINUTE = 60;
     const MINUTES_PER_HOUR = 60;
@@ -134,9 +128,37 @@ async function calculateRecommendations() {
     }
 
     const userSimilarities = {}; // Store how similar users are
-    const threshold = 0.7; // The similarity score needed to recommend an artist
+    const threshold = userPreferences.threshold || 0.7; // The similarity score needed to recommend an artist
 
     const comparedPairs = new Set(); // Initialize the set of compared pairs
+
+    // Adjust tag weights based on user preferences
+    let tagWeights;
+    if (userPreferences) {
+        const selectedTags = ['genre', 'mood', 'tempo'].filter(tag => userPreferences[tag]);
+        const selectedCount = selectedTags.length;
+
+        if (selectedCount === 0 || selectedCount === 3) {
+            // Default weights if all or no tags are selected
+            tagWeights = { genre: 0.5, mood: 0.3, tempo: 0.2 };
+        } else if (selectedCount === 2) {
+            // Each selected tag gets a weight of 0.5 if two tags are selected
+            tagWeights = {
+                genre: selectedTags.includes('genre') ? 0.5 : 0,
+                mood: selectedTags.includes('mood') ? 0.5 : 0,
+                tempo: selectedTags.includes('tempo') ? 0.5 : 0
+            };
+        } else if (selectedCount === 1) {
+            // The selected tag gets a weight of 1 if one tag is selected
+            tagWeights = {
+                genre: selectedTags.includes('genre') ? 1 : 0,
+                mood: selectedTags.includes('mood') ? 1 : 0,
+                tempo: selectedTags.includes('tempo') ? 1 : 0
+            };
+        }
+    } else {
+        tagWeights = { genre: 0.5, mood: 0.3, tempo: 0.2 };
+    }
 
     // Compare users based on their tags
     for (const user1 of uniqueUserIds) {

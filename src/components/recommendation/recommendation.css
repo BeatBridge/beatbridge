@@ -2,6 +2,25 @@
     padding: 20px;
 }
 
+.recommendation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.view-history-button {
+    background-color: #800080;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.view-history-button:hover {
+    background-color: #0E152B;
+}
+
 .recommendation-subscreen {
     border-radius: 8px;
     padding: 20px;
