@@ -607,6 +607,25 @@ const API = {
         const data = await response.json();
         return data;
     },
+    updateSongTags: async (songId, tags) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/songs/${songId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                },
+                body: JSON.stringify(tags)
+            });
+            if (!response.ok) throw new Error('Failed to update song tags');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error updating song tags:', error);
+            return { error: 'Failed to update song tags' };
+        }
+    },
     fetchArtistImages: async (artistIds) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
 

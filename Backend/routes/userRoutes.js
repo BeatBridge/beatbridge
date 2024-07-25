@@ -692,6 +692,37 @@ router.delete('/songs/:id', authenticateJWT, async (req, res) => {
     }
 });
 
+router.put('/songs/:songId', authenticateJWT, async (req, res) => {
+    const { songId } = req.params;
+    const { genre, mood, tempo, customTags } = req.body;
+    const userId = req.user.id;
+
+    try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        const song = await prisma.song.findUnique({ where: { id: parseInt(songId) } });
+
+        if (!song || song.userId !== userId) {
+            return res.status(404).json({ error: 'Song not found or unauthorized' });
+        }
+
+        const updatedSong = await prisma.song.update({
+            where: { id: parseInt(songId) },
+            data: {
+                genre,
+                mood,
+                tempo,
+                customTags: JSON.stringify(customTags),
+                taggedAt: new Date()
+            }
+        });
+
+        res.json(updatedSong);
+    } catch (error) {
+        console.error('Error updating song tags:', error);
+        res.status(500).json({ error: 'Failed to update song tags.' });
+    }
+});
+
 router.post('/track-artist-search', authenticateJWT, async (req, res) => {
     const { artistSpotifyId } = req.body;
 

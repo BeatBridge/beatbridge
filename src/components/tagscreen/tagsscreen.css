@@ -70,10 +70,16 @@
     100% { transform: rotate(360deg); }
 }
 
+.edit-icon {
+    cursor: pointer;
+    color: whitesmoke;
+}
+
+.edit-icon:hover {
+    color: #007bff;
+}
+
 .trash-icon {
-    position: absolute;
-    bottom: 10px; /* Adjust as needed */
-    right: 10px; /* Adjust as needed */
     cursor: pointer;
     color: #800080;
 }
@@ -82,45 +88,7 @@
     color: #ff0000;
 }
 
-.modal {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 500px;
-    margin: auto;
-    text-align: center;
-}
-
-.overlay {
-    background-color: rgba(0, 0, 0, 0.75);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+.action-buttons {
     display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.delete-button {
-    background-color: #ff0000;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin: 10px;
-    cursor: pointer;
-}
-
-.cancel-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin: 10px;
-    cursor: pointer;
-}
-
-.delete-button:hover, .cancel-button:hover {
-    opacity: 0.8;
+    justify-content: space-between;
 }

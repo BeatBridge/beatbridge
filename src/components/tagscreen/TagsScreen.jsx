@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import API from '../../api.js';
 import CustomModal from '../custommodal/CustomModal';
+import EditTagsModal from '../custommodal/EditTagsModal';
 import './tagsscreen.css';
 import defaultAlbumCover from '../../../src/assets/defaultAlbumCover.png';
 
@@ -10,6 +11,7 @@ const TagsScreen = ({ userInfo }) => {
     const [taggedSongs, setTaggedSongs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedSong, setSelectedSong] = useState(null);
 
     useEffect(() => {
@@ -60,6 +62,27 @@ const TagsScreen = ({ userInfo }) => {
         }
     };
 
+    const openEditModal = (song) => {
+        setSelectedSong(song);
+        setIsEditModalOpen(true);
+    };
+
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
+        setSelectedSong(null);
+    };
+
+    const saveTags = async (updatedTags) => {
+        try {
+            const updatedSong = await API.updateSongTags(selectedSong.id, updatedTags);
+            setTaggedSongs(taggedSongs.map(song => song.id === updatedSong.id ? updatedSong : song));
+            closeEditModal();
+            window.location.reload();
+        } catch (error) {
+            console.error('Error updating tags:', error);
+        }
+    };
+
     return (
         <div className="container tags-page-container">
             <div className='row'>
@@ -82,11 +105,18 @@ const TagsScreen = ({ userInfo }) => {
                                             <p><strong>Genre:</strong> {song.genre}</p>
                                             <p><strong>Mood:</strong> {song.mood}</p>
                                             <p><strong>Tempo:</strong> {song.tempo}</p>
-                                            <FontAwesomeIcon
-                                                icon={faTrash}
-                                                className="trash-icon"
-                                                onClick={() => openModal(song)}
-                                            />
+                                            <div className='action-buttons'>
+                                                <FontAwesomeIcon
+                                                    icon={faEdit}
+                                                    className="edit-icon"
+                                                    onClick={() => openEditModal(song)}
+                                                />
+                                                <FontAwesomeIcon
+                                                    icon={faTrash}
+                                                    className="trash-icon"
+                                                    onClick={() => openModal(song)}
+                                                />
+                                            </div>
                                         </div>
                                     </li>
                                 ))}
@@ -104,6 +134,13 @@ const TagsScreen = ({ userInfo }) => {
                 onConfirm={deleteSong}
                 title="Confirm Delete"
                 message={`Are you sure you want to delete the tagged song "${selectedSong?.title}" by ${selectedSong?.artist}?`}
+            />
+
+            <EditTagsModal
+                isOpen={isEditModalOpen}
+                onRequestClose={closeEditModal}
+                song={selectedSong}
+                onSave={saveTags}
             />
         </div>
     );
