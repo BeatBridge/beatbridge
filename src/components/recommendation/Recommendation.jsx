@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './recommendation.css';
 import API from '../../api.js';
+import RecommendationHistory from '../recommendationhistory/RecommendationHistory.jsx';
 
 function Recommendation() {
     const [userInfo, setUserInfo] = useState(null);
@@ -10,6 +11,7 @@ function Recommendation() {
     const [preferences, setPreferences] = useState({ genre: true, mood: true, tempo: true });
     const [threshold, setThreshold] = useState(0.7); // Default threshold
     const [isDbRecommendation, setIsDbRecommendation] = useState(false);
+    const [showHistory, setShowHistory] = useState(false); // State to show/hide history
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -105,52 +107,52 @@ function Recommendation() {
 
     return (
         <div className="container recommendation-container">
-            <div className='row'>
-                <div className='col-md-12 sub-screen recommendation-subscreen'>
-                    <h1>Hi {userInfo?.username}, we recommend you to check out this artist:</h1>
-                    {recommendedArtist && (
-                        <div className="recommended-artist">
-                            <img src={recommendedArtist.imageUrl} alt={recommendedArtist.artistName} className="artist-image" />
-                            <div className="artist-details">
-                                <h2>{recommendedArtist.artistName}</h2>
-                                <p>{recommendedArtist.reason}</p>
-                            </div>
-                        </div>
-                    )}
-                    {isDbRecommendation && (
-                        <div>
-                            <div className="preferences">
-                                <label>
-                                    Genre:
-                                    <input type="checkbox" checked={preferences.genre} onChange={(e) => handlePreferenceChange('genre', e.target.checked)} />
-                                </label>
-                                <label>
-                                    Mood:
-                                    <input type="checkbox" checked={preferences.mood} onChange={(e) => handlePreferenceChange('mood', e.target.checked)} />
-                                </label>
-                                <label>
-                                    Tempo:
-                                    <input type="checkbox" checked={preferences.tempo} onChange={(e) => handlePreferenceChange('tempo', e.target.checked)} />
-                                </label>
-                            </div>
-                            <div className="slider-container">
-                                <label>
-                                    Similarity Threshold: {threshold}
-                                    <input
-                                        type="range"
-                                        min="0.1"
-                                        max="1.0"
-                                        step="0.1"
-                                        value={threshold}
-                                        onChange={handleThresholdChange}
-                                    />
-                                </label>
-                            </div>
-                            <button onClick={generateNewRecommendation}>Generate New Recommendation</button>
-                        </div>
-                    )}
-                </div>
+            <div className="header recommendation-header">
+                <h1>Hi {userInfo?.username}, we recommend you to check out this artist:</h1>
+                <button className="view-history-button" onClick={() => setShowHistory(true)}>View Recommendation History</button>
             </div>
+            {showHistory && <RecommendationHistory onClose={() => setShowHistory(false)} />}
+            {recommendedArtist && (
+                <div className="recommended-artist">
+                    <img src={recommendedArtist.imageUrl} alt={recommendedArtist.artistName} className="artist-image" />
+                    <div className="artist-details">
+                        <h2>{recommendedArtist.artistName}</h2>
+                        <p>{recommendedArtist.reason}</p>
+                    </div>
+                </div>
+            )}
+            {isDbRecommendation && (
+                <div>
+                    <div className="preferences">
+                        <label>
+                            Genre:
+                            <input type="checkbox" checked={preferences.genre} onChange={(e) => handlePreferenceChange('genre', e.target.checked)} />
+                        </label>
+                        <label>
+                            Mood:
+                            <input type="checkbox" checked={preferences.mood} onChange={(e) => handlePreferenceChange('mood', e.target.checked)} />
+                        </label>
+                        <label>
+                            Tempo:
+                            <input type="checkbox" checked={preferences.tempo} onChange={(e) => handlePreferenceChange('tempo', e.target.checked)} />
+                        </label>
+                    </div>
+                    <div className="slider-container">
+                        <label>
+                            Similarity Threshold: {threshold}
+                            <input
+                                type="range"
+                                min="0.1"
+                                max="1.0"
+                                step="0.1"
+                                value={threshold}
+                                onChange={handleThresholdChange}
+                            />
+                        </label>
+                    </div>
+                    <button onClick={generateNewRecommendation}>Generate New Recommendation</button>
+                </div>
+            )}
         </div>
     );
 }

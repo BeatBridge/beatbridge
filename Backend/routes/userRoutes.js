@@ -865,6 +865,58 @@ router.post('/generate-recommendation', authenticateJWT, async (req, res) => {
     }
 });
 
+router.get('/recommendation-history', authenticateJWT, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const recommendations = await prisma.recommendation.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        const fetchArtistImageUrl = async (artistName) => {
+            const searchResponse = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist`, {
+                headers: {
+                    'Authorization': `Bearer ${user.spotifyAccessToken}`
+                }
+            });
+
+            const searchData = await searchResponse.json();
+            const artistImageUrl = searchData.artists.items[0]?.images[0]?.url || '';
+            return artistImageUrl;
+        };
+
+        const recommendationsWithImages = await Promise.all(recommendations.map(async (rec) => {
+            const artistImageUrl = await fetchArtistImageUrl(rec.artistName);
+            return {
+                ...rec,
+                imageUrl: artistImageUrl,
+            };
+        }));
+
+        res.json(recommendationsWithImages);
+    } catch (error) {
+        console.error('Error fetching recommendation history:', error);
+        res.status(500).json({ error: 'Failed to fetch recommendation history.' });
+    }
+});
+
+router.post('/recommendation-feedback', authenticateJWT, async (req, res) => {
+    try {
+        const { recommendationId, feedback } = req.body;
+
+        await prisma.recommendation.update({
+            where: { id: recommendationId },
+            data: { feedback },
+        });
+
+        res.status(200).json({ message: 'Feedback submitted successfully.' });
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        res.status(500).json({ error: 'Failed to submit feedback.' });
+    }
+});
+
 router.post('/chat-with-ai',authenticateJWT,  async (req, res) => {
     const { prompt } = req.body;
     const {id} = req.user;

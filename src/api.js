@@ -491,6 +491,41 @@ const API = {
             return { error: 'Failed to generate recommendation' };
         }
     },
+    getRecommendationHistory: async (jwt) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/recommendation-history`, {
+                headers: {
+                    'Authorization': `Bearer ${jwt}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch recommendation history');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching recommendation history:', error);
+            return { error: 'Failed to fetch recommendation history' };
+        }
+    },
+    submitRecommendationFeedback: async (jwt, feedbackData) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/recommendation-feedback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt}`
+                },
+                body: JSON.stringify(feedbackData)
+            });
+            if (!response.ok) throw new Error('Failed to submit feedback');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+            return { error: 'Failed to submit feedback' };
+        }
+    },
     fetchChatHistory: async () => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
         const response = await fetch(`${backendUrlAccess}/user/chat-messages`, {
