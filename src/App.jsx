@@ -24,7 +24,7 @@ import Recommendation from './components/recommendation/Recommendation.jsx';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword.jsx';
 
 function App() {
-    const [JWT, setJWT] = useState(null);
+    const [JWT, setJWT] = useState(localStorage.getItem('jwt'));
     const [userInfo, setUserInfo] = useState({});
     const [globalTop50, setGlobalTop50] = useState([]);
     const [viral50Global, setViral50Global] = useState([]);
@@ -32,19 +32,13 @@ function App() {
     const [selectedTrack, setSelectedTrack] = useState(null);
     const [showTaggingForm, setShowTaggingForm] = useState(false);
     const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const localJWT = localStorage.getItem('jwt');
-        if (localJWT) {
-            setJWT(localJWT);
-        }
-    }, []);
-
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            if (JWT) {
+        if (JWT) {
+            const fetchUserInfo = async () => {
                 const data = await API.getUserInfo(JWT);
                 if (data.hasOwnProperty("error")) {
                     handleLogout();
@@ -53,41 +47,70 @@ function App() {
                     setUserInfo(data);
                     setIsSpotifySignedIn(!!data.spotifyAccessToken);
                 }
-            }
-        };
-        fetchUserInfo();
+            };
+            fetchUserInfo();
+        }
     }, [JWT, navigate]);
 
     useEffect(() => {
-        if (isSpotifySignedIn) {
-            const fetchGlobalTop50 = async () => {
-                try {
-                    const data = await API.getGlobalTop50(userInfo.spotifyAccessToken);
+        let isMounted = true;
+        const fetchGlobalTop50 = async () => {
+            if (!JWT) return;
+            setLoading(true);
+            try {
+                const data = await API.getGlobalTop50(userInfo.spotifyAccessToken);
+                if (isMounted) {
                     setGlobalTop50(data.tracks.items || []);
-                } catch (err) {
+                }
+            } catch (err) {
+                if (isMounted) {
                     setError(err.message || 'Failed to fetch global top 50.');
                 }
-            };
-            fetchGlobalTop50();
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
 
-            const fetchViral50Global = async () => {
-                try {
-                    const data = await API.getViral50Global(userInfo.spotifyAccessToken);
+        const fetchViral50Global = async () => {
+            if (!JWT) return;
+            setLoading(true);
+            try {
+                const data = await API.getViral50Global(userInfo.spotifyAccessToken);
+                if (isMounted) {
                     setViral50Global(data.tracks.items || []);
-                } catch (err) {
+                }
+            } catch (err) {
+                if (isMounted) {
                     setError(err.message || 'Failed to fetch viral 50 global.');
                 }
-            };
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        if (isSpotifySignedIn) {
+            fetchGlobalTop50();
             fetchViral50Global();
         }
-    }, [userInfo, isSpotifySignedIn]);
+
+        return () => {
+            isMounted = false;
+        };
+    }, [userInfo, isSpotifySignedIn, JWT]);
 
     const handleLogout = () => {
         localStorage.removeItem('jwt');
         localStorage.removeItem('spotifyAuth');
         setJWT(null);
         setUserInfo({});
+        setGlobalTop50([]);
+        setViral50Global([]);
         navigate('/login');
+        window.location.reload(); // Ensure full page reload
     };
 
     const handleSearchResults = (results) => {
@@ -208,6 +231,7 @@ function App() {
                             handleTag={handleTag}
                             handleSearchResults={handleSearchResults}
                             handleSuggestionClick={handleSuggestionClick}
+                            loading={loading}
                         />
                     </RequireAuth>
                 }>
@@ -215,7 +239,7 @@ function App() {
                     <Route path="/friends" element={<Friends />} />
                     <Route path="/trending" element={<TrendingArtists userInfo={userInfo} />} />
                     <Route path="/favourites" element={<Favourites userInfo={userInfo} />} />
-                    <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} />} />
+                    <Route path="/l/dashboard" element={<ListenerDashboard userInfo={userInfo} handleSearchResults={handleSearchResults} handleSuggestionClick={handleSuggestionClick} handleTrackClick={handleTrackClick} isSpotifySignedIn={isSpotifySignedIn} viral50Global={viral50Global} loading={loading} />} />
                     <Route path="/tags" element={<TagsScreen userInfo={userInfo} />} />
                     <Route path="/recommended" element={<Recommendation userInfo={userInfo} />} />
                     <Route path="/chatbot" element={<Chatbot userInfo={userInfo} />} />
