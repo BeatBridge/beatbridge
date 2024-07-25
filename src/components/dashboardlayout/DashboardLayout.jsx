@@ -9,6 +9,7 @@ import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
 import TaggingForm from '../tagform/TaggingForm.jsx';
 import MobileDashboard from '../dashboard/MobileDashboard';
 import FriendsSidebar from '../friends/FriendsSidebar';
+import ShimmerLoader from '../shimmerloader/ShimmerLoader.jsx';
 import '../dashboard/ldashboard.css';
 import './dashboardlayout.css';
 import API from '../../api.js';
@@ -31,6 +32,8 @@ function DashboardLayout({
     handleSearchResults,
     handleSuggestionClick,
     viral50Global,
+    loadingGlobalTop50,
+    loadingViral50Global
 }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -41,6 +44,7 @@ function DashboardLayout({
     const [newMessage, setNewMessage] = useState('');
     const [playerReady, setPlayerReady] = useState(false); // Track if the player is ready
     const [isPlaying, setIsPlaying] = useState(false); // Track if the player is playing
+    const [loading, setLoading] = useState(true); // Add this line
     const playerRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
@@ -113,6 +117,23 @@ function DashboardLayout({
             window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
         }
     }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true); // Set loading to true before starting data fetch
+            try {
+                if (isSpotifySignedIn && !viral50Global.length) {
+                    await handleSearchResults();
+                }
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+            } finally {
+                setLoading(false); // Set loading to false after data fetch is complete
+            }
+        };
+
+        fetchData();
+    }, [isSpotifySignedIn, viral50Global, handleSearchResults]);
 
     const getNavLinkClass = ({ isActive }) => (isActive ? 'menu active' : 'menu');
 
@@ -256,7 +277,7 @@ function DashboardLayout({
 
                         {/* MIDDLE COLUMN */}
                         <div className="col-md-7 scrollable-column">
-                            <Outlet context={{ selectedUser, setSelectedUser, messages, setMessages, newMessage, setNewMessage, sendMessage, closeChat, chatHistory, userInfo }} />
+                            <Outlet context={{ selectedUser, setSelectedUser, messages, setMessages, newMessage, setNewMessage, sendMessage, closeChat, chatHistory, userInfo, loading }} />
                         </div>
 
                         {/* RIGHT COLUMN */}
@@ -295,12 +316,14 @@ function DashboardLayout({
                                 <>
                                     <h4 className="l-top-artist-column">Global Top 3</h4>
                                     {isSpotifySignedIn ? (
-                                        globalTop50.length > 0 ? (
-                                            <div>
-                                                <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
-                                            </div>
+                                        loadingGlobalTop50 ? (
+                                            <ShimmerLoader type="track" count={3} />
                                         ) : (
-                                            <p>No top 3 artists found.</p>
+                                            globalTop50.length > 0 ? (
+                                                <GlobalTop50 tracks={globalTop50.slice(0, 3)} onTrackClick={handleTrackClick} />
+                                            ) : (
+                                                <p>No top 3 artists found.</p>
+                                            )
                                         )
                                     ) : (
                                         <p>Please sign in to Spotify to view this data.</p>
@@ -367,6 +390,7 @@ function DashboardLayout({
                     handleSearchResults={handleSearchResults}
                     handleSuggestionClick={handleSuggestionClick}
                     viral50Global={viral50Global}
+                    loading={loading}
                 />
             </div>
             <div id="hidden-player" style={{ display: 'none' }}></div>

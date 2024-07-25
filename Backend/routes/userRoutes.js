@@ -21,6 +21,9 @@ const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 const WSPORT = process.env.WSPORT
+const replicate = new Replicate({
+    auth: process.env.REPLICATE_API_TOKEN,
+});
 
 router.post("/signup", async (req, res) => {
     const { username, email, password } = req.body;
@@ -752,6 +755,7 @@ router.get('/trending-artists-momentum', authenticateJWT, async (req, res) => {
 router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
     try {
         const userId = req.user.id;
+        console.log("Fetching recommendation for user:", userId);
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -759,28 +763,67 @@ router.get('/latest-recommendation', authenticateJWT, async (req, res) => {
                 recommendation: {
                     orderBy: { createdAt: 'desc' },
                     take: 1,
-                }
+                },
+                spotifyAccessToken: true,
             }
         });
 
+        const fetchArtistImageUrl = async (artistName) => {
+            const searchResponse = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist`, {
+                headers: {
+                    'Authorization': `Bearer ${user.spotifyAccessToken}`
+                }
+            });
+
+            const searchData = await searchResponse.json();
+            const artistImageUrl = searchData.artists.items[0]?.images[0]?.url || '';
+            return artistImageUrl;
+        };
+
         if (!user || !user.recommendation.length) {
-            return res.status(404).json({ error: 'No recommendations found' });
+            const accessToken = user.spotifyAccessToken;
+            if (!accessToken) {
+                throw new Error('Spotify access token is missing or invalid');
+            }
+
+            const playlistId = '37i9dQZEVXbLiRSasKsNU9'; // Viral 50 Global playlist ID
+            const spotifyResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            const spotifyData = await spotifyResponse.json();
+
+            if (!spotifyResponse.ok) {
+                throw new Error('Failed to fetch viral songs from Spotify');
+            }
+
+            const viralTrack = spotifyData.tracks.items[0];
+            const artistName = viralTrack.track.artists[0].name;
+            const artistImageUrl = await fetchArtistImageUrl(artistName);
+
+            return res.json({
+                artistName,
+                trackName: viralTrack.track.name,
+                imageUrl: artistImageUrl,
+                reason: `This is one of the top viral songs on Spotify right now: "${viralTrack.track.name}" by ${artistName}`
+            });
         }
 
         const latestRecommendation = user.recommendation[0];
 
+        const artistImageUrl = await fetchArtistImageUrl(latestRecommendation.artistName);
+
         res.json({
             artistName: latestRecommendation.artistName,
+            imageUrl: artistImageUrl,
             reason: latestRecommendation.reason,
         });
     } catch (error) {
         console.error('Error fetching latest recommendation:', error);
         res.status(500).json({ error: 'Failed to fetch latest recommendation.' });
     }
-});
-
-const replicate = new Replicate({
-    auth: process.env.REPLICATE_API_TOKEN,
 });
 
 router.post('/chat-with-ai',authenticateJWT,  async (req, res) => {

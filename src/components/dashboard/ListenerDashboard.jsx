@@ -10,6 +10,7 @@ import danceImg from '../../assets/genres/dance.jpeg';
 import reggaeImg from '../../assets/genres/reggae.jpeg';
 import rockImg from '../../assets/genres/rock.jpg';
 import Viral50Global from '../viral50global/Viral50Global.jsx';
+import ShimmerLoader from '../shimmerloader/ShimmerLoader.jsx';
 import './ldashboard.css';
 
 function ListenerDashboard({
@@ -19,9 +20,10 @@ function ListenerDashboard({
   isSpotifySignedIn,
   viral50Global,
   userInfo,
+  loading
 }) {
   useEffect(() => {
-    if (isSpotifySignedIn && !viral50Global.length) {
+    if (isSpotifySignedIn && viral50Global.length === 0) {
       handleSearchResults();
     }
   }, [isSpotifySignedIn, viral50Global, handleSearchResults]);
@@ -57,12 +59,14 @@ function ListenerDashboard({
 
         <div>
           {isSpotifySignedIn ? (
-            viral50Global.length > 0 ? (
-              <div>
-                <Viral50Global tracks={viral50Global.slice(0, 10)} onTrackClick={handleTrackClick} />
-              </div>
+            loading ? (
+              <ShimmerLoader type="track" count={10} />
             ) : (
-              <p>No top 10 global songs found.</p>
+              viral50Global.length > 0 ? (
+                <Viral50Global tracks={viral50Global.slice(0, 10)} onTrackClick={handleTrackClick} loading={loading} />
+              ) : (
+                <p>No top 10 global songs found.</p>
+              )
             )
           ) : (
             <p>Please sign in to Spotify to view this data.</p>

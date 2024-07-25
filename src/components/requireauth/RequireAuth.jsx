@@ -1,14 +1,12 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import './requireauth.css';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-function RequireAuth ({ children }) {
-    const location = useLocation();
-    const jwt = localStorage.getItem('jwt');
-    if (!jwt) {
-        return <Navigate to="/login" state={{ from: location }} replace />;
+const RequireAuth = ({ children }) => {
+    const JWT = localStorage.getItem('jwt');
+    if (!JWT) {
+        return <Navigate to="/login" />;
     }
     return children;
-}
-
+};
 
 export default RequireAuth;

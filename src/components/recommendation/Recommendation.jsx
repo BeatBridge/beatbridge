@@ -39,6 +39,7 @@ function Recommendation() {
                     setRecommendedArtist(data);
                 }
             } catch (err) {
+                console.error('Failed to fetch recommended artist:', err);
                 setError('Failed to fetch recommended artist');
             }
         };
@@ -46,16 +47,23 @@ function Recommendation() {
         fetchRecommendedArtist();
     }, []);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div className="shimmer"></div>;
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="container">
+        <div className="container recommendation-container">
             <div className='row'>
-                <div className='col-md-12 sub-screen'>
-                    <h1>Hi {userInfo.username}, we recommend you to check out this artist:</h1>
-                    <h2>{recommendedArtist?.artistName}</h2>
-                    <p>{recommendedArtist?.reason}</p>
+                <div className='col-md-12 sub-screen recommendation-subscreen'>
+                    <h1>Hi {userInfo?.username}, we recommend you to check out this artist:</h1>
+                    {recommendedArtist && (
+                        <div className="recommended-artist">
+                            <img src={recommendedArtist.imageUrl} alt={recommendedArtist.artistName} className="artist-image" />
+                            <div className="artist-details">
+                                <h2>{recommendedArtist.artistName}</h2>
+                                <p>{recommendedArtist.reason}</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
