@@ -472,6 +472,25 @@ const API = {
             return { error: 'Failed to fetch latest recommendation' };
         }
     },
+    generateRecommendation: async (jwt, preferences) => {
+        try {
+            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+            const response = await fetch(`${backendUrlAccess}/user/generate-recommendation`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt}`
+                },
+                body: JSON.stringify({ preferences })
+            });
+            if (!response.ok) throw new Error('Failed to generate recommendation');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error generating recommendation:', error);
+            return { error: 'Failed to generate recommendation' };
+        }
+    },
     fetchChatHistory: async () => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
         const response = await fetch(`${backendUrlAccess}/user/chat-messages`, {
