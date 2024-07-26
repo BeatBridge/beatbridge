@@ -39,10 +39,14 @@ function ListenerDashboard({
     setLoadingArtists(true);
     try {
       const newArtists = await API.fetchLeastPopularArtists(artistSkip, ARTIST_BATCH_SIZE);
+      const filteredArtists = newArtists.filter(artist => artist.imageUrl); // Filter out artists without images
       if (newArtists.length < ARTIST_BATCH_SIZE) {
         setHasMoreArtists(false);
+      } else {
+        setHasMoreArtists(true);
       }
-      setArtists(prevArtists => [...prevArtists, ...newArtists]);
+
+      setArtists(prevArtists => [...prevArtists, ...filteredArtists]);
       setArtistSkip(prevSkip => prevSkip + ARTIST_BATCH_SIZE);
     } catch (error) {
       console.error('Error fetching artists:', error);
@@ -63,16 +67,21 @@ function ListenerDashboard({
           </h5>
           <div className="l-discover-header">
             <h2>Discover Artists</h2>
-            {hasMoreArtists && <h5 onClick={fetchArtists}>Show More</h5>}
+            {hasMoreArtists && !loadingArtists && (
+              <h5 onClick={fetchArtists} className="show-more-link">Show More</h5>
+            )}
           </div>
         </div>
         <div className="l-discover-artist-container">
-          {loadingArtists ? (
+          {loadingArtists && artists.length === 0 ? (
             <ShimmerLoader type="artist" count={ARTIST_BATCH_SIZE} className="ld-shimmer" />
           ) : (
             artists.map(artist => (
               <DiscoverArtist key={artist.id} artist={artist} />
             ))
+          )}
+          {loadingArtists && artists.length > 0 && (
+            <ShimmerLoader type="artist" count={ARTIST_BATCH_SIZE} className="ld-shimmer" />
           )}
         </div>
       </div>

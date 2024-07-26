@@ -196,19 +196,20 @@ router.get('/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) =>
             },
             select: {
                 spotifyId: true,
+                name: true,
                 imageUrl: true
             }
         });
 
         const dbArtistImages = dbArtists.reduce((acc, artist) => {
-            acc[artist.spotifyId] = artist.imageUrl;
+            acc[artist.spotifyId] = { name: artist.name, imageUrl: artist.imageUrl };
             return acc;
         }, {});
 
         const missingArtistIds = artistIds.filter(id => !dbArtistImages[id]);
 
         if (missingArtistIds.length === 0) {
-            return res.json({ artists: dbArtistImages });
+            return res.json({ artists: dbArtists.map(artist => ({ id: artist.spotifyId, name: artist.name, imageUrl: artist.imageUrl })) });
         }
 
         const response = await fetch(`https://api.spotify.com/v1/artists?ids=${missingArtistIds.join(',')}`, {
@@ -229,20 +230,38 @@ router.get('/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) =>
             return res.status(response.status).json({ error: data.error || "Failed to fetch artist details." });
         }
 
-        const apiArtistImages = data.artists.reduce((acc, artist) => {
+        const apiArtistImages = data.artists.map(artist => {
             const imageUrl = artist.images.length > 0 ? artist.images[0].url : null;
-            acc[artist.id] = imageUrl;
 
-            // Update the database
-            prisma.artist.update({
-                where: { spotifyId: artist.id },
-                data: { imageUrl }
-            }).catch(err => console.error('Error updating artist image in database:', err));
+            // Check if the artist exists in the database
+            const existingArtist = prisma.artist.findUnique({
+                where: { spotifyId: artist.id }
+            });
 
-            return acc;
-        }, {});
+            if (existingArtist) {
+                // Update the existing artist's image
+                prisma.artist.update({
+                    where: { spotifyId: artist.id },
+                    data: { imageUrl }
+                }).catch(err => console.error('Error updating artist image in database:', err));
+            } else {
+                // Create a new artist record
+                prisma.artist.create({
+                    data: {
+                        spotifyId: artist.id,
+                        name: artist.name,
+                        genres: artist.genres,
+                        popularity: artist.popularity,
+                        followerCount: artist.followers.total,
+                        imageUrl: imageUrl
+                    }
+                }).catch(err => console.error('Error creating artist in database:', err));
+            }
 
-        res.json({ artists: { ...dbArtistImages, ...apiArtistImages } });
+            return { id: artist.id, name: artist.name, imageUrl };
+        });
+
+        res.json({ artists: [...dbArtists.map(artist => ({ id: artist.spotifyId, name: artist.name, imageUrl: artist.imageUrl })), ...apiArtistImages] });
     } catch (error) {
         console.error('Error fetching artist details:', error);
         res.status(500).json({ error: "Failed to fetch artist details." });

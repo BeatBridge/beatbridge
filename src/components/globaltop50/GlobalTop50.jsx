@@ -64,7 +64,7 @@ const GlobalTop50 = ({ tracks, loading }) => {
     try {
       const response = await API.fetchArtistImages(artistIds);
       const images = response.artists.reduce((acc, artist) => {
-        acc[artist.id] = artist.images[0] ? artist.images[0].url : null;
+        acc[artist.id] = artist.imageUrl;
         return acc;
       }, {});
       setArtistImages(images);

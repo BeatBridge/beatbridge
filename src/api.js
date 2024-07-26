@@ -589,28 +589,33 @@ const API = {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
 
         try {
-          const response = await fetch(`${backendUrlAccess}/spotify/artists?artistIds=${artistIds}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
-            },
-          });
+            const response = await fetch(`${backendUrlAccess}/spotify/artists?artistIds=${artistIds}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+                },
+            });
 
-          if (response.status === 429) {
-            console.warn('Frontend: Rate limited by Spotify API');
-            return { error: 'Frontend: Rate limited by Spotify API' };
-          }
+            if (response.status === 429) {
+                console.warn('Frontend: Rate limited by Spotify API');
+                return { error: 'Frontend: Rate limited by Spotify API' };
+            }
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error fetching artist images:', errorText);
-            throw new Error('Failed to fetch artist images');
-          }
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error fetching artist images:', errorText);
+                throw new Error('Failed to fetch artist images');
+            }
 
-          return await response.json();
+            const data = await response.json();
+            if (!Array.isArray(data.artists)) {
+                console.error('Invalid artist data format:', data);
+                throw new Error('Invalid artist data format');
+            }
+            return data;
         } catch (error) {
-          console.error('Error fetching artist images:', error);
-          throw error;
+            console.error('Error fetching artist images:', error);
+            throw error;
         }
     },
     fetchPlaylists: async () => {

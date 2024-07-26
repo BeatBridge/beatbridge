@@ -12,6 +12,8 @@ function DiscoverArtist({ artist }) {
   const { name, followerCount, imageUrl } = artist || {};
   const formattedFollowers = formatNumberWithCommas(followerCount);
 
+  if (!imageUrl) return null;
+
   return (
     <div className="discover-artist-container">
       <div className="discover-artist-image">

@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { fetchWithRetry } = require('./fetchWithRetry');
+const { delay, fetchWithRetry } = require('./fetchWithRetry');
 const { refreshSpotifyToken } = require('./spotifyUtils');
 require('./createSystemUser.js');
 

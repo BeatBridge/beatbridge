@@ -36,7 +36,7 @@ function Landing() {
     }, []);
 
     return (
-        <>
+        <div className='landing-container'>
             <Navbar />
 
             <main>
@@ -114,7 +114,7 @@ function Landing() {
                 </div>
             </main>
 
-        </>
+        </div>
     )
 }
 

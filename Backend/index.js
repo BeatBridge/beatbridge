@@ -15,10 +15,7 @@ const youtubeRoutes = require('./routes/ytMusicRoutes.js')
 const utilityRoutes = require('./routes/utilityRoutes.js')
 const { configureSocket } = require('./socket.js');
 
-require('./utils/cronJobMap.js');
-require('./utils/cronJobTrendingArtists.js')
-require('./utils/cronJobRecommendation.js')
-require('./utils/cronJobUpdateArtistImages.js')
+require('./utils/cronJobs.js');
 
 const app = express();
 const server = http.createServer(app);
