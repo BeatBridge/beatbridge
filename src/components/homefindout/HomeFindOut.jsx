@@ -8,7 +8,7 @@ function HomeFindOut (props) {
             </div>
             <div className='genre-text-cont'>
                 <h5>{props.genre_name}</h5>
-                <p>Lorem amet ipsum.</p>
+                <p>{props.description}</p>
             </div>
         </div>
     )

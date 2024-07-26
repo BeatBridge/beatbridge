@@ -8,7 +8,7 @@ import logoImg from '/beatbridge_logo.png';
 import LSearchForm from '../searchform/LSearchForm.jsx';
 import GlobalTop50 from '../globaltop50/GlobalTop50.jsx';
 import TaggingForm from '../tagform/TaggingForm.jsx';
-import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
+import DiscoverArtist from '../discoverartist/DiscoverArtist.jsx';
 import discoImg from '../../assets/genres/disco.jpg';
 import popImg from '../../assets/genres/pop.jpg';
 import danceImg from '../../assets/genres/dance.jpeg';
@@ -124,7 +124,7 @@ function MobileDashboard({
       </div>
 
       <div className="mobile-content">
-        <LSearchForm onSearchResults={handleSearchResults} onSuggestionClick={handleSuggestionClick} />  {/* Add search form */}
+        <LSearchForm onSearchResults={handleSearchResults} onSuggestionClick={handleSuggestionClick} />
 
         {selectedTrack && (
           <div className="mobile-track-details">
@@ -169,11 +169,11 @@ function MobileDashboard({
           </div>
 
           <div className="mobile-section-content">
-            <DiscoverGenre genre_img={discoImg} genre_name="Disco" track_num={120} />
-            <DiscoverGenre genre_img={popImg} genre_name="Pop" track_num={180} />
-            <DiscoverGenre genre_img={danceImg} genre_name="Dance" track_num={100} />
-            <DiscoverGenre genre_img={reggaeImg} genre_name="Reggae" track_num={170} />
-            <DiscoverGenre genre_img={rockImg} genre_name="Rock" track_num={200} />
+            <DiscoverArtist genre_img={discoImg} genre_name="Disco" track_num={120} />
+            <DiscoverArtist genre_img={popImg} genre_name="Pop" track_num={180} />
+            <DiscoverArtist genre_img={danceImg} genre_name="Dance" track_num={100} />
+            <DiscoverArtist genre_img={reggaeImg} genre_name="Reggae" track_num={170} />
+            <DiscoverArtist genre_img={rockImg} genre_name="Rock" track_num={200} />
           </div>
         </div>
 

@@ -1,17 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import LSearchForm from '../searchform/LSearchForm.jsx';
 import { FaMusic } from 'react-icons/fa';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeadphonesSimple } from '@fortawesome/free-solid-svg-icons';
-import DiscoverGenre from '../discovergenre/DiscoverGenre.jsx';
-import discoImg from '../../assets/genres/disco.jpg';
-import popImg from '../../assets/genres/pop.jpg';
-import danceImg from '../../assets/genres/dance.jpeg';
-import reggaeImg from '../../assets/genres/reggae.jpeg';
-import rockImg from '../../assets/genres/rock.jpg';
+import DiscoverArtist from '../discoverartist/DiscoverArtist.jsx';
 import Viral50Global from '../viral50global/Viral50Global.jsx';
 import ShimmerLoader from '../shimmerloader/ShimmerLoader.jsx';
 import './ldashboard.css';
+import API from '../../api.js';
+
+const ARTIST_BATCH_SIZE = 10;
 
 function ListenerDashboard({
   handleSearchResults,
@@ -22,11 +20,40 @@ function ListenerDashboard({
   userInfo,
   loading
 }) {
+  const [artists, setArtists] = useState([]);
+  const [loadingArtists, setLoadingArtists] = useState(true);
+  const [hasMoreArtists, setHasMoreArtists] = useState(true);
+  const [artistSkip, setArtistSkip] = useState(0);
+
   useEffect(() => {
     if (isSpotifySignedIn && viral50Global.length === 0) {
       handleSearchResults();
     }
   }, [isSpotifySignedIn, viral50Global, handleSearchResults]);
+
+  useEffect(() => {
+    fetchArtists();
+  }, []);
+
+  const fetchArtists = async () => {
+    setLoadingArtists(true);
+    try {
+      const newArtists = await API.fetchLeastPopularArtists(artistSkip, ARTIST_BATCH_SIZE);
+      const filteredArtists = newArtists.filter(artist => artist.imageUrl); // Filter out artists without images
+      if (newArtists.length < ARTIST_BATCH_SIZE) {
+        setHasMoreArtists(false);
+      } else {
+        setHasMoreArtists(true);
+      }
+
+      setArtists(prevArtists => [...prevArtists, ...filteredArtists]);
+      setArtistSkip(prevSkip => prevSkip + ARTIST_BATCH_SIZE);
+    } catch (error) {
+      console.error('Error fetching artists:', error);
+    } finally {
+      setLoadingArtists(false);
+    }
+  };
 
   return (
     <div className='l-center-bar'>
@@ -38,15 +65,24 @@ function ListenerDashboard({
           <h5>
             <FaMusic className="l-discover-genre-music-icon" />
           </h5>
-          <h2>Discover Genre</h2>
+          <div className="l-discover-header">
+            <h2>Discover Artists</h2>
+            {hasMoreArtists && !loadingArtists && (
+              <h5 onClick={fetchArtists} className="show-more-link">Show More</h5>
+            )}
+          </div>
         </div>
-
-        <div className="l-discover-genre-bottom">
-          <DiscoverGenre genre_img={discoImg} genre_name="Disco" track_num={120} />
-          <DiscoverGenre genre_img={popImg} genre_name="Pop" track_num={180} />
-          <DiscoverGenre genre_img={danceImg} genre_name="Dance" track_num={100} />
-          <DiscoverGenre genre_img={reggaeImg} genre_name="Reggae" track_num={170} />
-          <DiscoverGenre genre_img={rockImg} genre_name="Rock" track_num={200} />
+        <div className="l-discover-artist-container">
+          {loadingArtists && artists.length === 0 ? (
+            <ShimmerLoader type="artist" count={ARTIST_BATCH_SIZE} className="ld-shimmer" />
+          ) : (
+            artists.map(artist => (
+              <DiscoverArtist key={artist.id} artist={artist} />
+            ))
+          )}
+          {loadingArtists && artists.length > 0 && (
+            <ShimmerLoader type="artist" count={ARTIST_BATCH_SIZE} className="ld-shimmer" />
+          )}
         </div>
       </div>
       <div>
@@ -56,7 +92,6 @@ function ListenerDashboard({
           </h5>
           <h2>Top 10 Viral Songs</h2>
         </div>
-
         <div>
           {isSpotifySignedIn ? (
             loading ? (

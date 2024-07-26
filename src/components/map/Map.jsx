@@ -26,6 +26,7 @@ function Map() {
             const result = await API.getGenresByLocation();
             if (result.error) {
                 setError(result.error);
+                window.location.reload();
             } else {
                 setLocations(result);
             }

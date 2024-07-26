@@ -65,7 +65,7 @@ const Login = ({ setJWT }) => {
             </div>
 
             <div className='row mt-4'>
-                <div className='col-md-6 col-lg-4 mx-auto'>
+                <div className='col-md-6 col-lg-4 mx-auto login-form-container'>
                     <h5 className="welcome1">Welcome Back! Join thousands of users</h5>
                     <h6 className="welcome2">
                         New to Beatbridge? <Link to='/signup' className="redirect">Create an account</Link>

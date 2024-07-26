@@ -49,8 +49,11 @@ function Profile({ userInfo }) {
 
         // Fetch Tagged Songs
         const songs = await API.fetchTaggedSongs();
-        const artistIds = [...new Set(songs.map(song => song.artistId))].filter(id => id);
-        setArtistIds(artistIds);
+        const artistIdsWithDate = songs
+          .filter(song => song.artistId)
+          .map(song => ({ artistId: song.artistId, taggedAt: song.taggedAt }));
+
+        setArtistIds(artistIdsWithDate);
       } catch (error) {
         console.error('Error fetching profile picture or tagged songs:', error);
         setProfilePictureUrl(DEFAULT_PROFILE_PICTURE_URL);
@@ -68,18 +71,27 @@ function Profile({ userInfo }) {
       try {
         // Fetch Artist Images
         if (artistIds.length > 0) {
-          const data = await API.fetchArtistImages(artistIds.join(','));
+          const artistIdsOnly = artistIds.map(artist => artist.artistId);
+          const data = await API.fetchArtistImages(artistIdsOnly.join(','));
           if (data.error) {
             console.warn('Rate limited, using default artist images');
-            const defaultArtists = artistIds.map(id => ({ id, images: [{ url: DEFAULT_ARTIST_PICTURE_URL }] }));
+            const defaultArtists = artistIds.map(({ artistId }) => ({ id: artistId, name: 'Unknown Artist', images: [{ url: DEFAULT_ARTIST_PICTURE_URL }] }));
             setFollowedArtists(defaultArtists);
             setDisplayedArtists(defaultArtists.slice(0, ARTIST_BATCH_SIZE));
             setHasMoreArtists(defaultArtists.length > ARTIST_BATCH_SIZE);
           } else {
-            const artists = data.artists.map(artist => ({
-              ...artist,
-              images: artist.images.length > 0 ? artist.images : [{ url: DEFAULT_ARTIST_PICTURE_URL }]
-            }));
+            const artists = artistIds.map(({ artistId, taggedAt }) => {
+              const artistData = data.artists.find(artist => artist.id === artistId);
+              return {
+                id: artistData.id,
+                name: artistData.name,
+                images: artistData.imageUrl ? [{ url: artistData.imageUrl }] : [{ url: DEFAULT_ARTIST_PICTURE_URL }],
+                taggedAt
+              };
+            });
+
+            artists.sort((a, b) => new Date(b.taggedAt) - new Date(a.taggedAt)); // Sort by newest first
+
             setFollowedArtists(artists);
             setDisplayedArtists(artists.slice(0, ARTIST_BATCH_SIZE));
             setHasMoreArtists(artists.length > ARTIST_BATCH_SIZE);

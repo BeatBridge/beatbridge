@@ -1,4 +1,3 @@
-/* Base styling for the dashboard container */
 .l-dashbaord-container {
     padding: 2vh 1.5vw;
     background-color: #151E3F;
@@ -9,14 +8,12 @@
     display: flex;
 }
 
-/* Flex layout for rows */
 .row {
     display: flex;
     width: 100%;
     height: 100%;
 }
 
-/* Common styling for both sidebars */
 .l-left-sidebar, .l-right-sidebar {
     height: 95vh;
     overflow-y: auto;
@@ -26,14 +23,12 @@
     padding-top: 1vh;
 }
 
-/* Styling for the logo */
 .l-logo {
     font-size: 2rem;
     text-decoration: none;
     color: #F2F3D9;
 }
 
-/* Borders for sidebar distinction */
 .l-left-sidebar {
     border-right: 1px solid #800080;
 }
@@ -42,7 +37,6 @@
     border-left: 1px solid #800080;
 }
 
-/* Scrollable content areas */
 .scrollable-column {
     overflow-y: auto;
     height: 95vh;
@@ -51,13 +45,11 @@
     scrollbar-color: #F2F3D9 #151E3F;
 }
 
-/* Custom scrollbar styles */
 .l-left-sidebar::-webkit-scrollbar, .l-right-sidebar::-webkit-scrollbar {
     width: 5px;
     height: 5px;
 }
 
-/* Profile container styling */
 .l-dashboard-profile-container {
     width: 30px;
     height: 30px;
@@ -71,7 +63,6 @@
     position: relative;
 }
 
-/* User info display */
 .l-right-sidebar-top {
     display: flex;
     justify-content: space-between;
@@ -143,14 +134,12 @@
     padding-left: 0.5rem;
 }
 
-/* Notification icon */
 .l-dash-bell-icon {
     font-size: 1.7rem;
     margin-bottom: 0.7rem;
     cursor: pointer;
 }
 
-/* Menu items styling */
 .l-left-sidebar hr {
     border-bottom: 3px solid #800080;
 }
@@ -217,7 +206,6 @@
     padding-bottom: 15px;
 }
 
-/* Search modal styling */
 .search-modal {
     position: fixed;
     top: 0;
@@ -326,6 +314,28 @@
 .tag-art-container, .tag-art-container img {
     width: 100%;
 }
+
+  .l-discover-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .l-discover-header h5 {
+    text-decoration: underline;
+  }
+
+  .l-discover-header h5:hover {
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .l-discover-artist-container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
 
 .desktop-dashboard {
     display: block;

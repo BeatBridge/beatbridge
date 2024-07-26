@@ -2,7 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 5vh 0 3vh 0;
+    padding: 5vh 0 3vh 0;
 }
 
 .about-title h2 {
@@ -23,7 +23,6 @@
 .about-card-container-2 {
     display: none;
 }
-
 
 @media only screen and (max-width: 768px) {
     .about-card-container-1 {

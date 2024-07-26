@@ -22,6 +22,7 @@ import TrendingArtists from './components/trendingartists/TrendingArtists.jsx';
 import DashboardLayout from './components/dashboardlayout/DashboardLayout.jsx';
 import Recommendation from './components/recommendation/Recommendation.jsx';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword.jsx';
+import ErrorBoundary from './components/errorboundary/ErrorBoundary.jsx';
 
 function App() {
     const [JWT, setJWT] = useState(localStorage.getItem('jwt'));
@@ -191,7 +192,7 @@ function App() {
     };
 
     return (
-        <>
+        <ErrorBoundary>
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path='/login' element={<Login setJWT={setJWT} />} />
@@ -236,7 +237,7 @@ function App() {
                     <Route path="/a/trends" element={<ArtistTrendingScreen userInfo={userInfo} />} />
                 </Route>
             </Routes>
-        </>
+        </ErrorBoundary>
     );
 }
 
