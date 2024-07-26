@@ -99,6 +99,7 @@ model Artist {
   locations             Location[] @relation("ArtistToLocation")
   trending              TrendingArtist[]
   artistSearches        ArtistSearch[]
+  imageUrl              String?
 }
 
 model Location {

@@ -469,17 +469,42 @@ router.get('/spotify/tracks', authenticateJWT, spotifyTokenRefresh, async (req, 
 });
 
 router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req, res) => {
-    const artistIds = req.query.artistIds;
-    const user = await prisma.user.findUnique({
-        where: { id: req.user.id }
-    });
-
-    if (!artistIds) {
+    const artistIds = req.query.artistIds ? req.query.artistIds.split(',') : [];
+    if (artistIds.length === 0) {
         return res.status(400).json({ error: 'No artist IDs provided.' });
     }
 
     try {
-        const response = await fetch(`https://api.spotify.com/v1/artists?ids=${artistIds}`, {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id }
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const dbArtists = await prisma.artist.findMany({
+            where: {
+                spotifyId: { in: artistIds }
+            },
+            select: {
+                spotifyId: true,
+                imageUrl: true
+            }
+        });
+
+        const dbArtistImages = dbArtists.reduce((acc, artist) => {
+            acc[artist.spotifyId] = artist.imageUrl;
+            return acc;
+        }, {});
+
+        const missingArtistIds = artistIds.filter(id => !dbArtistImages[id]);
+
+        if (missingArtistIds.length === 0) {
+            return res.json({ artists: dbArtistImages });
+        }
+
+        const response = await fetch(`https://api.spotify.com/v1/artists?ids=${missingArtistIds.join(',')}`, {
             headers: {
                 'Authorization': `Bearer ${user.spotifyAccessToken}`
             }
@@ -497,7 +522,20 @@ router.get('/spotify/artists', authenticateJWT, spotifyTokenRefresh, async (req,
             return res.status(response.status).json({ error: data.error || "Failed to fetch artist details." });
         }
 
-        res.json(data);
+        const apiArtistImages = data.artists.reduce((acc, artist) => {
+            const imageUrl = artist.images.length > 0 ? artist.images[0].url : null;
+            acc[artist.id] = imageUrl;
+
+            // Update the database
+            prisma.artist.update({
+                where: { spotifyId: artist.id },
+                data: { imageUrl }
+            }).catch(err => console.error('Error updating artist image in database:', err));
+
+            return acc;
+        }, {});
+
+        res.json({ artists: { ...dbArtistImages, ...apiArtistImages } });
     } catch (error) {
         console.error('Error fetching artist details:', error);
         res.status(500).json({ error: "Failed to fetch artist details." });
@@ -942,6 +980,21 @@ router.get('/recommendation-history', authenticateJWT, async (req, res) => {
     } catch (error) {
         console.error('Error fetching recommendation history:', error);
         res.status(500).json({ error: 'Failed to fetch recommendation history.' });
+    }
+});
+
+router.get('/artists/least-popular', authenticateJWT, async (req, res) => {
+    const { skip = 0, take = 10 } = req.query;
+    try {
+      const artists = await prisma.artist.findMany({
+        orderBy: { popularity: 'asc' },
+        skip: parseInt(skip),
+        take: parseInt(take),
+      });
+      res.json(artists);
+    } catch (error) {
+      console.error('Error fetching least popular artists:', error);
+      res.status(500).json({ error: 'Failed to fetch least popular artists.' });
     }
 });
 

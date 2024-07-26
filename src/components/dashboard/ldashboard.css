@@ -327,6 +327,28 @@
     width: 100%;
 }
 
+  .l-discover-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .l-discover-header h5 {
+    text-decoration: underline;
+  }
+
+  .l-discover-header h5:hover {
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .l-discover-artist-container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
 .desktop-dashboard {
     display: block;
 }

@@ -779,6 +779,29 @@ const API = {
             console.error('Error searching YouTube Music:', error);
             return null;
         }
+    },
+    fetchLeastPopularArtists: async (skip = 0, take = 10) => {
+        const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
+
+        try {
+          const response = await fetch(`${backendUrlAccess}/user/artists/least-popular?skip=${skip}&take=${take}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            },
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error fetching least popular artists:', errorText);
+            throw new Error('Failed to fetch least popular artists');
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error('Error fetching least popular artists:', error);
+          throw error;
+        }
     }
 };
 
