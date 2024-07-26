@@ -47,7 +47,7 @@ Many music enthusiasts, particularly those who enjoy niche genres or indie artis
 - **Database**: PostgreSQL
 - **ORM**: Prisma
 - **Authentication**: JWT, bcrypt
-- **APIs**: Spotify, Replicate
+- **APIs**: Spotify, MusicBrainz, GeoNames, Replicate, YoutubeMusic
 - **Others**: WebSockets, Llama AI, Node.js
 
 ## Project Structure
