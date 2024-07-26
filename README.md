@@ -267,9 +267,7 @@ model DirectMessage {
 - `GET /spotify/viral-50-global` - Fetch viral 50 global songs on Spotify (protected)
 - `GET /spotify/search` - Search songs on Spotify (protected)
 - `GET /spotify/featured-playlists` - Fetch featured playlists on Spotify (protected)
-- `GET /
-
-spotify/playlists/:playlistId/tracks` - Fetch tracks of a playlist on Spotify (protected)
+- `GET /spotify/playlists/:playlistId/tracks` - Fetch tracks of a playlist on Spotify (protected)
 - `GET /spotify/tracks` - Fetch details of specific tracks on Spotify (protected)
 - `GET /spotify/artists` - Fetch details of specific artists on Spotify (protected)
 
