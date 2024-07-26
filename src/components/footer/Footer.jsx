@@ -36,7 +36,7 @@ function Footer () {
 
                             <div className='col-md-2'>
                                 <h4 className='text-uppercase font-weight-bold'>
-                                    <a href="">Contact</a>
+                                    <a href="mailto:ayomideadekoya266@gmail.com">Contact</a>
                                 </h4>
                             </div>
                         </div>

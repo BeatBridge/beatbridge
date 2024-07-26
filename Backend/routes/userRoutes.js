@@ -1232,4 +1232,25 @@ router.get('/protected-route', authenticateJWT, (req, res) => {
     res.json({ message: 'This is a protected route' });
 });
 
+router.get('/public-top-playlists', async (req, res) => {
+    try {
+        const topPlaylists = await prisma.playlist.findMany({
+            include: {
+                tracks: true,
+            },
+            orderBy: {
+                tracks: {
+                    _count: 'desc',
+                },
+            },
+            take: 4,
+        });
+
+        res.json(topPlaylists);
+    } catch (error) {
+        console.error('Error fetching top playlists:', error);
+        res.status(500).json({ error: "Failed to fetch top playlists." });
+    }
+});
+
 module.exports = router;

@@ -34,7 +34,7 @@ function Navbar() {
                         <NavLink className="nav-link" to="/blog" activeclassname="active">Blog</NavLink>
                     </li>
                     <li className="nav-item">
-                        <a className="nav-link" href="https://docs.google.com/document/d/19xVMNChFc0ccuvewNZunGhgSB8Pooy_y7fTLMMFtXCo/edit?usp=sharing">Contact</a>
+                        <a className="nav-link" href="mailto:ayomideadekoya266@gmail.com">Contact</a>
                     </li>
                     <li>
                         <h3>|</h3>

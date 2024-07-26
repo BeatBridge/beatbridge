@@ -79,7 +79,7 @@ function SignUp({ setJWT }) {
             </div>
 
             <div className='row mt-4'>
-                <div className='col-md-6 col-lg-4 mx-auto'>
+                <div className='col-md-6 col-lg-4 mx-auto signup-form-container'>
                     <h5 className="welcome1">Be a part of the family!</h5>
                     <h6 className="welcome2">
                         Already a member? <Link to='/login' className="redirect">Login</Link>

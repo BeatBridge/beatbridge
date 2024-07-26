@@ -68,7 +68,7 @@ function ListenerDashboard({
         </div>
         <div className="l-discover-artist-container">
           {loadingArtists ? (
-            <ShimmerLoader type="artist" count={ARTIST_BATCH_SIZE} />
+            <ShimmerLoader type="artist" count={ARTIST_BATCH_SIZE} className="ld-shimmer" />
           ) : (
             artists.map(artist => (
               <DiscoverArtist key={artist.id} artist={artist} />

@@ -49,7 +49,7 @@ function Landing() {
                     <div className="banner-text">
                         <h1>Where you discover new artistes, genres everyday</h1>
                         <hr className='banner-hr' />
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam ratione obcaecati explicabo molestiae inventore sed neque ab nam doloremque, magni.</p>
+                        <p>Explore, Connect, and Share: Dive into a World of Independent Artists and Niche Music with Personalized Playlists, Community Recommendations, and Exclusive Artist Content.</p>
                         <Link><button className='banner-button'>Learn More</button></Link>
                     </div>
                 </section>
@@ -79,26 +79,32 @@ function Landing() {
                             <HomeFindOut
                                 genre_img={discoImg}
                                 genre_name="Disco"
+                                description="Groovy beats, smooth rhythms, dance classics"
                             />
                             <HomeFindOut
                                 genre_img={danceImg}
                                 genre_name="Dance"
+                                description="Energetic, upbeat, electronic party anthems"
                             />
                             <HomeFindOut
                                 genre_img={rockImg}
                                 genre_name="Rock"
+                                description="Raw guitars, powerful drums, strong vocals"
                             />
                             <HomeFindOut
                                 genre_img={popImg}
                                 genre_name="Pop"
+                                description="Catchy hooks, mainstream appeal, diverse styles"
                             />
                             <HomeFindOut
                                 genre_img={reggaeImg}
                                 genre_name="Reggae"
+                                description="Laid-back rhythms, Jamaican roots, peaceful vibes"
                             />
                             <HomeFindOut
                                 genre_img={hipHopImg}
                                 genre_name="Hip Hop"
+                                description="Rhythmic lyrics, beats, cultural expression"
                             />
                         </div>
                     </div>
