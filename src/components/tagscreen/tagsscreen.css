@@ -42,7 +42,7 @@
     border: 1px solid #800080;
     border-radius: 8px;
     background-color: #1F2A44;
-    position: relative; /* Add this line for positioning the trash icon */
+    position: relative;
 }
 
 .song-details h3 {

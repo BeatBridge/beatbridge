@@ -148,27 +148,10 @@ const API = {
             return { error: 'Failed to verify email' };
         }
     },
-    verifySpotify: async (token) => {
-        try {
-            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/confirm`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ token }),
-            });
-            if (!response.ok) throw new Error('Failed to verify Spotify login');
-            return await response.json();
-        } catch (error) {
-            console.error('Error verifying Spotify login:', error);
-            return { error: 'Failed to verify Spotify login' };
-        }
-    },
     sendCode: async (code, jwt) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/create-access-token`, {
+            const response = await fetch(`${backendUrlAccess}/spotify/create-access-token`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -187,7 +170,7 @@ const API = {
     getGlobalTop50: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/global-top-50`, {
+            const response = await fetch(`${backendUrlAccess}/spotify/global-top-50`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -203,7 +186,7 @@ const API = {
     getViral50Global: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/viral-50-global`, {
+            const response = await fetch(`${backendUrlAccess}/spotify/viral-50-global`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -219,7 +202,7 @@ const API = {
     searchSongs: async (query) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/search?q=${query}`, {
+            const response = await fetch(`${backendUrlAccess}/spotify/search?q=${query}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -235,7 +218,7 @@ const API = {
     createSong: async (songData) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/songs`, {
+            const response = await fetch(`${backendUrlAccess}/songs`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -254,7 +237,7 @@ const API = {
     tagSong: async (songId, tags) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/songs/${songId}/tags`, {
+            const response = await fetch(`${backendUrlAccess}/songs/${songId}/tags`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -270,34 +253,10 @@ const API = {
             return { error: 'Failed to save tags'};
         }
     },
-    getSongDetails: async (songId) => {
-        const response = await fetch(`/api/song/${songId}`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('jwt')}`
-            }
-        });
-        if (!response.ok) {
-            throw new Error('Failed to fetch song details.');
-        }
-        return response.json();
-    },
-    getLibrary: async () => {
-        const response = await fetch('/api/library', {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('jwt')}`
-            }
-        });
-        if (!response.ok) {
-            throw new Error('Failed to fetch library.');
-        }
-        return response.json();
-    },
     getFeaturedPlaylists: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/featured-playlists`, {
+            const response = await fetch(`${backendUrlAccess}/spotify/featured-playlists`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -313,7 +272,7 @@ const API = {
     getPlaylistTracks: async (playlistId) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/playlists/${playlistId}/tracks`, {
+            const response = await fetch(`${backendUrlAccess}/spotify/playlists/${playlistId}/tracks`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -329,7 +288,7 @@ const API = {
     getTrackDetails: async (trackIds) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/tracks?trackIds=${trackIds.join(',')}`, {
+            const response = await fetch(`${backendUrlAccess}/spotify/tracks?trackIds=${trackIds.join(',')}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -345,7 +304,7 @@ const API = {
     getArtistDetails: async (artistIds) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds.join(',')}`, {
+            const response = await fetch(`${backendUrlAccess}/spotify/artists?artistIds=${artistIds.join(',')}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -361,7 +320,7 @@ const API = {
     getStoredPlaylists: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/playlists`, {
+            const response = await fetch(`${backendUrlAccess}/playlist/playlists`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -377,7 +336,7 @@ const API = {
     getStoredPlaylistTracks: async (playlistId) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/playlists/${playlistId}/tracks`, {
+            const response = await fetch(`${backendUrlAccess}/playlist/playlists/${playlistId}/tracks`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -393,7 +352,7 @@ const API = {
     getGenresByLocation: async () => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/genres-by-location`, {
+            const response = await fetch(`${backendUrlAccess}/api/genres-by-location`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`
                 }
@@ -459,7 +418,7 @@ const API = {
     getLatestRecommendation: async (jwt) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/latest-recommendation`, {
+            const response = await fetch(`${backendUrlAccess}/recommendation/latest-recommendation`, {
                 headers: {
                     'Authorization': `Bearer ${jwt}`
                 }
@@ -475,7 +434,7 @@ const API = {
     generateRecommendation: async (jwt, preferences) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/generate-recommendation`, {
+            const response = await fetch(`${backendUrlAccess}/recommendation/generate-recommendation`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -494,7 +453,7 @@ const API = {
     getRecommendationHistory: async (jwt) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/recommendation-history`, {
+            const response = await fetch(`${backendUrlAccess}/recommendation/recommendation-history`, {
                 headers: {
                     'Authorization': `Bearer ${jwt}`
                 }
@@ -510,7 +469,7 @@ const API = {
     submitRecommendationFeedback: async (jwt, feedbackData) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/recommendation-feedback`, {
+            const response = await fetch(`${backendUrlAccess}/recommendation/recommendation-feedback`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -528,7 +487,7 @@ const API = {
     },
     fetchChatHistory: async () => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/chat-messages`, {
+        const response = await fetch(`${backendUrlAccess}/chat/chat-messages`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -553,7 +512,7 @@ const API = {
     },
     chatWithAI: async (prompt) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/chat-with-ai`, {
+        const response = await fetch(`${backendUrlAccess}/chat/chat-with-ai`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -571,7 +530,7 @@ const API = {
     },
     fetchTaggedSongs: async () => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/songs`, {
+        const response = await fetch(`${backendUrlAccess}/songs`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -590,7 +549,7 @@ const API = {
     },
     deleteTaggedSong: async (id) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/songs/${id}`, {
+        const response = await fetch(`${backendUrlAccess}/songs/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -610,7 +569,7 @@ const API = {
     updateSongTags: async (songId, tags) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/songs/${songId}`, {
+            const response = await fetch(`${backendUrlAccess}/songs/${songId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -630,7 +589,7 @@ const API = {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
 
         try {
-          const response = await fetch(`${backendUrlAccess}/user/spotify/artists?artistIds=${artistIds}`, {
+          const response = await fetch(`${backendUrlAccess}/spotify/artists?artistIds=${artistIds}`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
@@ -656,7 +615,7 @@ const API = {
     },
     fetchPlaylists: async () => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/playlists`, {
+        const response = await fetch(`${backendUrlAccess}/playlist/playlists`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
@@ -672,7 +631,7 @@ const API = {
     },
     fetchPlaylistFollowers: async (playlistId) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/playlist-followers/${playlistId}`, {
+        const response = await fetch(`${backendUrlAccess}/playlist/playlist-followers/${playlistId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
@@ -692,7 +651,7 @@ const API = {
             return;
         }
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/users?userId=${userId}`, {
+        const response = await fetch(`${backendUrlAccess}/api/users?userId=${userId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
@@ -705,7 +664,7 @@ const API = {
     },
     fetchDirectMessageHistory: async (userId, otherUserId) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/messages/${userId}/${otherUserId}`, {
+        const response = await fetch(`${backendUrlAccess}/message/messages/${userId}/${otherUserId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
@@ -718,7 +677,7 @@ const API = {
     },
     sendDirectMessage: async (message) => {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-        const response = await fetch(`${backendUrlAccess}/user/messages`, {
+        const response = await fetch(`${backendUrlAccess}/message/messages`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -766,7 +725,7 @@ const API = {
     searchYouTubeMusic: async (trackName, artistName) => {
         try {
             const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-            const response = await fetch(`${backendUrlAccess}/user/youtube-music/search?trackName=${encodeURIComponent(trackName)}&artistName=${encodeURIComponent(artistName)}`, {
+            const response = await fetch(`${backendUrlAccess}/yt/youtube-music/search?trackName=${encodeURIComponent(trackName)}&artistName=${encodeURIComponent(artistName)}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
@@ -784,7 +743,7 @@ const API = {
         const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
 
         try {
-          const response = await fetch(`${backendUrlAccess}/user/artists/least-popular?skip=${skip}&take=${take}`, {
+          const response = await fetch(`${backendUrlAccess}/artists/least-popular?skip=${skip}&take=${take}`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('jwt')}`,

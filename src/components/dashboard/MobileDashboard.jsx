@@ -124,7 +124,7 @@ function MobileDashboard({
       </div>
 
       <div className="mobile-content">
-        <LSearchForm onSearchResults={handleSearchResults} onSuggestionClick={handleSuggestionClick} />  {/* Add search form */}
+        <LSearchForm onSearchResults={handleSearchResults} onSuggestionClick={handleSuggestionClick} />
 
         {selectedTrack && (
           <div className="mobile-track-details">

@@ -7,7 +7,6 @@ const WSPORT = process.env.WSPORT;
 const wss = new WebSocket.Server({ port: `${WSPORT}` });
 
 wss.on('connection', (ws) => {
-    console.log('Client connected');
 
     ws.on('message', async (data) => {
         const message = JSON.parse(data);

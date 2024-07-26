@@ -335,9 +335,8 @@ async function fetchAndStoreArtistGenres() {
     }
 }
 
-// Schedule a cron job to that runs every day at 10am
-cron.schedule('0 10 * * *', async () => {
-    await fetchAndStoreFeaturedPlaylists();
-    await fetchAndStoreTracksAndArtists();
-    await fetchAndStoreArtistGenres();
-});
+module.exports = {
+    fetchAndStoreFeaturedPlaylists,
+    fetchAndStoreTracksAndArtists,
+    fetchAndStoreArtistGenres,
+};

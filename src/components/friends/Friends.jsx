@@ -36,7 +36,7 @@ function Friends() {
         ws.current = new WebSocket(`${webSocketUrlAccess}`);
 
         ws.current.onopen = () => {
-            console.log('Connected to WebSocket server');
+
         };
 
         ws.current.onmessage = (event) => {
@@ -57,7 +57,7 @@ function Friends() {
         };
 
         ws.current.onclose = () => {
-            console.log('Disconnected from WebSocket server');
+
         };
 
         return () => {

@@ -10,7 +10,7 @@ function HomeDiscover() {
         const fetchTopPlaylists = async () => {
             try {
                 const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-                const response = await fetch(`${backendUrlAccess}/user/public-top-playlists`);
+                const response = await fetch(`${backendUrlAccess}/playlist/public-top-playlists`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

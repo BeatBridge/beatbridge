@@ -1,83 +1,15 @@
+const cron = require('node-cron');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const cron = require('node-cron');
+const calculatePopularityScore = require('./calculatePopularityScore');
 
 async function calculateTrendingArtists() {
     const now = new Date();
     const oneDayAgo = new Date(now.setDate(now.getDate() - 1));
     const twoWeeksAgo = new Date(now.setDate(now.getDate() - 14));
-    const popularityWeight = 0.1;
 
-    // Fetch tagged songs from the past day
-    const recentTags = await prisma.song.findMany({
-        where: {
-            taggedAt: {
-                gte: oneDayAgo
-            }
-        },
-        include: {
-            user: true
-        }
-    });
-
-    // Fetch artist searches from the past day
-    const recentSearches = await prisma.artistSearch.findMany({
-        where: {
-            createdAt: {
-                gte: oneDayAgo
-            }
-        },
-        include: {
-            artist: true
-        }
-    });
-
-    // Calculate trending popularity score for each artist
-    const artistScores = {};
-
-    // Add tagged songs score
-    for (const tag of recentTags) {
-        const artistName = tag.artist;
-        if (!artistScores[artistName]) {
-            artistScores[artistName] = {
-                tagCount: 0,
-                popularity: 0,
-                searchCount: 0,
-                artistId: null,
-            };
-        }
-        artistScores[artistName].tagCount += 1;
-
-        const artist = await prisma.artist.findFirst({
-            where: { name: artistName }
-        });
-
-        if (artist) {
-            artistScores[artistName].popularity = artist.popularity;
-            artistScores[artistName].artistId = artist.id;
-        }
-    }
-
-    // Add search count score
-    for (const search of recentSearches) {
-        const artistName = search.artist.name;
-        if (!artistScores[artistName]) {
-            artistScores[artistName] = {
-                tagCount: 0,
-                popularity: 0,
-                searchCount: 0,
-                artistId: search.artist.id,
-            };
-        }
-        artistScores[artistName].searchCount += 1;
-    }
-
-    // Calculate popularity score
-    const dailyTrendingArtists = Object.entries(artistScores)
-        .map(([name, data]) => ({
-            artistId: data.artistId,
-            popularityScore: data.tagCount + data.searchCount + data.popularity * popularityWeight
-        }));
+    // Get the daily trending artists
+    const dailyTrendingArtists = await calculatePopularityScore();
 
     // Store daily popularity scores in the database with the current date
     for (const artist of dailyTrendingArtists) {
@@ -142,13 +74,7 @@ async function calculateTrendingArtists() {
     }
 }
 
-// Schedule a cron job to calculate trending artists every day at 10am
-cron.schedule('0 10 * * *', async () => {
-    await calculateTrendingArtists();
-});
-
-// Cleanup old records (older than 2 weeks at 11am everyday)
-cron.schedule('0 11 * * *', async () => {
+async function cleanupOldRecords() {
     const twoWeeksAgo = new Date();
     twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
     await prisma.trendingArtist.deleteMany({
@@ -158,4 +84,9 @@ cron.schedule('0 11 * * *', async () => {
             }
         }
     });
-});
+}
+
+module.exports = {
+    calculateTrendingArtists,
+    cleanupOldRecords
+};

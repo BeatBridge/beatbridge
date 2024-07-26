@@ -73,8 +73,6 @@ async function updateArtistImages() {
     }
 }
 
-cron.schedule('0 11 * * *', async () => {
-    console.log('Running artist image update job...');
-    await updateArtistImages();
-    console.log('Job completed')
-});
+module.exports = {
+    updateArtistImages,
+};

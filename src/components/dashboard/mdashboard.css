@@ -40,7 +40,7 @@
 }
 
 .mobile-menu {
-    display: none; /* Hidden by default */
+    display: none;
     flex-direction: column;
     position: fixed;
     top: 0;
