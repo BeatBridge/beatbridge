@@ -15,6 +15,7 @@
 - [Setup](#setup)
 - [Features](#features)
 - [Future Work](#future-work)
+- [Author](#author)
 
 ## Introduction
 
@@ -354,7 +355,7 @@ model DirectMessage {
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/beatbridge.git
+   git clone https://github.com/BeatBridge/beatbridge.git
    cd beatbridge
    ```
 
@@ -417,3 +418,7 @@ model DirectMessage {
 - **Social Features**: Add more social features like following other users and sharing playlists.
 - **Live Events**: Integrate live music events and concerts into the platform.
 - **Additional Music Services**: Expand integration to other music streaming services beyond Spotify.
+
+## Author
+
+Developed with ❤️ by [Ayomide Caleb Adekoya](https://github.com/elcruzo)
