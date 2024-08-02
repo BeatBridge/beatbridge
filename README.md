@@ -19,7 +19,7 @@
 
 ## Introduction
 
-BeatBridge is a music discovery application that combines the power of user experience and AI to recommend music based on user interactions. Developed as part of the Meta University Program's curriculum, BeatBridge offers a comprehensive suite of features for music enthusiasts to explore underground artists, tag, and share music. The app integrates securely with Spotify and provides a range of functionalities including real-time chat with other users, interactive music tagging, and AI-driven music recommendations.
+BeatBridge is a music discovery application that combines the power of user experience and AI to recommend artists based on user interactions. Developed as part of the Meta University Program's curriculum, BeatBridge offers a comprehensive suite of features for music enthusiasts to explore underground artists, tag, and share music. The app integrates securely with Spotify and provides a range of functionalities including real-time chat with other users, interactive music tagging, and AI-driven music recommendations.
 
 ## Problem Statement
 
